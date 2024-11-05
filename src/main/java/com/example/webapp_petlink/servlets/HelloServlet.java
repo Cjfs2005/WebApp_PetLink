@@ -1,4 +1,4 @@
-package com.example.webapp_petlink;
+package com.example.webapp_petlink.servlets;
 
 import java.io.*;
 import jakarta.servlet.http.*;
