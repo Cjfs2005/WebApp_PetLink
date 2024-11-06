@@ -1,5 +1,8 @@
 package com.example.webapp_petlink.beans;
 
+
+import java.util.Date;
+
 public class DenunciaMaltratoAnimal {
     private int idDenunciaMaltratoAnimal;
     private String nombreFotoAnimal;
