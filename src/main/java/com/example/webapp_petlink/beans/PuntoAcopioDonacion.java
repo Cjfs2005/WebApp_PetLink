@@ -6,4 +6,29 @@ public class PuntoAcopioDonacion {
     private PuntoAcopio puntoAcopio;
 
     // Getters y Setters
+
+
+    public int getIdPuntoAcopioDonacion() {
+        return idPuntoAcopioDonacion;
+    }
+
+    public void setIdPuntoAcopioDonacion(int idPuntoAcopioDonacion) {
+        this.idPuntoAcopioDonacion = idPuntoAcopioDonacion;
+    }
+
+    public SolicitudDonacionProductos getSolicitudDonacionProductos() {
+        return solicitudDonacionProductos;
+    }
+
+    public void setSolicitudDonacionProductos(SolicitudDonacionProductos solicitudDonacionProductos) {
+        this.solicitudDonacionProductos = solicitudDonacionProductos;
+    }
+
+    public PuntoAcopio getPuntoAcopio() {
+        return puntoAcopio;
+    }
+
+    public void setPuntoAcopio(PuntoAcopio puntoAcopio) {
+        this.puntoAcopio = puntoAcopio;
+    }
 }
