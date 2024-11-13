@@ -9,7 +9,7 @@ public class PublicacionMascotaAdopcion {
     private String descripcionMascota;
     private String edadAproximada;
     private String generoMascota;
-    private String fotoMascota;
+    private byte[] fotoMascota;
     private String nombreFotoMascota;
     private boolean estaEnTemporal;
     private String condicionesAdopcion;
@@ -71,11 +71,11 @@ public class PublicacionMascotaAdopcion {
         this.generoMascota = generoMascota;
     }
 
-    public String getFotoMascota() {
+    public byte[] getFotoMascota() {
         return fotoMascota;
     }
 
-    public void setFotoMascota(String fotoMascota) {
+    public void setFotoMascota(byte[] fotoMascota) {
         this.fotoMascota = fotoMascota;
     }
 
