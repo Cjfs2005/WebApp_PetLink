@@ -16,11 +16,11 @@
   <title>PetLink</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/css/main.css" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/css/aditional.css" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/css/ola2.css" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/css/popup-window.css" />
-  <link rel="icon" href="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/images/favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/main.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/aditional.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/ola2.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/popup-window.css" />
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
 </head>
 <body class="is-preload">
 
@@ -33,13 +33,13 @@
 
       <!-- Header -->
       <header id="header">
-        <img src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/images/perfil_logo.png" class="icons">
+        <img src="${pageContext.request.contextPath}/usuarioFinal/images/perfil_logo.png" class="icons">
         <h1 class="logo"><strong>Editar perfil</strong></h1>
 
         <!-- Sección para el nombre y enlace al perfil -->
         <a href="perfil_usuario.html" class="user-profile">
           <span class="ocultar"><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></span>
-          <img src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/images/foto_perfil.jpg" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+          <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
         </a>
       </header>
 
@@ -47,7 +47,7 @@
       <section class="banner">
         <div class="content">
           <header>
-            <img src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/images/form.png" class="icons">
+            <img src="${pageContext.request.contextPath}/usuarioFinal/images/form.png" class="icons">
             <h2>Datos del usuario</h2>
           </header>
           <form action="PerfilUsuarioServlet?accion=actualizar" method="post" style="margin-bottom: 0;">
@@ -103,7 +103,7 @@
 
       <!-- Logo -->
       <section class="alt" id="sidebar-header">
-        <img src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/images/favicon.png" alt="Logo" id="sidebar-icon">
+        <img src="${pageContext.request.contextPath}/usuarioFinal/images/favicon.png" alt="Logo" id="sidebar-icon">
         <p id="sidebar-title">PetLink</p>
       </section>
 
@@ -111,7 +111,7 @@
       <section class="perfil">
         <div class="mini-posts">
           <article>
-            <img src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/images/foto_perfil.jpg" alt="" id="image-perfil">
+            <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" alt="" id="image-perfil">
             <h2 id="usuario"><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></h2>
           </article>
         </div>
@@ -152,11 +152,11 @@
 </div>
 
 <!-- Scripts -->
-<script src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/js/jquery.min.js"></script>
-<script src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/js/browser.min.js"></script>
-<script src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/js/breakpoints.min.js"></script>
-<script src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/js/util.js"></script>
-<script src="<%=request.getContextPath()%>/EditarPerfilUsuario_Files/assets/js/main.js"></script>
+<script src="${pageContext.request.contextPath}/usuarioFinal/assets/js/jquery.min.js"></script>
+<script src="${pageContext.request.contextPath}/usuarioFinal/assets/js/browser.min.js"></script>
+<script src="${pageContext.request.contextPath}/usuarioFinal/assets/js/breakpoints.min.js"></script>
+<script src="${pageContext.request.contextPath}/usuarioFinal/assets/js/util.js"></script>
+<script src="${pageContext.request.contextPath}/usuarioFinal/assets/js/main.js"></script>
 
 <!-- Modal -->
 <div id="modal" class="modal">
