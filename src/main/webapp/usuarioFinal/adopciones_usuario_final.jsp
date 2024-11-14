@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/main.css" />
     <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/aditional.css">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/popup-window.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/ola2.css" />
     <script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/pagination.js"></script>
     <link rel="icon" href="images/favicon.png" type="image/x-icon">
 </head>
@@ -107,6 +108,8 @@
         </div>
     </div>
 
+    <!-- Sidebar Start -->
+
     <!-- Sidebar -->
     <div id="sidebar">
         <div class="inner">
@@ -163,14 +166,16 @@
         </div>
     </div>
 
+    <!-- Sidebar End -->
+
 </div>
 
 <!-- Scripts -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/browser.min.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/breakpoints.min.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/util.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/main.js"></script>
 
 <!-- Añadido por Gianfranco -->
 <!-- Modal -->
