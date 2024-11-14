@@ -1,5 +1,7 @@
 <%@ page import="java.time.LocalDateTime" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.example.webapp_petlink.beans.SolicitudDonacionEconomica" %>
 
 <!DOCTYPE HTML>
 <html>
@@ -8,7 +10,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 
-    <!-- Bootstrap y DataTables -->
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/aditional.css">
@@ -37,43 +38,10 @@
                 <!-- Sección para el nombre y enlace al perfil -->
                 <a href="perfil.html" class="user-profile">
                     <span class="ocultar">Huellitas PUCP</span>
-                    <img src="images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
+                    <img src="images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
                 </a>
             </header>
 
-            <!-- Barra de navegación -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#">PetLink</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="ListaSolicitudesDonacionEconomica.jsp">Donaciones Económicas</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="ListaSolicitudesDonacionProductos.jsp">Donaciones de Productos</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="EventoBenefico.html">Eventos Benéficos</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="adopciones.html">Adopciones</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="perfil.html">Perfil</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="logout.html">Cerrar Sesión</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- Sección de botones para acciones -->
             <section style="margin: 0; margin-top: 20px; padding: 0; height: auto; display: flex; align-items: center;">
                 <ul class="actions" style="list-style: none; margin: 0; padding: 0;">
                     <li style="display: inline; padding-left: 0;">
@@ -84,13 +52,12 @@
                 </ul>
             </section>
 
-            <!-- Sección para las opciones de colectas -->
             <section class="seccionPrueba" style="background-color: transparent !important; flex-wrap: wrap; gap:20px; justify-content: space-evenly;">
                 <a href="#"><strong>Colectas de fondos</strong></a>
                 <a href="donaciones_productos.html">Colectas de productos</a>
             </section>
 
-            <!-- Tabla de Solicitudes de Donación Económica -->
+            <!-- Banner -->
             <section class="banner">
                 <div class="content">
                     <div class="table-responsive">
@@ -106,12 +73,13 @@
                             </thead>
                             <tbody>
                             <%
-                                // Recuperamos la lista de solicitudes de donación económica del servlet
-                                List<SolicitudDonacionEconomica> listaSolicitudes = (List<SolicitudDonacionEconomica>) request.getAttribute("solicitudes");
+                                // Recuperamos la lista de solicitudes de donación económica desde el servlet
+                                List<SolicitudDonacionEconomica> solicitudes = (List<SolicitudDonacionEconomica>) request.getAttribute("solicitudes");
                                 // Creamos un formateador para la fecha
                                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
                                 // Iteramos sobre las solicitudes y mostramos los datos en la tabla
-                                for (SolicitudDonacionEconomica solicitud : listaSolicitudes) {
+                                for (SolicitudDonacionEconomica solicitud : solicitudes) {
                                     String fechaRegistro = "";
                                     String estado = solicitud.getEstado().getNombre_estado();
 
@@ -132,15 +100,64 @@
                                     </ul>
                                 </td>
                             </tr>
-                            <% } %>
+                            <%
+                                }
+                            %>
                             </tbody>
                         </table>
                         <script>
-                            new DataTable('#example'); // Inicializamos DataTable
+                            new DataTable('#example');
                         </script>
                     </div>
                 </div>
             </section>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="inner">
+
+            <!-- Logo -->
+            <section class="alt" id="sidebar-header">
+                <img src="images/favicon.png" alt="Logo" id="sidebar-icon">
+                <p id="sidebar-title">PetLink</p>
+            </section>
+
+            <!-- Perfil -->
+            <section class="perfil">
+                <div class="mini-posts">
+                    <article>
+                        <img src="images/logo_huellitas.png" alt="" id="image-perfil">
+                        <h2 id="usuario">HUELLITAS PUCP</h2>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Menu -->
+            <nav id="menu">
+                <header class="major">
+                    <h2>Menu</h2>
+                </header>
+                <ul>
+                    <li><a href="perfil.html">Perfil</a></li>
+                    <li>
+                        <span class="opener">Publicaciones</span>
+                        <ul>
+                            <li><a href="EventoBenefico.html">Eventos benéficos</a></li>
+                            <li><a href="adopciones.html">Adopciones</a></li>
+                            <li><a href="donaciones.html">Donaciones</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="hogar_temporal.html">Hogar Temporal</a></li>
+                </ul>
+            </nav>
+
+            <!-- Logout -->
+            <nav id="logout">
+                <a href="#" id="cerrar-sesion">Cerrar Sesión</a>
+            </nav>
+
         </div>
     </div>
 
