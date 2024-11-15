@@ -36,8 +36,6 @@ public class TemporalUsuarioServlet extends HttpServlet {
                         boolean esBaneado = hogarTemporalDao.isUsuarioBaneado(idUsuario);
 
                         if (usuario != null) {
-                            request.setAttribute("usuario", usuario);
-                            request.setAttribute("esBaneado", esBaneado);
 
                             // Verificar si el usuario está habilitado y tiene una última postulación
                             if (usuario.getUltima_postulacion_hogar_temporal() != null &&
@@ -46,6 +44,13 @@ public class TemporalUsuarioServlet extends HttpServlet {
 
                                 ArrayList<SolicitudHogarTemporal> solicitudes = hogarTemporalDao.obtenerSolicitudesPorPostulacion(usuario.getUltima_postulacion_hogar_temporal());
                                 request.setAttribute("solicitudes", solicitudes);
+                                esBaneado = hogarTemporalDao.isUsuarioBaneado(idUsuario);
+                                request.setAttribute("esBaneado", esBaneado);
+                                usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
+                                request.setAttribute("usuario", usuario);
+                            } else{
+                                request.setAttribute("esBaneado", esBaneado);
+                                request.setAttribute("usuario", usuario);
                             }
 
                             view = request.getRequestDispatcher("usuarioFinal/Hogar_temporal.jsp");
@@ -96,7 +101,7 @@ public class TemporalUsuarioServlet extends HttpServlet {
             case "aceptarSolicitud":
                 if(idUsuarioParam != null) {
                     int idUsuario = Integer.parseInt(idUsuarioParam);
-                    String idSolicitudParam = request.getParameter("id_usuario");
+                    String idSolicitudParam = request.getParameter("id_solicitud");
                     int idSolicitud = Integer.parseInt(idSolicitudParam);
                     hogarTemporalDao.aceptarSolicitud(idSolicitud);
                     response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
@@ -105,30 +110,28 @@ public class TemporalUsuarioServlet extends HttpServlet {
             case "rechazarSolicitud":
                 if(idUsuarioParam != null) {
                     int idUsuario = Integer.parseInt(idUsuarioParam);
-                    String idSolicitudParam = request.getParameter("id_usuario");
+                    String idSolicitudParam = request.getParameter("id_solicitud");
                     int idSolicitud = Integer.parseInt(idSolicitudParam);
                     hogarTemporalDao.rechazarSolicitud(idSolicitud);
                     response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
                 }
-                break;
-            default:
-                response.sendRedirect(request.getContextPath() + "/error.jsp");
                 break;
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8"); // Para asegurarse de que se maneje la codificación de entrada correctamente
+        request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action") == null ? "listar" : request.getParameter("action");
         HogarTemporalDao hogarTemporalDao = new HogarTemporalDao();
         String idUsuarioParam = request.getParameter("id_usuario");
 
         if ("postular".equals(action)) {
-            PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
             int idUsuario = Integer.parseInt(idUsuarioParam);
             Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
+
+            PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
             postulacion.setUsuario_final(usuario);
             postulacion.setEdad_usuario(request.getParameter("edad"));
             postulacion.setGenero_usuario(request.getParameter("genero"));
@@ -144,20 +147,20 @@ public class TemporalUsuarioServlet extends HttpServlet {
             postulacion.setCelular_persona_referencia(request.getParameter("numeroRef"));
             postulacion.setFecha_inicio_temporal(LocalDate.parse(request.getParameter("fechaInicio")));
             postulacion.setFecha_fin_temporal(LocalDate.parse(request.getParameter("fechaFin")));
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            postulacion.setFecha_hora_registro(currentDateTime);
+            postulacion.setFecha_hora_registro(LocalDateTime.now());
             postulacion.setCantidad_rechazos_consecutivos(0);
+
             Estado estado = new Estado();
-            estado.setId_estado(1);
+            estado.setId_estado(1); // Estado inicial: Pendiente
             postulacion.setEstado(estado);
             postulacion.setLlamo_al_postulante(false);
             postulacion.setFecha_visita(null);
 
             hogarTemporalDao.guardarNuevaPostulacion(postulacion);
             hogarTemporalDao.actualizarUltimaPostulacionUsuario(postulacion.getUsuario_final());
+
             int idUltimaPostulacion = hogarTemporalDao.obtenerIdUltimaPostulacionUsuario(idUsuario);
 
-            // Procesar y guardar archivos de la postulación
             for (Part filePart : request.getParts()) {
                 if (filePart.getName().equals("archivo") && filePart.getSize() > 0) {
                     String fileName = filePart.getSubmittedFileName();
@@ -165,13 +168,15 @@ public class TemporalUsuarioServlet extends HttpServlet {
                     hogarTemporalDao.guardarFotoPostulacion(idUltimaPostulacion, fileContent, fileName);
                 }
             }
+
             response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
 
         } else if ("modificar".equals(action)) {
-            PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
-            postulacion.setId_postulacion_hogar_temporal(Integer.parseInt(request.getParameter("id_postulacion")));
             int idUsuario = Integer.parseInt(idUsuarioParam);
             Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
+
+            PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
+            postulacion.setId_postulacion_hogar_temporal(Integer.parseInt(request.getParameter("id_postulacion")));
             postulacion.setUsuario_final(usuario);
             postulacion.setEdad_usuario(request.getParameter("edad"));
             postulacion.setGenero_usuario(request.getParameter("genero"));
@@ -187,18 +192,18 @@ public class TemporalUsuarioServlet extends HttpServlet {
             postulacion.setCelular_persona_referencia(request.getParameter("numeroRef"));
             postulacion.setFecha_inicio_temporal(LocalDate.parse(request.getParameter("fechaInicio")));
             postulacion.setFecha_fin_temporal(LocalDate.parse(request.getParameter("fechaFin")));
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            postulacion.setFecha_hora_registro(currentDateTime);
+            postulacion.setFecha_hora_registro(LocalDateTime.now());
             postulacion.setCantidad_rechazos_consecutivos(0);
+
             Estado estado = new Estado();
-            estado.setId_estado(1);
+            estado.setId_estado(1); // Estado inicial: Pendiente
             postulacion.setEstado(estado);
             postulacion.setLlamo_al_postulante(false);
             postulacion.setFecha_visita(null);
 
             hogarTemporalDao.modificarPostulacion(postulacion);
+
             response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
         }
-
     }
 }

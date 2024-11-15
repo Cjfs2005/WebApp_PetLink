@@ -9,6 +9,7 @@ import com.example.webapp_petlink.beans.SolicitudHogarTemporal;
 import com.example.webapp_petlink.beans.Estado;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.sql.Timestamp;
@@ -89,7 +90,8 @@ public class HogarTemporalDao extends DaoBase {
                 "FROM SolicitudHogarTemporal s " +
                 "LEFT JOIN usuario u ON s.id_usuario_albergue = u.id_usuario " +
                 "LEFT JOIN estado e ON s.id_estado = e.id_estado " +
-                "WHERE s.id_postulacion_hogar_temporal = ?";
+                "WHERE s.id_postulacion_hogar_temporal = ? " +
+                "ORDER BY s.id_solicitud_hogar_temporal DESC;";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -99,39 +101,62 @@ public class HogarTemporalDao extends DaoBase {
                 LocalDate today = LocalDate.now();
 
                 while (rs.next()) {
+                    int idEstado = rs.getInt("estado_id");
                     Date fechaInicio = rs.getDate("fecha_inicio");
+                    SolicitudHogarTemporal solicitud = new SolicitudHogarTemporal();
+                    solicitud.setIdSolicitudHogarTemporal(rs.getInt("id_solicitud_hogar_temporal"));
+                    solicitud.setNombreMascota(rs.getString("nombre_mascota"));
+                    solicitud.setDescripcionMascota(rs.getString("descripcion_mascota"));
+                    solicitud.setFechaInicio(fechaInicio);
+                    solicitud.setFechaFin(rs.getDate("fecha_fin"));
+                    solicitud.setNombreFotoMascota(rs.getString("nombre_foto_mascota"));
+                    solicitud.setFotoMascota(rs.getString("foto_mascota"));
+                    solicitud.setPostulacionHogarTemporal(postulacion);
 
-                    // Verificar si la fecha de inicio es al menos un día después de la fecha actual
-                    if (fechaInicio != null && fechaInicio.toLocalDate().isAfter(today)) {
-                        SolicitudHogarTemporal solicitud = new SolicitudHogarTemporal();
-                        solicitud.setIdSolicitudHogarTemporal(rs.getInt("id_solicitud_hogar_temporal"));
-                        solicitud.setNombreMascota(rs.getString("nombre_mascota"));
-                        solicitud.setDescripcionMascota(rs.getString("descripcion_mascota"));
-                        solicitud.setFechaInicio(fechaInicio);
-                        solicitud.setFechaFin(rs.getDate("fecha_fin"));
-                        solicitud.setNombreFotoMascota(rs.getString("nombre_foto_mascota"));
-                        solicitud.setFotoMascota(rs.getString("foto_mascota"));
+                    // Obtener y asignar el usuario albergue con solo los datos básicos
+                    Usuario usuarioAlbergue = fetchUsuarioAlbergueData(rs);
+                    solicitud.setUsuarioAlbergue(usuarioAlbergue);
 
-                        // Asignar la postulación
-                        solicitud.setPostulacionHogarTemporal(postulacion);
+                    // Obtener y asignar el estado
+                    Estado estado = fetchEstadoData(idEstado);
+                    solicitud.setEstado(estado);
 
-                        // Obtener y asignar el usuario albergue con solo los datos básicos
-                        Usuario usuarioAlbergue = fetchUsuarioAlbergueData(rs);
-                        solicitud.setUsuarioAlbergue(usuarioAlbergue);
-
-                        // Obtener y asignar el estado
-                        int estadoId = rs.getInt("estado_id");
-                        Estado estado = fetchEstadoData(estadoId);
+                    // Validar si la solicitud está pendiente y la fecha ya pasó o es hoy
+                    if (idEstado == 1 && (fechaInicio == null || !fechaInicio.toLocalDate().isAfter(today))) {
+                        rechazarSolicitud(solicitud.getIdSolicitudHogarTemporal());
+                        estado = fetchEstadoData(3);
                         solicitud.setEstado(estado);
-
-                        solicitudes.add(solicitud);
                     }
+
+                    solicitudes.add(solicitud);
                 }
+            }
+
+            // Validar rechazos consecutivos para el postulante
+            if (postulacion.getCantidad_rechazos_consecutivos() >= 3) {
+                banearHogarTemporal(postulacion.getUsuario_final().getId_usuario());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return solicitudes;
+    }
+
+    public void banearHogarTemporal(int idUsuario) {
+        String sql = "INSERT INTO BaneoHogarTemporal (motivo, fecha_hora_registro, id_usuario_final, tipo_de_baneo) " +
+                "VALUES (?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "Realizó 3 rechazos consecutivos");
+            pstmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            pstmt.setInt(3, idUsuario);
+            pstmt.setInt(4, 0);//0 para baneos automáticos y 1 para baneos manuales
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Usuario fetchUsuarioData(ResultSet rs) throws SQLException {
@@ -227,6 +252,7 @@ public class HogarTemporalDao extends DaoBase {
             postulacion.setFecha_hora_registro(rs.getTimestamp("fecha_hora_registro") != null ?
                     rs.getTimestamp("fecha_hora_registro").toLocalDateTime() : null);
             postulacion.setCantidad_rechazos_consecutivos(rs.getInt("cantidad_rechazos_consecutivos"));
+            postulacion.setUsuario_final(usuario);
 
             // Asignar el objeto Estado a la PostulacionHogarTemporal usando fetchEstadoData si no es null
             if (rs.getObject("estado_id") != null) {
@@ -462,23 +488,60 @@ public class HogarTemporalDao extends DaoBase {
         return hogaresDisponibles;
     }
     public void aceptarSolicitud(int idSolicitud) {
-        String sql = "UPDATE SolicitudHogarTemporal SET id_estado = ? WHERE id_solicitud_hogar_temporal = ?";
+        String updateSolicitudSql = "UPDATE SolicitudHogarTemporal SET id_estado = ? WHERE id_solicitud_hogar_temporal = ?";
+        String selectPostulacionSql = "SELECT id_postulacion_hogar_temporal FROM SolicitudHogarTemporal WHERE id_solicitud_hogar_temporal = ?";
+        String updatePostulacionSql = "UPDATE PostulacionHogarTemporal SET cantidad_rechazos_consecutivos = 0 WHERE id_postulacion_hogar_temporal = ?";
 
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        PreparedStatement pstmtSolicitud = null;
+        PreparedStatement pstmtSelectPostulacion = null;
+        PreparedStatement pstmtUpdatePostulacion = null;
+        ResultSet rs = null;
 
-            // Suponiendo que el estado "Aprobado" tiene un ID de 2
-            pstmt.setInt(1, 2); // Ajustar si el ID es diferente
-            pstmt.setInt(2, idSolicitud);
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // Iniciar transacción
 
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Solicitud con ID " + idSolicitud + " aceptada correctamente.");
-            } else {
-                System.out.println("No se encontró ninguna solicitud con ID " + idSolicitud + " para aceptar.");
+            // Paso 1: Actualizar el estado de la solicitud a "Aprobado"
+            pstmtSolicitud = conn.prepareStatement(updateSolicitudSql);
+            pstmtSolicitud.setInt(1, 2); // Estado "Aprobado" (ID=2)
+            pstmtSolicitud.setInt(2, idSolicitud);
+            pstmtSolicitud.executeUpdate();
+
+            // Paso 2: Obtener el id_postulacion_hogar_temporal de la solicitud aceptada
+            pstmtSelectPostulacion = conn.prepareStatement(selectPostulacionSql);
+            pstmtSelectPostulacion.setInt(1, idSolicitud);
+            rs = pstmtSelectPostulacion.executeQuery();
+
+            if (rs.next()) {
+                int idPostulacion = rs.getInt("id_postulacion_hogar_temporal");
+
+                // Paso 3: Establecer la cantidad de rechazos consecutivos en 0
+                pstmtUpdatePostulacion = conn.prepareStatement(updatePostulacionSql);
+                pstmtUpdatePostulacion.setInt(1, idPostulacion);
+                pstmtUpdatePostulacion.executeUpdate();
             }
+
+            conn.commit(); // Confirmar transacción
         } catch (SQLException e) {
-            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Revertir cambios en caso de error
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmtSolicitud != null) pstmtSolicitud.close();
+                if (pstmtSelectPostulacion != null) pstmtSelectPostulacion.close();
+                if (pstmtUpdatePostulacion != null) pstmtUpdatePostulacion.close();
+                if (conn != null) conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
