@@ -16,11 +16,11 @@
   <title>PetLink</title>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/main.css" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/aditional.css" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/ola2.css" />
-  <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/popup-window.css" />
-  <link rel="icon" href="<%=request.getContextPath()%>/usuarioFinal/images/favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/main.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/aditional.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/ola2.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/popup-window.css" />
+  <link rel="icon" href="${pageContext.request.contextPath}/usuarioFinal/images/favicon.png" type="image/x-icon">
 </head>
 <body class="is-preload">
 
@@ -31,12 +31,12 @@
     <div class="inner">
       <!-- Header -->
       <header id="header">
-        <img src="images/perfil_logo.png" class="icons">
+        <img src="${pageContext.request.contextPath}/usuarioFinal/images/perfil_logo.png" class="icons">
         <h1 class="logo"><strong>MI PERFIL</strong></h1>
         <!-- Sección para el nombre y enlace al perfil -->
         <a href="perfil_usuario.html" class="user-profile">
           <span class="ocultar"><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></span>
-          <img src="images/foto_perfil.jpg" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+          <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
         </a>
       </header>
 
@@ -45,7 +45,7 @@
         <div class="content">
           <div class="perfil-info">
             <div class="left-section">
-              <img src="images/foto_perfil.jpg" alt="Foto de perfil">
+              <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" alt="Foto de perfil">
             </div>
             <div class="central-section">
               <h2><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></h2>
@@ -129,7 +129,7 @@
       <section class="perfil">
         <div class="mini-posts">
           <article>
-            <img src="images/foto_perfil.jpg" alt="" id="image-perfil">
+            <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" alt="" id="image-perfil">
             <h2 id="usuario"><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></h2>
           </article>
         </div>
