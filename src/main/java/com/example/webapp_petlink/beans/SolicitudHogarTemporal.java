@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class SolicitudHogarTemporal {
     private int idSolicitudHogarTemporal;
-    private String fotoMascota;
+    private byte[] fotoMascota;
     private String nombreFotoMascota;
     private String nombreMascota;
     private String descripcionMascota;
@@ -26,11 +26,11 @@ public class SolicitudHogarTemporal {
         this.idSolicitudHogarTemporal = idSolicitudHogarTemporal;
     }
 
-    public String getFotoMascota() {
+    public byte[] getFotoMascota() {
         return fotoMascota;
     }
 
-    public void setFotoMascota(String fotoMascota) {
+    public void setFotoMascota(byte[] fotoMascota) {
         this.fotoMascota = fotoMascota;
     }
 

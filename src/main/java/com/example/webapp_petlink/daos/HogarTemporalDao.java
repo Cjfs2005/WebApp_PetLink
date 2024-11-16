@@ -110,7 +110,10 @@ public class HogarTemporalDao extends DaoBase {
                     solicitud.setFechaInicio(fechaInicio);
                     solicitud.setFechaFin(rs.getDate("fecha_fin"));
                     solicitud.setNombreFotoMascota(rs.getString("nombre_foto_mascota"));
-                    solicitud.setFotoMascota(rs.getString("foto_mascota"));
+                    byte[] fotoMascota = rs.getBytes("foto_mascota");
+                    if (fotoMascota != null) {
+                        solicitud.setFotoMascota(fotoMascota);
+                    }
                     solicitud.setPostulacionHogarTemporal(postulacion);
 
                     // Obtener y asignar el usuario albergue con solo los datos básicos
@@ -162,48 +165,48 @@ public class HogarTemporalDao extends DaoBase {
     private Usuario fetchUsuarioData(ResultSet rs) throws SQLException {
         Usuario usuario = new Usuario();
 
-        // Asignación de datos del Usuario
+        // Asignación de datos del Usuario con validación
         usuario.setId_usuario(rs.getInt("id_usuario"));
-        usuario.setDni(rs.getString("dni"));
-        usuario.setNombres_usuario_final(rs.getString("nombres_usuario_final"));
-        usuario.setApellidos_usuario_final(rs.getString("apellidos_usuario_final"));
-        usuario.setDireccion(rs.getString("direccion"));
-        usuario.setCorreo_electronico(rs.getString("correo_electronico"));
-        usuario.setFoto_perfil(rs.getBytes("foto_perfil"));
-        usuario.setNombre_foto_perfil(rs.getString("nombre_foto_perfil"));
-        usuario.setContrasenia(rs.getString("contrasenia"));
-        usuario.setEs_contrasenia_temporal(rs.getBoolean("es_contrasenia_temporal"));
-        usuario.setFecha_hora_expiracion_contrasenia(rs.getTimestamp("fecha_hora_expiracion_contrasenia") != null ?
-                rs.getTimestamp("fecha_hora_expiracion_contrasenia").toLocalDateTime() : null);
-        usuario.setEs_primera_contrasenia_temporal(rs.getBoolean("es_primera_contrasenia_temporal"));
-        usuario.setEs_usuario_activo(rs.getBoolean("es_usuario_activo"));
-        usuario.setFecha_hora_creacion(rs.getTimestamp("fecha_hora_creacion") != null ?
-                rs.getTimestamp("fecha_hora_creacion").toLocalDateTime() : null);
-        usuario.setFecha_hora_eliminacion(rs.getTimestamp("fecha_hora_eliminacion") != null ?
-                rs.getTimestamp("fecha_hora_eliminacion").toLocalDateTime() : null);
-        usuario.setNombre_albergue(rs.getString("nombre_albergue"));
-        usuario.setNombres_encargado(rs.getString("nombres_encargado"));
-        usuario.setApellidos_encargado(rs.getString("apellidos_encargado"));
-        usuario.setAnio_creacion(rs.getString("anio_creacion"));
-        usuario.setCantidad_animales(rs.getInt("cantidad_animales"));
-        usuario.setEspacio_disponible(rs.getInt("espacio_disponible"));
-        usuario.setUrl_instagram(rs.getString("url_instagram"));
-        usuario.setFoto_de_portada_albergue(rs.getBytes("foto_de_portada_albergue"));
-        usuario.setNombre_foto_de_portada(rs.getString("nombre_foto_de_portada"));
-        usuario.setLogo_albergue(rs.getBytes("logo_albergue"));
-        usuario.setNombre_logo_albergue(rs.getString("nombre_logo_albergue"));
-        usuario.setDireccion_donaciones(rs.getString("direccion_donaciones"));
-        usuario.setNombre_contacto_donaciones(rs.getString("nombre_contacto_donaciones"));
-        usuario.setNumero_contacto_donaciones(rs.getString("numero_contacto_donaciones"));
-        usuario.setNumero_yape_plin(rs.getString("numero_yape_plin"));
-        usuario.setNombre_imagen_qr(rs.getString("nombre_imagen_qr"));
-        usuario.setImagen_qr(rs.getBytes("imagen_qr"));
-        usuario.setTiene_registro_completo(rs.getBoolean("tiene_registro_completo"));
-        usuario.setNombres_coordinador(rs.getString("nombres_coordinador"));
-        usuario.setApellidos_coordinador(rs.getString("apellidos_coordinador"));
-        usuario.setFecha_nacimiento(rs.getDate("fecha_nacimiento") != null ?
-                rs.getDate("fecha_nacimiento").toLocalDate() : null);
-        usuario.setDescripcion_perfil(rs.getString("descripcion_perfil"));
+        usuario.setDni(rs.getString("dni") != null ? rs.getString("dni") : null);
+        usuario.setNombres_usuario_final(rs.getString("nombres_usuario_final") != null ? rs.getString("nombres_usuario_final") : null);
+        usuario.setApellidos_usuario_final(rs.getString("apellidos_usuario_final") != null ? rs.getString("apellidos_usuario_final") : null);
+        usuario.setDireccion(rs.getString("direccion") != null ? rs.getString("direccion") : null);
+        usuario.setCorreo_electronico(rs.getString("correo_electronico") != null ? rs.getString("correo_electronico") : null);
+        usuario.setFoto_perfil(rs.getBytes("foto_perfil") != null ? rs.getBytes("foto_perfil") : null);
+        usuario.setNombre_foto_perfil(rs.getString("nombre_foto_perfil") != null ? rs.getString("nombre_foto_perfil") : null);
+        usuario.setContrasenia(rs.getString("contrasenia") != null ? rs.getString("contrasenia") : null);
+        usuario.setEs_contrasenia_temporal(rs.getObject("es_contrasenia_temporal") != null && rs.getBoolean("es_contrasenia_temporal"));
+        usuario.setFecha_hora_expiracion_contrasenia(rs.getTimestamp("fecha_hora_expiracion_contrasenia") != null
+                ? rs.getTimestamp("fecha_hora_expiracion_contrasenia").toLocalDateTime() : null);
+        usuario.setEs_primera_contrasenia_temporal(rs.getObject("es_primera_contrasenia_temporal") != null && rs.getBoolean("es_primera_contrasenia_temporal"));
+        usuario.setEs_usuario_activo(rs.getObject("es_usuario_activo") != null && rs.getBoolean("es_usuario_activo"));
+        usuario.setFecha_hora_creacion(rs.getTimestamp("fecha_hora_creacion") != null
+                ? rs.getTimestamp("fecha_hora_creacion").toLocalDateTime() : null);
+        usuario.setFecha_hora_eliminacion(rs.getTimestamp("fecha_hora_eliminacion") != null
+                ? rs.getTimestamp("fecha_hora_eliminacion").toLocalDateTime() : null);
+        usuario.setNombre_albergue(rs.getString("nombre_albergue") != null ? rs.getString("nombre_albergue") : null);
+        usuario.setNombres_encargado(rs.getString("nombres_encargado") != null ? rs.getString("nombres_encargado") : null);
+        usuario.setApellidos_encargado(rs.getString("apellidos_encargado") != null ? rs.getString("apellidos_encargado") : null);
+        usuario.setAnio_creacion(rs.getString("anio_creacion") != null ? rs.getString("anio_creacion") : null);
+        usuario.setCantidad_animales(rs.getObject("cantidad_animales") != null ? rs.getInt("cantidad_animales") : 0);
+        usuario.setEspacio_disponible(rs.getObject("espacio_disponible") != null ? rs.getInt("espacio_disponible") : 0);
+        usuario.setUrl_instagram(rs.getString("url_instagram") != null ? rs.getString("url_instagram") : null);
+        usuario.setFoto_de_portada_albergue(rs.getBytes("foto_de_portada_albergue") != null ? rs.getBytes("foto_de_portada_albergue") : null);
+        usuario.setNombre_foto_de_portada(rs.getString("nombre_foto_de_portada") != null ? rs.getString("nombre_foto_de_portada") : null);
+        usuario.setLogo_albergue(rs.getBytes("logo_albergue") != null ? rs.getBytes("logo_albergue") : null);
+        usuario.setNombre_logo_albergue(rs.getString("nombre_logo_albergue") != null ? rs.getString("nombre_logo_albergue") : null);
+        usuario.setDireccion_donaciones(rs.getString("direccion_donaciones") != null ? rs.getString("direccion_donaciones") : null);
+        usuario.setNombre_contacto_donaciones(rs.getString("nombre_contacto_donaciones") != null ? rs.getString("nombre_contacto_donaciones") : null);
+        usuario.setNumero_contacto_donaciones(rs.getString("numero_contacto_donaciones") != null ? rs.getString("numero_contacto_donaciones") : null);
+        usuario.setNumero_yape_plin(rs.getString("numero_yape_plin") != null ? rs.getString("numero_yape_plin") : null);
+        usuario.setNombre_imagen_qr(rs.getString("nombre_imagen_qr") != null ? rs.getString("nombre_imagen_qr") : null);
+        usuario.setImagen_qr(rs.getBytes("imagen_qr") != null ? rs.getBytes("imagen_qr") : null);
+        usuario.setTiene_registro_completo(rs.getObject("tiene_registro_completo") != null && rs.getBoolean("tiene_registro_completo"));
+        usuario.setNombres_coordinador(rs.getString("nombres_coordinador") != null ? rs.getString("nombres_coordinador") : null);
+        usuario.setApellidos_coordinador(rs.getString("apellidos_coordinador") != null ? rs.getString("apellidos_coordinador") : null);
+        usuario.setFecha_nacimiento(rs.getDate("fecha_nacimiento") != null
+                ? rs.getDate("fecha_nacimiento").toLocalDate() : null);
+        usuario.setDescripcion_perfil(rs.getString("descripcion_perfil") != null ? rs.getString("descripcion_perfil") : null);
 
         // Asignación del Rol
         if (rs.getObject("id_rol") != null) {
@@ -452,40 +455,66 @@ public class HogarTemporalDao extends DaoBase {
             throw new RuntimeException(e);
         }
     }
-    public ArrayList<Usuario> obtenerHogaresTemporalesDisponibles() {
-        ArrayList<Usuario> hogaresDisponibles = new ArrayList<>();
-        String sql = "SELECT u.*, p.*, s.id_solicitud_hogar_temporal, s.id_estado, s.fecha_inicio, s.fecha_fin\n" +
-                "FROM Usuario u\n" +
-                "JOIN PostulacionHogarTemporal p ON u.id_ultima_postulacion_hogar_temporal = p.id_postulacion_hogar_temporal\n" +
-                "LEFT JOIN SolicitudHogarTemporal s ON p.id_postulacion_hogar_temporal = s.id_postulacion_hogar_temporal\n" +
-                "WHERE p.id_estado = 2\n" +
-                "AND p.fecha_fin_temporal > CURDATE()\n" +
-                "AND (\n" +
-                "    s.id_solicitud_hogar_temporal IS NULL\n" +
-                "    OR (s.id_estado = 1 AND CURDATE() > s.fecha_inicio)\n" +
-                "    OR (s.id_estado = 2 AND CURDATE() > s.fecha_fin)\n" +
-                ");";
+    public ArrayList<PostulacionHogarTemporal> obtenerHogaresTemporalesDisponibles() {
+        ArrayList<PostulacionHogarTemporal> postulacionesDisponibles = new ArrayList<>();
+
+        String sql = """
+        SELECT u.*, p.*, s.id_solicitud_hogar_temporal, s.id_estado, s.fecha_inicio, s.fecha_fin
+        FROM Usuario u
+        JOIN PostulacionHogarTemporal p ON u.id_ultima_postulacion_hogar_temporal = p.id_postulacion_hogar_temporal
+        LEFT JOIN (
+            SELECT id_postulacion_hogar_temporal, MAX(id_solicitud_hogar_temporal) AS ultima_solicitud_id
+            FROM SolicitudHogarTemporal
+            GROUP BY id_postulacion_hogar_temporal
+        ) sub ON p.id_postulacion_hogar_temporal = sub.id_postulacion_hogar_temporal
+        LEFT JOIN SolicitudHogarTemporal s ON sub.ultima_solicitud_id = s.id_solicitud_hogar_temporal
+        LEFT JOIN BaneoHogarTemporal b ON u.id_usuario = b.id_usuario_final
+        WHERE p.id_estado = 2
+          AND b.id_usuario_final IS NULL  -- Excluir usuarios baneados
+          AND (
+              s.id_solicitud_hogar_temporal IS NULL OR
+              (s.id_estado = 1 AND CURDATE() > s.fecha_inicio) OR
+              (s.id_estado = 2 AND CURDATE() > s.fecha_fin) OR
+              (s.id_estado = 3)
+          );
+        """;
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                Usuario usuario = obtenerUsuarioPorId(rs.getInt("u.id_usuario"));
-                PostulacionHogarTemporal postulacion = usuario.getUltima_postulacion_hogar_temporal();
+                PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
+                postulacion.setId_postulacion_hogar_temporal(rs.getInt("id_postulacion_hogar_temporal"));
+                postulacion.setEdad_usuario(rs.getString("edad_usuario"));
+                postulacion.setGenero_usuario(rs.getString("genero_usuario"));
+                postulacion.setCelular_usuario(rs.getString("celular_usuario"));
+                postulacion.setCantidad_cuartos(rs.getString("cantidad_cuartos"));
+                postulacion.setMetraje_vivienda(rs.getString("metraje_vivienda"));
+                postulacion.setTiene_mascotas(rs.getBoolean("tiene_mascotas"));
+                postulacion.setTipo_mascotas(rs.getString("tipo_mascotas"));
+                postulacion.setTiene_hijos(rs.getBoolean("tiene_hijos"));
+                postulacion.setTiene_dependientes(rs.getBoolean("tiene_dependientes"));
+                postulacion.setForma_trabajo(rs.getString("forma_trabajo"));
+                postulacion.setNombre_persona_referencia(rs.getString("nombre_persona_referencia"));
+                postulacion.setCelular_persona_referencia(rs.getString("celular_persona_referencia"));
+                postulacion.setFecha_inicio_temporal(rs.getDate("fecha_inicio_temporal").toLocalDate());
+                postulacion.setFecha_fin_temporal(rs.getDate("fecha_fin_temporal").toLocalDate());
+                postulacion.setFecha_hora_registro(rs.getTimestamp("fecha_hora_registro").toLocalDateTime());
 
-                if (postulacion != null) {
-                    postulacion.setFecha_inicio_temporal(rs.getDate("p.fecha_inicio_temporal").toLocalDate());
-                    postulacion.setFecha_fin_temporal(rs.getDate("p.fecha_fin_temporal").toLocalDate());
-                }
+                // Obtener usuario asociado a la postulación
+                int idUsuario = rs.getInt("id_usuario_final");
+                Usuario usuario = obtenerUsuarioPorId(idUsuario);
+                postulacion.setUsuario_final(usuario);
 
-                hogaresDisponibles.add(usuario);
+                postulacionesDisponibles.add(postulacion);
             }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return hogaresDisponibles;
+
+        return postulacionesDisponibles;
     }
     public void aceptarSolicitud(int idSolicitud) {
         String updateSolicitudSql = "UPDATE SolicitudHogarTemporal SET id_estado = ? WHERE id_solicitud_hogar_temporal = ?";
@@ -602,5 +631,145 @@ public class HogarTemporalDao extends DaoBase {
             }
         }
     }
+    public ArrayList<byte[]> obtenerFotosPorPostulacion(int idPostulacion) {
+        ArrayList<byte[]> fotos = new ArrayList<>();
+        String sql = "SELECT foto_lugar_temporal FROM FotoPostulacionHogarTemporal WHERE id_postulacion_hogar_temporal = ?";
 
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idPostulacion);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    fotos.add(rs.getBytes("foto_lugar_temporal"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return fotos;
+    }
+
+    public PostulacionHogarTemporal obtenerPostulacionPorId(int idPostulacion) {
+        PostulacionHogarTemporal postulacion = null;
+        String sql = "SELECT * FROM PostulacionHogarTemporal WHERE id_postulacion_hogar_temporal = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idPostulacion);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    postulacion = new PostulacionHogarTemporal();
+                    postulacion.setId_postulacion_hogar_temporal(rs.getInt("id_postulacion_hogar_temporal"));
+                    postulacion.setEdad_usuario(rs.getString("edad_usuario"));
+                    postulacion.setGenero_usuario(rs.getString("genero_usuario"));
+                    postulacion.setCelular_usuario(rs.getString("celular_usuario"));
+                    postulacion.setCantidad_cuartos(rs.getString("cantidad_cuartos"));
+                    postulacion.setMetraje_vivienda(rs.getString("metraje_vivienda"));
+                    postulacion.setTiene_mascotas(rs.getBoolean("tiene_mascotas"));
+                    postulacion.setTipo_mascotas(rs.getString("tipo_mascotas"));
+                    postulacion.setTiene_hijos(rs.getBoolean("tiene_hijos"));
+                    postulacion.setTiene_dependientes(rs.getBoolean("tiene_dependientes"));
+                    postulacion.setForma_trabajo(rs.getString("forma_trabajo"));
+                    postulacion.setNombre_persona_referencia(rs.getString("nombre_persona_referencia"));
+                    postulacion.setCelular_persona_referencia(rs.getString("celular_persona_referencia"));
+                    postulacion.setFecha_inicio_temporal(rs.getDate("fecha_inicio_temporal").toLocalDate());
+                    postulacion.setFecha_fin_temporal(rs.getDate("fecha_fin_temporal").toLocalDate());
+                    postulacion.setUsuario_final(obtenerUsuarioPorId(rs.getInt("id_usuario_final")));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return postulacion;
+    }
+
+    public void registrarSolicitud(SolicitudHogarTemporal solicitud) {
+        String sql = "INSERT INTO SolicitudHogarTemporal (foto_mascota, nombre_foto_mascota, nombre_mascota, descripcion_mascota, "
+                + "fecha_inicio, fecha_fin, fecha_hora_registro, id_postulacion_hogar_temporal, id_usuario_albergue, id_estado) "
+                + "VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setBytes(1, solicitud.getFotoMascota());
+            pstmt.setString(2, solicitud.getNombreFotoMascota());
+            pstmt.setString(3, solicitud.getNombreMascota());
+            pstmt.setString(4, solicitud.getDescripcionMascota());
+            pstmt.setDate(5, new java.sql.Date(solicitud.getFechaInicio().getTime()));
+            pstmt.setDate(6, new java.sql.Date(solicitud.getFechaFin().getTime()));
+            pstmt.setInt(7, solicitud.getPostulacionHogarTemporal().getId_postulacion_hogar_temporal());
+            pstmt.setInt(8, solicitud.getUsuarioAlbergue().getId_usuario());
+            pstmt.setInt(9, solicitud.getEstado().getId_estado());
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public Estado obtenerEstadoPorNombre(String nombreEstado) {
+        String sql = "SELECT * FROM Estado WHERE nombre_estado = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nombreEstado);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Estado estado = new Estado();
+                    estado.setId_estado(rs.getInt("id_estado"));
+                    estado.setNombre_estado(rs.getString("nombre_estado"));
+                    return estado;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public ArrayList<SolicitudHogarTemporal> obtenerSolicitudesRealizadas(int idUsuario) {
+        ArrayList<SolicitudHogarTemporal> solicitudes = new ArrayList<>();
+        String sql = """
+        SELECT s.*, u.id_usuario, u.nombre_albergue, e.id_estado, e.nombre_estado
+        FROM SolicitudHogarTemporal s
+        LEFT JOIN Usuario u ON s.id_usuario_albergue = u.id_usuario
+        LEFT JOIN Estado e ON s.id_estado = e.id_estado
+        WHERE u.id_usuario = ?
+        ORDER BY s.fecha_hora_registro DESC
+    """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idUsuario);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                SolicitudHogarTemporal solicitud = new SolicitudHogarTemporal();
+                solicitud.setIdSolicitudHogarTemporal(rs.getInt("id_solicitud_hogar_temporal"));
+                solicitud.setNombreMascota(rs.getString("nombre_mascota"));
+                solicitud.setDescripcionMascota(rs.getString("descripcion_mascota"));
+                solicitud.setFechaInicio(rs.getDate("fecha_inicio"));
+                solicitud.setFechaFin(rs.getDate("fecha_fin"));
+                solicitud.setFotoMascota(rs.getBytes("foto_mascota"));
+                solicitud.setNombreFotoMascota(rs.getString("nombre_foto_mascota"));
+                solicitud.setPostulacionHogarTemporal(obtenerPostulacionPorId(rs.getInt("id_postulacion_hogar_temporal")));
+                // Asociar usuario albergue
+                Usuario usuarioAlbergue = new Usuario();
+                usuarioAlbergue.setId_usuario(rs.getInt("id_usuario"));
+                usuarioAlbergue.setNombre_albergue(rs.getString("nombre_albergue"));
+                solicitud.setUsuarioAlbergue(usuarioAlbergue);
+
+                // Asociar estado
+                Estado estado = new Estado();
+                estado.setId_estado(rs.getInt("id_estado"));
+                estado.setNombre_estado(rs.getString("nombre_estado"));
+                solicitud.setEstado(estado);
+
+                solicitudes.add(solicitud);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return solicitudes;
+    }
 }

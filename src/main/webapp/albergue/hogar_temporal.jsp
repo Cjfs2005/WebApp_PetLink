@@ -8,9 +8,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="com.example.webapp_petlink.beans.Usuario" %>
-
+<%@ page import="java.util.Base64" %>
+<%@ page import="com.example.webapp_petlink.beans.PostulacionHogarTemporal" %>
 <!DOCTYPE HTML>
-<html>
+<html lang="es">
 <head>
     <title>PetLink - Hogares Temporales Disponibles</title>
     <meta charset="utf-8" />
@@ -34,16 +35,34 @@
         <div class="inner">
             <header id="header">
                 <img src="<%=request.getContextPath()%>/albergue/images/logo_hogarTemporal.png" class="icons">
-                <h1 class="logo"><strong>HOGARES TEMPORALES DISPONIBLES</strong></h1>
+                <h1 class="logo"><strong>HOGAR TEMPORAL</strong></h1>
+                <%
+                    Usuario albergue = (Usuario) request.getAttribute("usuario");
+                    String fotoPerfilBase64 = "";
+                    if (albergue != null && albergue.getFoto_perfil() != null) {
+                        fotoPerfilBase64 = Base64 .getEncoder().encodeToString(albergue.getFoto_perfil());
+                    }
+                %>
                 <a href="perfil.html" class="user-profile">
-                    <span class="ocultar">Huellitas PUCP</span>
-                    <img src="<%=request.getContextPath()%>/albergue/images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
+                    <span class="ocultar"><%= albergue.getNombre_albergue() != null ? albergue.getNombre_albergue() : "Nombre no disponible" %></span>
+                    <% if (!fotoPerfilBase64.isEmpty()) { %>
+                    <img src="data:image/png;base64,<%= fotoPerfilBase64 %>"
+                         style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
+                    <% } else { %>
+                    <img src="<%=request.getContextPath()%>/albergue/images/default_profile.png"
+                         style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
+                    <% } %>
                 </a>
             </header>
 
+            <section class="seccionPrueba" style="background-color: transparent !important; flex-wrap: wrap; gap:20px; justify-content: space-evenly;">
+                <a href="TemporalAlbergueServlet?id_usuario=<%=albergue.getId_usuario()%>"><strong>Hogares disponibles</strong></a>
+                <a href="TemporalAlbergueServlet?action=historial&id_usuario=<%=albergue.getId_usuario()%>">Hogares solicitados</a>
+            </section>
+
             <section class="banner">
                 <div class="content">
-                    <p><strong>Descripción:</strong> En la siguiente tabla se muestran los hogares temporales disponibles. Puede ver más información o enviar una solicitud al albergue.</p>
+                    <p><strong>Descripción:</strong> En la siguiente tabla se muestran los hogares temporales disponibles. Puede ver más información o enviar una solicitud al hogar temporal.</p>
 
                     <div class="table-responsive">
                         <table id="example" class="table table-striped" style="width:100%;">
@@ -59,24 +78,40 @@
                             </thead>
                             <tbody>
                             <%
-                                ArrayList<Usuario> hogaresDisponibles = (ArrayList<Usuario>) request.getAttribute("hogaresDisponibles");
-                                for (Usuario hogar : hogaresDisponibles) {
+                                ArrayList<PostulacionHogarTemporal> postulacionesDisponibles = (ArrayList<PostulacionHogarTemporal>) request.getAttribute("postulacionesDisponibles");
+                                for (PostulacionHogarTemporal postulacion : postulacionesDisponibles) {
+                                    Usuario usuario = postulacion.getUsuario_final();
                             %>
                             <tr>
-                                <td><%= hogar.getDni() %></td>
-                                <td><%= hogar.getNombres_usuario_final() %> <%= hogar.getApellidos_usuario_final() %></td>
-                                <td><%= hogar.getDistrito().getNombre_distrito() %></td>
-                                <td><%= hogar.getUltima_postulacion_hogar_temporal().getFecha_inicio_temporal() %></td>
-                                <td><%= hogar.getUltima_postulacion_hogar_temporal().getFecha_fin_temporal() %></td>
+                                <td><%= usuario.getDni() %></td>
+                                <td><%= usuario.getNombres_usuario_final() %> <%= usuario.getApellidos_usuario_final() %></td>
+                                <td><%= usuario.getDistrito() != null ? usuario.getDistrito().getNombre_distrito() : "N/A" %></td>
+                                <td><%= postulacion.getFecha_inicio_temporal() %></td>
+                                <td><%= postulacion.getFecha_fin_temporal() %></td>
                                 <td>
                                     <ul class="icons">
-                                        <li><a href="#" class="icon fas fa-eye" title="Ver más información"><span class="label">Ver</span></a></li>
-                                        <li><a href="#" class="icon fas fa-envelope" title="Enviar solicitud"><span class="label">Enviar</span></a></li>
+                                        <!-- Botón Ver más información -->
+                                        <li>
+                                            <a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=ver&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>&id_usuario=<%= albergue.getId_usuario() %>"
+                                               class="icon fas fa-eye"
+                                               title="Ver más información">
+                                                <span class="label">Ver</span>
+                                            </a>
+                                        </li>
+                                        <!-- Botón Enviar solicitud -->
+                                        <li>
+                                            <a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=solicitar&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>&id_usuario=<%= albergue.getId_usuario() %>"
+                                               class="icon fas fa-envelope"
+                                               title="Enviar solicitud">
+                                                <span class="label">Enviar</span>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </td>
                             </tr>
                             <% } %>
                             </tbody>
+
                         </table>
                         <script>
                             new DataTable('#example', {
@@ -98,46 +133,12 @@
         </div>
     </div>
 
-    <div id="sidebar">
-        <div class="inner">
-            <section class="alt" id="sidebar-header">
-                <img src="<%=request.getContextPath()%>/albergue/images/favicon.png" alt="Logo" id="sidebar-icon">
-                <p id ="sidebar-title">PetLink</p>
-            </section>
+    <jsp:include page="navbar.jsp">
+        <jsp:param name="idUsuario" value="<%= albergue.getId_usuario() %>" />
+        <jsp:param name="nombreAlbergue" value="<%= albergue.getNombre_albergue() %>" />
+        <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />
+    </jsp:include>
 
-            <section class="perfil">
-                <div class="mini-posts">
-                    <article>
-                        <img src="<%=request.getContextPath()%>/albergue/images/logo_huellitas.png" alt="" id="image-perfil">
-                        <h2 id="usuario">HUELLITAS PUCP</h2>
-                    </article>
-                </div>
-            </section>
-
-            <nav id="menu">
-                <header class="major">
-                    <h2>Menu</h2>
-                </header>
-                <ul>
-                    <li><a href="perfil.html">Perfil</a></li>
-                    <li>
-                        <span class="opener">Publicaciones</span>
-                        <ul>
-                            <li><a href="EventoBenefico.html">Eventos benéficos</a></li>
-                            <li><a href="adopciones.html">Adopciones</a></li>
-                            <li><a href="donaciones.html">Donaciones</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="hogar_temporal.html">Hogar Temporal</a></li>
-                    <li><a href="denuncias.html">Denuncias por maltrato animal</a></li>
-                </ul>
-            </nav>
-
-            <nav id="logout">
-                <a href="#" id="cerrar-sesion">Cerrar Sesión</a>
-            </nav>
-        </div>
-    </div>
 </div>
 
 <script src="<%=request.getContextPath()%>/albergue/assets/js/jquery.min.js"></script>
