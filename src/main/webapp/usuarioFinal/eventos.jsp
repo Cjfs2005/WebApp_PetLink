@@ -3,11 +3,16 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="com.example.webapp_petlink.beans.Usuario" %>
+<%@ page import="java.util.Base64" %>
 <%
     ArrayList<PublicacionEventoBenefico> listaEventos = (ArrayList<PublicacionEventoBenefico>) request.getAttribute("listaEventos");
     Usuario usuario = (Usuario) session.getAttribute("datosUsuario");
     String nombreUsuario = usuario.getNombres_usuario_final();
     String apellidoUsuario = usuario.getApellidos_usuario_final();
+    String fotoPerfilBase64 = "";
+    if (usuario.getFoto_perfil() != null) {
+        fotoPerfilBase64 = Base64.getEncoder().encodeToString(usuario.getFoto_perfil());
+    }
 %>
 
 <!DOCTYPE HTML>
@@ -37,7 +42,11 @@
 
                 <!-- Sección para el nombre y enlace al perfil -->
                 <a href="<%=request.getContextPath()%>/usuarioFinal/perfil_usuario.html" class="user-profile">
-                    <span class="ocultar"><%=nombreUsuario +" " + apellidoUsuario  %></span> <img src="<%=request.getContextPath()%>/usuarioFinal/images/foto_perfil.jpg" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
+                    <% if (usuario.getFoto_perfil() != null) {%>
+                    <span class="ocultar"><%=nombreUsuario + " " + apellidoUsuario%></span> <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
+                    <% } else {%>
+                    <span class="ocultar"><%=nombreUsuario + " " + apellidoUsuario%></span> <img src="<%=request.getContextPath()%>/albergue/images/sin_perfil.png" alt="<%=usuario.getFoto_perfil()%>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+                    <% } %>
                 </a>
             </header>
 
@@ -56,10 +65,14 @@
 
                     <section class="filter-menu">
                         <label for="filter" class="label-filter">Filtrar por:</label>
-                        <select name="filter" id="filter">
-                            <option value="solicitudes">Todos los eventos</option>
-                            <option value="realizadas">Solo inscritos</option>
-                        </select>
+                        <form method="GET" action="<%=request.getContextPath()%>/EventoUsuarioServlet">
+
+                            <select name="filter" id="filter" onchange="this.form.submit()">
+                                <option value="solicitudes" <%= "solicitudes".equals(request.getParameter("filter")) || request.getParameter("filter") == null ? "selected" : "" %>>Todos los eventos</option>
+                                <option value="realizadas" <%= "realizadas".equals(request.getParameter("filter")) ? "selected" : "" %>>Solo inscritos</option>
+                                <input type="hidden" name="action" value="lista">
+                            </select>
+                        </form>
                     </section>
                 </div>
             </section>
@@ -67,9 +80,10 @@
             <!-- Banner -->
             <div class="contenedor-banner">
                 <%
-
                     if (listaEventos != null && !listaEventos.isEmpty()) {
-                        for (PublicacionEventoBenefico evento : listaEventos) {
+                %>
+                <%
+                    for (PublicacionEventoBenefico evento : listaEventos) {
                 %>
                 <section class="banner">
                     <div class="content">
@@ -84,7 +98,7 @@
                         <p><strong>Publicado el: </strong><%=fechaFormateada%></p>
                         <%
                             SimpleDateFormat fechaEvento = new SimpleDateFormat("dd/MM/yyyy");
-                            String fechaEventForm = fechaEvento.format(evento.getFechaHoraRegistro());
+                            String fechaEventForm = fechaEvento.format(evento.getFechaHoraInicioEvento());
                         %>
                         <p><strong>Día: </strong><%=fechaEventForm%></p>
                         <%
@@ -104,9 +118,14 @@
                             <li><a href="<%=request.getContextPath()%>/EventoUsuarioServlet?action=mostrar&id=<%=evento.getIdPublicacionEventoBenefico()%>" class="button primary big">Detalles</a></li>
                         </ul>
                     </div>
+
                     <span class="image object">
-                            <img src="" alt="<%=evento.getNombreFoto()%>" />
-                        </span>
+                        <% if (evento.getFoto() != null && evento.getFoto().length > 0) { %>
+                        <img src="data:image/png;base64,<%= Base64.getEncoder().encodeToString(evento.getFoto()) %>" alt="Imagen de evento" />
+                    <% } else { %>
+                        <img src="<%=request.getContextPath()%>/usuarioFinal/images/pic01.jpg" alt="Imagen de evento" />
+                    <% } %>
+                    </span>
                 </section>
                 <%
                     }
@@ -117,6 +136,7 @@
                     }
                 %>
             </div>
+
             <div class="pagination-container" style="display: flex; justify-content: center;">
                 <ul class="pagination"></ul>
             </div>
@@ -124,60 +144,12 @@
         </div>
     </div>
 
-    <!-- Sidebar -->
-    <div id="sidebar">
-        <div class="inner">
-
-            <!-- Logo -->
-
-            <section class="alt" id="sidebar-header">
-                <img src="<%=request.getContextPath()%>/usuarioFinal/images/favicon.png" alt="Logo" id="sidebar-icon">
-                <p id ="sidebar-title">PetLink</p>
-            </section>
-
-            <!-- Perfil -->
-
-            <section class="perfil">
-
-                <div class="mini-posts">
-                    <article>
-                        <img src="<%=request.getContextPath()%>/usuarioFinal/images/foto_perfil.jpg" alt="" id="image-perfil">
-                        <h2 id="usuario">Ander Vilchez</h2>
-                    </article>
-                </div>
-
-            </section>
-
-            <!-- Menu -->
-            <nav id="menu">
-                <header class="major">
-                    <h2>Menu</h2>
-                </header>
-                <ul>
-                    <li><a href="perfil_usuario.html">PERFIL</a></li>
-                    <li>
-                        <span class="opener">ALBERGUES</span>
-                        <ul>
-                            <li><a href="albergue_usuario.html">LISTA DE ALBERGUES</a></li>
-                            <li><a href="eventos.html">EVENTOS BENÉFICOS</a></li>
-                            <li><a href="Donaciones1.html">SOLICITUDES DE DONACIÓN</a></li>
-                            <li><a href="Donaciones_historial.html">HISTORIAL DE DONACIONES</a></li>
-                            <li><a href="adopciones_usuario.html">MASCOTAS EN ADOPCIÓN</a></li>
-                            <li><a href="adopciones_historial_usuario.html">HISTORIAL DE ADOPCIONES</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="Hogar_temporal.html">HOGAR TEMPORAL</a></li>
-                    <li><a href="denuncias_usuario.html">DENUNCIAS POR MALTRATO ANIMAL</a></li>
-                    <li><a href="mascotas_perdidas_usuario.html">MASCOTAS PERDIDAS</a></li>
-                </ul>
-            </nav>
-            <!-- Logout -->
-
-            <nav id="logout">
-                <a href="../bienvenidos.html" id="cerrar-sesion">Cerrar Sesión</a>
-            </nav>
-        </div>
-    </div>
+    <jsp:include page="navbar.jsp">
+        <jsp:param name="idUsuario" value="<%= usuario.getId_usuario() %>" />
+        <jsp:param name="nombresUsuario" value="<%= usuario.getNombres_usuario_final() %>" />
+        <jsp:param name="apellidosUsuario" value="<%= usuario.getApellidos_usuario_final() %>" />
+        <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />
+    </jsp:include>
 
 </div>
 
