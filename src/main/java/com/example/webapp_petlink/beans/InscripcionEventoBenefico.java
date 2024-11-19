@@ -1,11 +1,13 @@
 
 package com.example.webapp_petlink.beans;
 
+import java.util.Date;
+
 public class InscripcionEventoBenefico {
     
     private int id_inscripcion_evento_benefico;
     
-    private java.time.LocalDateTime fecha_hora_registro;
+    private Date fecha_hora_registro;
     
     private PublicacionEventoBenefico evento_benefico;
     
@@ -22,13 +24,7 @@ public class InscripcionEventoBenefico {
         this.id_inscripcion_evento_benefico = id_inscripcion_evento_benefico;
     }
     
-    public java.time.LocalDateTime getFecha_hora_registro() {
-        return fecha_hora_registro;
-    }
 
-    public void setFecha_hora_registro(java.time.LocalDateTime fecha_hora_registro) {
-        this.fecha_hora_registro = fecha_hora_registro;
-    }
     
     public PublicacionEventoBenefico getEvento_benefico() {
         return evento_benefico;
@@ -45,5 +41,12 @@ public class InscripcionEventoBenefico {
     public void setUsuario_final(Usuario usuario_final) {
         this.usuario_final = usuario_final;
     }
-    
+
+    public Date getFecha_hora_registro() {
+        return fecha_hora_registro;
+    }
+
+    public void setFecha_hora_registro(Date fecha_hora_registro) {
+        this.fecha_hora_registro = fecha_hora_registro;
+    }
 }
