@@ -60,7 +60,7 @@
                 <div class="content">
                     <header>
                         <img src="<%=request.getContextPath()%>/usuarioFinal/images/form.png" class="icons">
-                        <h2>Complete el siguiente formulario</h2>
+                        <h2 style="margin-bottom: 0 !important;">Complete el siguiente formulario</h2>
                     </header>
 
                     <!-- Formulario de Postulación -->

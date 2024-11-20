@@ -33,7 +33,7 @@
         <nav id="menu">
             <header class="major"><h2>Menu</h2></header>
             <ul>
-                <li><a href="perfil_usuario.html">PERFIL</a></li>
+                <li><a href="<%=request.getContextPath()%>/PerfilUsuarioServlet?accion=ver">PERFIL</a></li>
                 <li><span class="opener">ALBERGUES</span>
                     <ul>
                         <li><a href="albergue_usuario.html">LISTA DE ALBERGUES</a></li>
