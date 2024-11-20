@@ -60,4 +60,6 @@ public class RegistroDonacionProductos {
     public void setEstado(Estado estado) {
         this.estado = estado;
     }
+
+
 }
