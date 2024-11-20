@@ -1,6 +1,7 @@
 package com.example.webapp_petlink.servlets;
 
 import com.example.webapp_petlink.beans.InscripcionEventoBenefico;
+import com.example.webapp_petlink.beans.LugarEvento;
 import com.example.webapp_petlink.beans.PublicacionEventoBenefico;
 import com.example.webapp_petlink.beans.Usuario;
 import com.example.webapp_petlink.daos.EventoUsuarioDao;
@@ -73,6 +74,13 @@ public class EventoAlbergueServlet extends HttpServlet {
                 dispatcher.forward(request, response);
                 break;
 
+            case "crear":
+                ArrayList<LugarEvento> lugares = daoEvento.listarLugaresEventos();
+                request.setAttribute("lugares", lugares);
+                dispatcher = request.getRequestDispatcher("albergue/organizar_evento.jsp");
+                dispatcher.forward(request, response);
+                break;
+
             case "eliminar":
                 String idEvento = request.getParameter("id");
                 int EventID = Integer.parseInt(idEvento);
@@ -89,7 +97,7 @@ public class EventoAlbergueServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
-        String action = request.getParameter("action") == null ? "crea" : request.getParameter("action");
+        String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
 
         EventoUsuarioDao daoEvento = new EventoUsuarioDao();
 
@@ -102,10 +110,6 @@ public class EventoAlbergueServlet extends HttpServlet {
         }
 
         switch (action) {
-            case "crea":
-                String hola = request.getParameter("hola");
-                break;
-
             case "buscar":
                 String query = request.getParameter("query");
                 ArrayList<PublicacionEventoBenefico> eventos = daoEvento.buscarEventoNombre(query, idAlbergue);
@@ -115,6 +119,9 @@ public class EventoAlbergueServlet extends HttpServlet {
 
                 RequestDispatcher dispatcher = request.getRequestDispatcher("albergue/EventoBenefico.jsp");
                 dispatcher.forward(request, response);
+                break;
+
+            case "guardar":
                 break;
 
         }
