@@ -1,30 +1,66 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.example.webapp_petlink.beans.RegistroDonacionProductos" %>
 <%@ page import="com.example.webapp_petlink.beans.SolicitudDonacionProductos" %>
-<%@ page import="java.sql.Time" %>
-<%@ page import="java.sql.Date" %>
-
-<!DOCTYPE HTML>
-<html>
+<%@ page import="com.example.webapp_petlink.beans.HorarioRecepcionDonacion" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!-- CSS de DataTables y Bootstrap -->
 <head>
   <title>PetLink</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+  <!-- Bootstrap y DataTables -->
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css"/>
   <link rel="stylesheet" href="assets/css/main.css" />
   <link rel="stylesheet" href="assets/css/aditional.css">
-  <link rel="stylesheet" href="assets/css/popup-window.css">
   <link rel="icon" href="images/favicon.png" type="image/x-icon">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css"/>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+</head>
+
+<%
+  SolicitudDonacionProductos solicitud = (SolicitudDonacionProductos) request.getAttribute("solicitud");
+  HorarioRecepcionDonacion horario = solicitud != null ? solicitud.getHorarioRecepcion() : null;
+  String descripcion = solicitud != null && solicitud.getDescripcionDonaciones() != null ?
+          solicitud.getDescripcionDonaciones() : "No disponible";
+  String fechaEntrega = horario != null && horario.getFechaHoraInicio() != null ?
+          horario.getFechaHoraInicio().toLocalDate().toString() : "No disponible";
+  String horarioEntrega = horario != null && horario.getFechaHoraInicio() != null && horario.getFechaHoraFin() != null ?
+          horario.getFechaHoraInicio().toLocalTime().toString() + " - " + horario.getFechaHoraFin().toLocalTime().toString() : "No disponible";
+  List<RegistroDonacionProductos> donantes = (List<RegistroDonacionProductos>) request.getAttribute("donantes");
+%>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Detalles de la Donación</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap y DataTables -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/aditional.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
 </head>
 <body class="is-preload">
 <div id="wrapper">
+  <!-- Main -->
   <div id="main">
     <div class="inner">
       <!-- Header -->
       <header id="header">
         <h1 class="logo"><strong>Detalles</strong></h1>
         <a href="perfil.html" class="user-profile">
-          <span class="ocultar">Huellitas PUCP</span> <img src="images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+          <span class="ocultar">Huellitas PUCP</span>
+          <img src="images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
         </a>
       </header>
 
@@ -35,31 +71,24 @@
             <img src="images/form.png" class="icons">
             <h2>Detalles de la donación de productos</h2>
           </header>
-
-          <%
-            SolicitudDonacionProductos solicitudDetalles = (SolicitudDonacionProductos) request.getAttribute("solicitudDetalles");
-            Time horaInicio = (Time) request.getAttribute("horaInicio");
-            Time horaFin = (Time) request.getAttribute("horaFin");
-            if (solicitudDetalles != null) {
-          %>
-          <p><strong>Descripción:</strong> <%= solicitudDetalles.getDescripcionDonaciones() %></p>
+          <p><strong>Descripción:</strong> <%= descripcion %></p>
           <div class="row gtr-uniform">
             <div class="col-6 col-12-xsmall">
               <label for="fecha" class="input-label">Fecha de entrega</label>
-              <input type="text" id="fecha" value="<%= solicitudDetalles.getFechaHoraRegistro() %>" disabled/>
+              <input type="text" id="fecha" value="<%= fechaEntrega %>" disabled />
             </div>
             <div class="col-6 col-12-xsmall">
-              <label for="horarioEntrega" class="input-label">Horario de entrega</label>
-              <input type="text" id="horarioEntrega" value="<%= horaInicio %> - <%= horaFin %>" disabled/>
+              <label for="horario" class="input-label">Horario de entrega</label>
+              <input type="text" id="horario" value="<%= horarioEntrega %>" disabled />
             </div>
           </div>
 
+          <!-- Tabla de donantes -->
           <p><strong>Lista de usuarios donantes</strong></p>
           <div class="table-responsive">
             <table id="example" class="table table-striped" style="width:100%;">
               <thead>
               <tr>
-                <th>DNI</th>
                 <th>Nombres y apellidos</th>
                 <th>Punto de acopio</th>
                 <th>Fecha de donación</th>
@@ -67,48 +96,51 @@
               </tr>
               </thead>
               <tbody>
+              <% if (donantes != null && !donantes.isEmpty()) { %>
+              <% for (RegistroDonacionProductos donante : donantes) { %>
               <tr>
-                <td>22222222</td>
-                <td>Christian Jair Flores Soto</td>
-                <td>Av. Barcelona</td>
-                <td>12/02/2023</td>
-                <td><a href="#" class="icon fas fa-eye" title="Ver la donación"><span class="label">Ver</span></a></td>
+                <td><%= donante.getUsuarioFinal().getNombres_usuario_final() + " " + donante.getUsuarioFinal().getApellidos_usuario_final() %></td>
+                <td>
+                  <%= (donante.getHorarioRecepcionDonacion() != null
+                          && donante.getHorarioRecepcionDonacion().getPuntoAcopioDonacion() != null
+                          && donante.getHorarioRecepcionDonacion().getPuntoAcopioDonacion().getPuntoAcopio() != null) ?
+                          donante.getHorarioRecepcionDonacion().getPuntoAcopioDonacion().getPuntoAcopio().getDireccion_punto_acopio() : "No disponible" %>
+                </td>
+                <td><%= donante.getFechaHoraRegistro() != null ? new java.text.SimpleDateFormat("yyyy-MM-dd").format(donante.getFechaHoraRegistro()) : "No disponible" %></td>
+                <td>
+                  <ul class="icons">
+                    <li>
+                      <a href="#" class="icon fas fa-eye text-primary" title="Ver la donación" style="color: black;"
+                         onclick="alert('Productos: <%= donante.getDescripcionesDonaciones() %>')">
+                        <span class="label">Ver</span>
+                      </a>
+                    </li>
+                  </ul>
+                </td>
               </tr>
-              <!-- Reemplazar este ejemplo con datos reales -->
+              <% } %>
+              <% } else { %>
+              <tr>
+                <td colspan="5" class="text-center">No hay donantes disponibles</td>
+              </tr>
+              <% } %>
               </tbody>
             </table>
+            <script>
+              new DataTable('#example', {
+                language: {
+                  sSearch: "Buscar:",  // Cambia el texto del campo de búsqueda
+                  sLengthMenu: "Mostrar _MENU_ registros",
+                  sZeroRecords: "No se encontraron resultados",
+                  sEmptyTable: "Ningún dato disponible en esta tabla",
+                  sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                  sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+                  sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+                  sLoadingRecords: "Cargando...",
+                }
+              });
+            </script>
           </div>
-
-          <!-- Botones de acción -->
-          <div class="row gtr-uniform">
-            <div class="col-12">
-              <ul class="actions form-buttons">
-                <li><a href="modificarDonacionProductos.jsp?id=<%= solicitudDetalles.getIdSolicitudDonacionProductos() %>" class="button primary big">Modificar</a></li>
-                <li><a href="#" class="button big" id="openModal">Eliminar</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- Modal para confirmación de eliminación -->
-          <div id="modal" class="modal">
-            <div class="modal-content">
-              <span class="close-btn">&times;</span>
-              <p>¿Está seguro de eliminar esta publicación?<br>Este post ya no será visualizado por los usuarios.</p>
-              <ul class="actions modal-buttons">
-                <li><a href="ListaSolicitudesDonacionProductos?action=eliminar&id=<%= solicitudDetalles.getIdSolicitudDonacionProductos() %>" class="button primary big">Aceptar</a></li>
-                <li><a href="#" class="button big" id="cancelButton">Cancelar</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <%
-          } else {
-          %>
-          <p>No se encontraron detalles para esta solicitud.</p>
-          <%
-            }
-          %>
-
         </div>
       </section>
     </div>
@@ -119,7 +151,7 @@
     <div class="inner">
       <section class="alt" id="sidebar-header">
         <img src="images/favicon.png" alt="Logo" id="sidebar-icon">
-        <p id ="sidebar-title">PetLink</p>
+        <p id="sidebar-title">PetLink</p>
       </section>
       <section class="perfil">
         <div class="mini-posts">
@@ -152,31 +184,11 @@
     </div>
   </div>
 </div>
-
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
+<!-- Scripts -->
+<script src="<%=request.getContextPath()%>assets/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>assets/js/browser.min.js"></script>
+<script src="<%=request.getContextPath()%>assets/js/breakpoints.min.js"></script>
 <script src="assets/js/util.js"></script>
 <script src="assets/js/main.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const openModalButton = document.getElementById('openModal');
-    const modal = document.getElementById('modal');
-    const closeModalButton = document.querySelector('.close-btn');
-    const cancelButton = document.getElementById('cancelButton');
-
-    openModalButton.addEventListener('click', function() {
-      modal.classList.add('show');
-    });
-
-    closeModalButton.addEventListener('click', function() {
-      modal.classList.remove('show');
-    });
-
-    cancelButton.addEventListener('click', function() {
-      modal.classList.remove('show');
-    });
-  });
-</script>
 </body>
 </html>

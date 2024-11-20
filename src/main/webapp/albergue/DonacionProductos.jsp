@@ -70,7 +70,13 @@
                 <p><strong>Fecha de Registro:</strong> <%= solicitudDetalles.getFechaHoraRegistro() %></p>
                 <p><strong>Estado:</strong> <%= solicitudDetalles.getEstado().getNombre_estado() %></p>
                 <p><strong>Activa:</strong> <%= solicitudDetalles.isEsSolicitudActiva() ? "Sí" : "No" %></p>
-                <a href="ListaSolicitudesDonacionProductos" class="button primary">Volver a la lista</a>
+                <a href="ListaSolicitudesDonacionProductos?action=eliminar&id=<%= solicitudDetalles.getIdSolicitudDonacionProductos() %>"
+                   class="icon fas fa-trash-alt" title="Eliminar donación"
+                   onclick="return confirm('¿Está seguro de que desea eliminar esta solicitud?');">
+                    <span class="label">Eliminar</span>
+                </a>
+
+
             </section>
 
             <%
@@ -117,6 +123,7 @@
                                     }
                                 }
                             %>
+
                             </tbody>
                         </table>
 

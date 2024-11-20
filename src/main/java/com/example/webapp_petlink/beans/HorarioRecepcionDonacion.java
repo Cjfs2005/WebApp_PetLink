@@ -1,11 +1,11 @@
 package com.example.webapp_petlink.beans;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class HorarioRecepcionDonacion {
     private int idHorarioRecepcionDonacion;
-    private Date fechaHoraInicio;
-    private Date fechaHoraFin;
+    private LocalDateTime fechaHoraInicio;
+    private LocalDateTime fechaHoraFin;
     private PuntoAcopioDonacion puntoAcopioDonacion;
 
     // Getters y Setters
@@ -18,19 +18,19 @@ public class HorarioRecepcionDonacion {
         this.idHorarioRecepcionDonacion = idHorarioRecepcionDonacion;
     }
 
-    public Date getFechaHoraInicio() {
+    public LocalDateTime getFechaHoraInicio() {
         return fechaHoraInicio;
     }
 
-    public void setFechaHoraInicio(Date fechaHoraInicio) {
+    public void setFechaHoraInicio(LocalDateTime fechaHoraInicio) {
         this.fechaHoraInicio = fechaHoraInicio;
     }
 
-    public Date getFechaHoraFin() {
+    public LocalDateTime getFechaHoraFin() {
         return fechaHoraFin;
     }
 
-    public void setFechaHoraFin(Date fechaHoraFin) {
+    public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
         this.fechaHoraFin = fechaHoraFin;
     }
 
@@ -41,4 +41,6 @@ public class HorarioRecepcionDonacion {
     public void setPuntoAcopioDonacion(PuntoAcopioDonacion puntoAcopioDonacion) {
         this.puntoAcopioDonacion = puntoAcopioDonacion;
     }
+
+
 }

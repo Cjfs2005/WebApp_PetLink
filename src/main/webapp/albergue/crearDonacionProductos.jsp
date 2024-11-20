@@ -1,4 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.example.webapp_petlink.beans.PuntoAcopio" %>
+<%@ page import="com.example.webapp_petlink.daos.DonacionProductos" %>
+<%@ page import="com.example.webapp_petlink.beans.SolicitudDonacionProductos" %>
+<%
+    DonacionProductos dao = new DonacionProductos();
+    List<PuntoAcopio> puntosAcopio = dao.obtenerPuntosAcopioPorAlbergue(6); // ID del albergue
+    if (puntosAcopio == null || puntosAcopio.isEmpty()) {
+%>
+    <p style="color: red;">No hay puntos de acopio disponibles. Verifica la configuración.</p>
+<%
+    }
+%>
+<%
+    SolicitudDonacionProductos solicitud = (SolicitudDonacionProductos) request.getAttribute("solicitud");
+    boolean esEdicion = (solicitud != null);
+%>
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -14,14 +31,6 @@
             font-size: 12px;
             color: #888;
             float: right;
-        }
-        /* Flex container for time fields to align in one row */
-        .time-fields {
-            display: flex;
-            gap: 20px;
-        }
-        .time-fields div {
-            flex: 1;
         }
     </style>
 </head>
@@ -43,7 +52,7 @@
                 </a>
             </header>
 
-            <!-- Formulario de Publicación -->
+            <!-- Banner -->
             <section class="banner">
                 <div class="content">
                     <header>
@@ -52,19 +61,32 @@
                     </header>
                     <p><strong>Descripción:</strong> Complete los detalles sobre la donación.</p>
 
-                    <form action="ListaSolicitudesDonacionProductos" method="POST">
-                        <input type="hidden" name="action" value="publicar">
+                    <form action="ListaSolicitudesDonacionProductos?action=publicar" method="POST">
+                        <div class="row gtr-uniform">
 
-                        <!-- Fecha programada para recepción -->
-                        <div class="col-12">
-                            <label for="fechaRecepcion" class="input-label">Fecha programada para recepción</label>
-                            <input type="date" id="fechaRecepcion" name="fechaRecepcion" required />
-                        </div>
+                            <!-- Fecha programada para recepción -->
+                            <div class="col-6 col-12-small">
+                                <label for="fechaRecepcion" class="input-label">Fecha programada para recepción</label>
+                                <input type="date" id="fechaRecepcion" name="fechaRecepcion" min="" required />
+                            </div>
 
-                        <!-- Contenedor para Hora de inicio y Hora final en la misma fila -->
-                        <div class="time-fields">
+                            <!-- Puntos de acopio -->
+                            <div class="col-6 col-12-small">
+                                <label for="puntosAcopio" class="input-label">Puntos de Acopio</label>
+                                <select id="puntosAcopio" name="puntoAcopio" style="appearance: none;" required>
+                                    <option value="" disabled selected>Seleccione un punto de acopio</option>
+                                    <%
+                                        for (PuntoAcopio punto : puntosAcopio) {
+                                    %>
+                                    <option value="<%= punto.getId_punto_acopio() %>"><%= punto.getDireccion_punto_acopio() %></option>
+                                    <%
+                                        }
+                                    %>
+                                </select>
+                            </div>
+
                             <!-- Hora de inicio de recepción -->
-                            <div>
+                            <div class="col-6 col-12-xsmall">
                                 <label for="horaInicioEvento" class="input-label">Hora de inicio de recepción</label>
                                 <input type="time" id="horaInicioEvento" name="horaInicioEvento" required style="appearance: none;
                                 border-radius: 0.375em;
@@ -78,11 +100,11 @@
                                 width: 100%;
                                 background: #ffffff;
                                 padding-top: 7.5px;
-                                padding-bottom: 7.5px;"/>
+                                padding-bottom: 7.5px;" />
                             </div>
 
                             <!-- Hora final de recepción -->
-                            <div>
+                            <div class="col-6 col-12-xsmall">
                                 <label for="horaFinEvento" class="input-label">Hora final de recepción</label>
                                 <input type="time" id="horaFinEvento" name="horaFinEvento" required style="appearance: none;
                                 border-radius: 0.375em;
@@ -96,23 +118,23 @@
                                 width: 100%;
                                 background: #ffffff;
                                 padding-top: 7.5px;
-                                padding-bottom: 7.5px;"/>
+                                padding-bottom: 7.5px;" />
                             </div>
-                        </div>
 
-                        <!-- Productos solicitados -->
-                        <div class="col-12">
-                            <label for="descripcion" class="input-label">Productos solicitados</label>
-                            <textarea name="descripcion" class="text-area" id="descripcion" maxlength="500" required></textarea>
-                            <span id="charCount">0/500</span>
-                        </div>
+                            <!-- Productos solicitados -->
+                            <div class="col-12">
+                                <label for="descripcion" class="input-label">Productos solicitados</label>
+                                <textarea id="descripcion" name="descripcion" class="text-area" maxlength="500" required></textarea>
+                                <span id="charCount">0/500</span>
+                            </div>
 
-                        <!-- Botones -->
-                        <div class="col-12">
-                            <ul class="actions form-buttons">
-                                <li><button type="submit" class="button primary big">Publicar</button></li>
-                                <li><a href="javascript:history.back()" class="button big">Cancelar</a></li>
-                            </ul>
+                            <!-- Botones -->
+                            <div class="col-12">
+                                <ul class="actions form-buttons">
+                                    <li><button type="submit" class="button primary big">Publicar</button></li>
+                                    <li><a href="javascript:history.back()" class="button big">Cancelar</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -124,6 +146,7 @@
     <!-- Sidebar -->
     <div id="sidebar">
         <div class="inner">
+
             <!-- Logo -->
             <section class="alt" id="sidebar-header">
                 <img src="images/favicon.png" alt="Logo" id="sidebar-icon">
@@ -161,10 +184,18 @@
 
             <!-- Logout -->
             <nav id="logout">
-                <a href="../bienvenidos.html" id="cerrar-sesion">Cerrar Sesión</a>
+                <a href="bienvenidos.html" id="cerrar-sesion">Cerrar Sesión</a>
             </nav>
+
         </div>
     </div>
+    <script>
+        const fechaInicio = document.getElementById('fechaRecepcion');
+        document.addEventListener('DOMContentLoaded', function () {
+            const hoy = new Date().toISOString().split("T")[0];
+            fechaInicio.setAttribute("min", hoy);
+        });
+    </script>
 
 </div>
 
@@ -174,69 +205,5 @@
 <script src="assets/js/breakpoints.min.js"></script>
 <script src="assets/js/util.js"></script>
 <script src="assets/js/main.js"></script>
-
-<!-- Modal -->
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <p>Se ha enviado su publicación con éxito.</p>
-        <ul class="actions modal-buttons">
-            <li><a href="donaciones_productos.html" class="button primary big" id="acceptButton">Aceptar</a></li>
-        </ul>
-    </div>
-</div>
-
-<!-- Lógica para el Modal -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const openModalButton = document.getElementById('openModal'); // Botón que abre el modal
-        const modal = document.getElementById('modal');               // El modal
-        const acceptButton = document.getElementById('acceptButton'); // Botón de Aceptar
-
-        // Función para abrir el modal
-        openModalButton.addEventListener('click', function() {
-            modal.classList.add('show'); // Mostrar el modal
-        });
-
-        // Redirigir al hacer clic en el botón "Aceptar"
-        acceptButton.addEventListener('click', function() {
-            window.location.href = 'donaciones.html';
-        });
-    });
-</script>
-
-<!-- Validación de hora final mayor que hora de inicio -->
-<script>
-    function validarHoraFinal() {
-        const horaInicio = document.getElementById('horaInicioEvento').value;
-        const horaFin = document.getElementById('horaFinEvento').value;
-
-        if (horaFin && horaInicio && horaFin <= horaInicio) {
-            alert('La hora final debe ser posterior a la hora de inicio.');
-            document.getElementById('horaFinEvento').value = ''; // Limpiar campo
-        }
-    }
-    document.getElementById('horaFinEvento').addEventListener('change', validarHoraFinal);
-</script>
-
-<!-- Contador de caracteres para la descripción -->
-<script>
-    const textarea = document.getElementById('descripcion');
-    const charCount = document.getElementById('charCount');
-
-    textarea.addEventListener('input', function() {
-        const currentLength = textarea.value.length;
-        charCount.textContent = `${currentLength}/500`;
-    });
-</script>
-
-<!-- Validación de fecha mínima para la fecha de recepción -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const fechaRecepcion = document.getElementById('fechaRecepcion');
-        const hoy = new Date().toISOString().split("T")[0];
-        fechaRecepcion.setAttribute("min", hoy);
-    });
-</script>
-
 </body>
 </html>

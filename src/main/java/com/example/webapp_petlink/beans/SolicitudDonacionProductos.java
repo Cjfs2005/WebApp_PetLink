@@ -9,10 +9,9 @@ public class SolicitudDonacionProductos {
     private Date fechaHoraRegistro;
     private Usuario usuarioAlbergue;
     private Estado estado;
+    private HorarioRecepcionDonacion horarioRecepcion; // Nuevo atributo
 
     // Getters y Setters
-
-
     public int getIdSolicitudDonacionProductos() {
         return idSolicitudDonacionProductos;
     }
@@ -59,5 +58,13 @@ public class SolicitudDonacionProductos {
 
     public void setEstado(Estado estado) {
         this.estado = estado;
+    }
+
+    public HorarioRecepcionDonacion getHorarioRecepcion() {
+        return horarioRecepcion;
+    }
+
+    public void setHorarioRecepcion(HorarioRecepcionDonacion horarioRecepcion) {
+        this.horarioRecepcion = horarioRecepcion;
     }
 }
