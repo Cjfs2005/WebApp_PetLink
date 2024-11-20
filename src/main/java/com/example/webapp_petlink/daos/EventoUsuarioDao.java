@@ -426,6 +426,47 @@ public class EventoUsuarioDao extends DaoBase{
         }
     }
 
+    public void crearEvento() {
+        String sql = "UPDATE FROM PublicacionEventoBenefico";
+
+        try (Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<LugarEvento> listarLugaresEventos () {
+        ArrayList<LugarEvento> lugares = new ArrayList<>();
+        String sql = "SELECT * FROM LugarEvento l " +
+                "JOIN Distrito d ON l.id_distrito = d.id_distrito";
+
+        try (Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()){
+                    LugarEvento lugar = new LugarEvento();
+                    lugar.setId_lugar_evento(rs.getInt("id_lugar_evento"));
+                    lugar.setNombre_lugar_evento(rs.getString("nombre_lugar_evento"));
+                    lugar.setDireccion_lugar_evento(rs.getString("direccion_lugar_evento"));
+                    lugar.setAforo_maximo(rs.getInt("aforo_maximo"));
+
+                    Distrito distrito = new Distrito();
+                    distrito.setId_distrito(rs.getInt("id_distrito"));
+                    distrito.setNombre_distrito(rs.getString("nombre_distrito"));
+
+                    lugar.setDistrito(distrito);
+                    lugares.add(lugar);
+                }
+            }
+        }
+        catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return lugares;
+    }
+
     public void eliminarInscripcionEventoAlbergue(int id) {
         String sql = "DELETE FROM InscripcionEventoBenefico WHERE id_evento_benefico = ?";
 
