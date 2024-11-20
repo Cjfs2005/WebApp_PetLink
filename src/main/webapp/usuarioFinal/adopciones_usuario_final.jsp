@@ -28,17 +28,18 @@
     String Apellidos_usuario_final = datosUsuario.getApellidos_usuario_final();
 
 %>
-
+<!DOCTYPE HTML>
 <html>
 <head>
     <title>PetLink</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/main.css" />
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/aditional.css">
-    <link rel="stylesheet" href="<%=request.getContextPath()%>/usuarioFinal/assets/css/popup-window.css">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/main.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/aditional.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/ola2.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/usuarioFinal/assets/css/popup-window.css"/>
     <script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/pagination.js"></script>
-    <link rel="icon" href="images/favicon.png" type="image/x-icon">
+    <link rel="icon" href="${pageContext.request.contextPath}/usuarioFinal/images/favicon.png" type="image/x-icon">
 </head>
 <body class="is-preload">
 <!-- Wrapper -->
@@ -58,7 +59,7 @@
                     <span class="ocultar">
                         <%= datosUsuario != null ? datosUsuario.getNombres_usuario_final() + " " + datosUsuario.getApellidos_usuario_final() : "" %>
                     </span>
-                    <img src="data:image/png;base64,<%= fotoPerfilBase64 %>"  style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
+                    <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
                 </a>
             </header>
 
@@ -67,35 +68,32 @@
 
                 <% for (PublicacionMascotaAdopcion publicacion : publicacionesAdopcion) { %>
 
-                    <section class="banner">
-                        <div class="content">
-                            <header>
-                                <img src="<%=request.getContextPath()%>/usuarioFinal/images/logo_adopcion_publicacion.png" class="icons">
-                                <h2>Adopta a <%= publicacion.getNombreMascota() %></h2>
-                            </header>
-                            <ul class="actions">
-                                <li>
-                                    <a href="formulario_adopcion.html" class="button primary big">Ver detalles</a>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <%
-
-                            // Convertir la foto de perfil (byte[]) a una cadena base64 si no es null
-                            String fotoMascotaBase64 = "";
-                            if (publicacion != null && publicacion.getFotoMascota() != null) {
-                                byte[] fotoMascotaBytes = publicacion.getFotoMascota();
-                                fotoMascotaBase64 = Base64.getEncoder().encodeToString(fotoMascotaBytes);
-                            }
-
-                        %>
-
-                        <span class="image object">
-                                                <img src="data:image/png;base64,<%= fotoMascotaBase64 %>" alt="" />
+                <section class="banner">
+                    <div class="content">
+                        <header>
+                            <img src="<%=request.getContextPath()%>/usuarioFinal/images/logo_adopcion_publicacion.png"
+                                 class="icons">
+                            <h2>Adopta a <%= publicacion.getNombreMascota() %>
+                            </h2>
+                        </header>
+                        <ul class="actions">
+                            <li>
+                                <a href="formulario_adopcion.html" class="button primary big">Ver detalles</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <%
+                        // Convertir la foto de perfil (byte[]) a una cadena base64 si no es null
+                        String fotoMascotaBase64 = "";
+                        if (publicacion != null && publicacion.getFotoMascota() != null) {
+                            byte[] fotoMascotaBytes = publicacion.getFotoMascota();
+                            fotoMascotaBase64 = Base64.getEncoder().encodeToString(fotoMascotaBytes);
+                        }
+                    %>
+                    <span class="image object">
+                            <img src="data:image/png;base64,<%= fotoMascotaBase64 %>" alt=""/>
                         </span>
-                    </section>
-
+                </section>
                 <%}%>
 
             </div>
@@ -115,7 +113,7 @@
 
             <section class="alt" id="sidebar-header">
                 <img src="<%=request.getContextPath()%>/usuarioFinal/images/favicon.png" alt="Logo" id="sidebar-icon">
-                <p id ="sidebar-title">PetLink</p>
+                <p id="sidebar-title">PetLink</p>
             </section>
 
             <!-- Perfil -->
@@ -125,7 +123,8 @@
                 <div class="mini-posts">
                     <article>
                         <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" alt="" id="image-perfil">
-                        <h2 id="usuario"><%= datosUsuario != null ? datosUsuario.getNombres_usuario_final() + " " + datosUsuario.getApellidos_usuario_final() : "" %></h2>
+                        <h2 id="usuario"><%= datosUsuario != null ? datosUsuario.getNombres_usuario_final() + " " + datosUsuario.getApellidos_usuario_final() : "" %>
+                        </h2>
                     </article>
                 </div>
 
@@ -166,11 +165,11 @@
 </div>
 
 <!-- Scripts -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/browser.min.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/breakpoints.min.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/util.js"></script>
+<script src="<%=request.getContextPath()%>/usuarioFinal/assets/js/main.js"></script>
 
 <!-- Añadido por Gianfranco -->
 <!-- Modal -->
@@ -189,7 +188,7 @@
 <!-- Script dentro del mismo HTML -->
 <script>
     // Esperamos a que todo el DOM esté cargado
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Obtener los elementos del DOM
         const openModalButton = document.getElementById('openModal'); // Botón que abre el modal
         const modal = document.getElementById('modal');               // El modal
@@ -198,22 +197,22 @@
         const cancelButton = document.getElementById('cancelButton'); // Botón de Cancelar
 
         // Función para abrir el modal
-        openModalButton.addEventListener('click', function() {
+        openModalButton.addEventListener('click', function () {
             modal.classList.add('show'); // Mostrar el modal
         });
 
         // Función para cerrar el modal al hacer clic en la "X"
-        closeModalButton.addEventListener('click', function() {
+        closeModalButton.addEventListener('click', function () {
             modal.classList.remove('show'); // Ocultar el modal
         });
 
         // Deben modificar el link para que redirija afuera del formulario
-        acceptButton.addEventListener('click', function() {
+        acceptButton.addEventListener('click', function () {
             window.location.href = 'https://www.ejemplo.com';
         });
 
         // Función para cerrar el modal al hacer clic en el botón "Cancelar"
-        cancelButton.addEventListener('click', function() {
+        cancelButton.addEventListener('click', function () {
             modal.classList.remove('show'); // Ocultar el modal
         });
     });

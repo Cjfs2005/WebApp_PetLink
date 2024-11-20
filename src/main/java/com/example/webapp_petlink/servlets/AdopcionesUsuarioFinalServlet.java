@@ -81,8 +81,6 @@ public class AdopcionesUsuarioFinalServlet extends HttpServlet {
                     System.out.println("No se encontró el usuario con ID: " + ID_usuario);
                 }
 
-                //
-
                 break;
             default:
                 response.sendRedirect("error.jsp");

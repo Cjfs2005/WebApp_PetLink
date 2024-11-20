@@ -19,6 +19,7 @@ public class PublicacionEventoBenefico {
     private byte[] foto;
     private String nombreFoto;
     private Estado estado;
+    private int cantAsistentes;
 
     // Getters y Setters
 
@@ -149,5 +150,13 @@ public class PublicacionEventoBenefico {
 
     public void setEstado(Estado estado) {
         this.estado = estado;
+    }
+
+    public int getCantAsistentes() {
+        return cantAsistentes;
+    }
+
+    public void setCantAsistentes(int cantAsistentes) {
+        this.cantAsistentes = cantAsistentes;
     }
 }
