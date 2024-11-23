@@ -37,15 +37,15 @@
                 <li><span class="opener">ALBERGUES</span>
                     <ul>
                         <li><a href="albergue_usuario.html">LISTA DE ALBERGUES</a></li>
-                        <li><a href="eventos.html">EVENTOS BENÉFICOS</a></li>
+                        <li><a href="<%=request.getContextPath()%>/EventoUsuarioServlet">EVENTOS BENÉFICOS</a></li>
                         <li><a href="Donaciones1.html">SOLICITUDES DE DONACIÓN</a></li>
                         <li><a href="Donaciones_historial.html">HISTORIAL DE DONACIONES</a></li>
-                        <li><a href="adopciones_usuario.html">MASCOTAS EN ADOPCIÓN</a></li>
-                        <li><a href="adopciones_historial_usuario.html">HISTORIAL DE ADOPCIONES</a></li>
+                        <li><a href="<%=request.getContextPath()%>/AdopcionesUsuarioFinalServlet?accion=ver">MASCOTAS EN ADOPCIÓN</a></li>
+                        <li><a href="<%=request.getContextPath()%>/AdopcionesUsuarioFinalServlet?accion=historial">HISTORIAL DE ADOPCIONES</a></li>
                     </ul>
                 </li>
                 <li><a href="<%=request.getContextPath()%>/TemporalUsuarioServlet?id_usuario=<%=idUsuario%>">HOGAR TEMPORAL</a></li>
-                <li><a href="denuncias_usuario.html">DENUNCIAS POR MALTRATO ANIMAL</a></li>
+                <li><a href="<%=request.getContextPath()%>/denuncias">DENUNCIAS POR MALTRATO ANIMAL</a></li>
                 <li><a href="mascotas_perdidas_usuario.html">MASCOTAS PERDIDAS</a></li>
             </ul>
         </nav>

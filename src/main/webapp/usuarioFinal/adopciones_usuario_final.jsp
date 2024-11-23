@@ -106,61 +106,13 @@
     </div>
 
     <!-- Sidebar -->
-    <div id="sidebar">
-        <div class="inner">
 
-            <!-- Logo -->
-
-            <section class="alt" id="sidebar-header">
-                <img src="<%=request.getContextPath()%>/usuarioFinal/images/favicon.png" alt="Logo" id="sidebar-icon">
-                <p id="sidebar-title">PetLink</p>
-            </section>
-
-            <!-- Perfil -->
-
-            <section class="perfil">
-
-                <div class="mini-posts">
-                    <article>
-                        <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" alt="" id="image-perfil">
-                        <h2 id="usuario"><%= datosUsuario != null ? datosUsuario.getNombres_usuario_final() + " " + datosUsuario.getApellidos_usuario_final() : "" %>
-                        </h2>
-                    </article>
-                </div>
-
-            </section>
-
-            <!-- Menu -->
-            <nav id="menu">
-                <header class="major">
-                    <h2>Menu</h2>
-                </header>
-                <ul>
-                    <li><a href="perfil_usuario.html">PERFIL</a></li>
-                    <li>
-                        <span class="opener">ALBERGUES</span>
-                        <ul>
-                            <li><a href="albergue_usuario.html">LISTA DE ALBERGUES</a></li>
-                            <li><a href="eventos.html">EVENTOS BENÉFICOS</a></li>
-                            <li><a href="Donaciones1.html">SOLICITUDES DE DONACIÓN</a></li>
-                            <li><a href="Donaciones_historial.html">HISTORIAL DE DONACIONES</a></li>
-                            <li><a href="adopciones_usuario.html">MASCOTAS EN ADOPCIÓN</a></li>
-                            <li><a href="adopciones_historial_usuario.html">HISTORIAL DE ADOPCIONES</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="Hogar_temporal.html">HOGAR TEMPORAL</a></li>
-                    <li><a href="denuncias_usuario.html">DENUNCIAS POR MALTRATO ANIMAL</a></li>
-                    <li><a href="mascotas_perdidas_usuario.html">MASCOTAS PERDIDAS</a></li>
-                </ul>
-            </nav>
-            <!-- Logout -->
-
-            <nav id="logout">
-                <a href="../bienvenidos.html" id="cerrar-sesion">Cerrar Sesión</a>
-            </nav>
-
-        </div>
-    </div>
+    <jsp:include page="navbar.jsp">
+        <jsp:param name="idUsuario" value="<%= datosUsuario.getId_usuario() %>" />
+        <jsp:param name="nombresUsuario" value="<%= datosUsuario.getNombres_usuario_final() %>" />
+        <jsp:param name="apellidosUsuario" value="<%= datosUsuario.getApellidos_usuario_final() %>" />
+        <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />
+    </jsp:include>
 
 </div>
 
