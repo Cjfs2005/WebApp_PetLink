@@ -78,7 +78,7 @@
                         </header>
                         <ul class="actions">
                             <li>
-                                <a href="formulario_adopcion.html" class="button primary big">Ver detalles</a>
+                                <a href="<%=request.getContextPath()%>/AdopcionesUsuarioFinalServlet?accion=detalles&idPublicacion=<%=publicacion.getIdPublicacionMascotaAdopcion()%>" class="button primary big">Ver detalles</a>
                             </li>
                         </ul>
                     </div>

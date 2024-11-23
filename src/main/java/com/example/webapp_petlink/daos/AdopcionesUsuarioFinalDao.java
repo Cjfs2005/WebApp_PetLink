@@ -11,7 +11,7 @@ public class AdopcionesUsuarioFinalDao extends DaoBase{
 
     public Usuario obtenerDatosUsuario(int idUsuario) {
         Usuario usuario = null;
-        String query = "SELECT u.id_usuario, u.nombres_usuario_final, u.apellidos_usuario_final, u.foto_perfil FROM Usuario u  WHERE u.id_usuario = ?";
+        String query = "SELECT u.id_usuario, u.nombres_usuario_final, u.apellidos_usuario_final, u.foto_perfil, u.correo_electronico FROM Usuario u  WHERE u.id_usuario = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query))
@@ -26,6 +26,7 @@ public class AdopcionesUsuarioFinalDao extends DaoBase{
                 usuario.setNombres_usuario_final(rs.getString("nombres_usuario_final"));
                 usuario.setApellidos_usuario_final(rs.getString("apellidos_usuario_final"));
                 usuario.setFoto_perfil(rs.getBytes("foto_perfil"));
+                usuario.setCorreo_electronico(rs.getString("correo_electronico"));
             }
             else{
                 System.out.println("No se ha encontrado el usuario");
