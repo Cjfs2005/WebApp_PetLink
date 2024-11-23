@@ -22,6 +22,8 @@ public class Usuario {
     private String nombre_foto_perfil;
     
     private String contrasenia;
+
+    private String contrasenia_hashed;
     
     private boolean es_contrasenia_temporal;
     
@@ -415,5 +417,13 @@ public class Usuario {
     public void setDescripcion_perfil(String descripcion_perfil) {
         this.descripcion_perfil = descripcion_perfil;
     }
-    
+
+    public String getContrasenia_hashed() {
+        return contrasenia_hashed;
+    }
+
+    public void setContrasenia_hashed(String contrasenia_hashed) {
+        this.contrasenia_hashed = contrasenia_hashed;
+    }
+
 }

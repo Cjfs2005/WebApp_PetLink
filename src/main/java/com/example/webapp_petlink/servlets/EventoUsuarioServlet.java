@@ -27,14 +27,11 @@ public class EventoUsuarioServlet extends HttpServlet {
 
         EventoUsuarioDao dao = new EventoUsuarioDao();
 
-
         HttpSession session = request.getSession();
 
-        Integer idUsuario = (Integer) session.getAttribute("id_usuario");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-        if (idUsuario == null) {
-            idUsuario = 5;
-        }
+        int idUsuario = usuario.getId_usuario();
 
         Usuario datosUsuario = dao.obtenerDatoUsuario(idUsuario);
         session.setAttribute("datosUsuario", datosUsuario);
@@ -53,7 +50,7 @@ public class EventoUsuarioServlet extends HttpServlet {
                 request.setAttribute("filter", filter);
                 RequestDispatcher disp = request.getRequestDispatcher("usuarioFinal/eventos.jsp");
                 disp.forward(request, response);
-
+                break;
             case "mostrar":
                 // Obtener el ID del evento desde los parámetros de la solicitud
                 int idPublicacion;
