@@ -2,6 +2,7 @@
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.webapp_petlink.beans.SolicitudDonacionEconomica" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <!DOCTYPE HTML>
 <html>
@@ -45,16 +46,17 @@
             <section style="margin: 0; margin-top: 20px; padding: 0; height: auto; display: flex; align-items: center;">
                 <ul class="actions" style="list-style: none; margin: 0; padding: 0;">
                     <li style="display: inline; padding-left: 0;">
-                        <a href="form_don_economica.html" class="button primary big" style="float: left; margin: 0;">
+                        <a href="FormularioDonacionEconomica.jsp" class="button primary big" style="float: left; margin: 0;">
                             Publicar aviso
                         </a>
+
                     </li>
                 </ul>
             </section>
 
             <section class="seccionPrueba" style="background-color: transparent !important; flex-wrap: wrap; gap:20px; justify-content: space-evenly;">
-                <a href="#"><strong>Colectas de fondos</strong></a>
-                <a href="donaciones_productos.html">Colectas de productos</a>
+                <a href="ListaSolicitudesDonacionEconomica?action=listar"><strong>Colectas de fondos</strong></a>
+                <a href="ListaSolicitudesDonacionProductos?action=listar">Colectas de productos</a>
             </section>
 
             <!-- Banner -->
@@ -95,8 +97,22 @@
                                 <td>S/. <%= solicitud.getMonto_solicitado() %></td>
                                 <td>
                                     <ul class="icons">
-                                        <li><a href="detalles_don_economica.html" class="icon fas fa-eye" title="Ver detalles"><span class="label">Ver</span></a></li>
-                                        <li><a href="#" class="icon fas fa-trash-alt" title="Eliminar donación"><span class="label">Eliminar</span></a></li>
+                                        <li>
+                                            <a href="ListaSolicitudesDonacionEconomica?action=VerDetalles&id=<%= solicitud.getId_solicitud_donacion_economica() %>"
+                                               class="icon fas fa-eye"
+                                               title="Ver detalles">
+                                                <span class="label">Ver</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="ListaSolicitudesDonacionEconomica?action=eliminar&id=<%= solicitud.getId_solicitud_donacion_economica() %>"
+                                               class="icon fas fa-trash-alt"
+                                               title="Eliminar solicitud"
+                                               onclick="return confirm('¿Está seguro de que desea eliminar esta solicitud?');">
+                                                <span class="label">Eliminar</span>
+                                            </a>
+                                        </li>
+
                                     </ul>
                                 </td>
                             </tr>
