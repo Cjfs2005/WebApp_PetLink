@@ -30,7 +30,7 @@
 
   <div class="lado_derecho">
     <h2>Inicia sesión en PetLink</h2>
-    <form id="login-form" action="LoginServlet" method="post">
+    <form id="login-form" action="LoginServlet?action=login" method="post">
       <div class="form-group">
         <label for="email">Ingresa tu correo electrónico</label>
         <div class="input-container">

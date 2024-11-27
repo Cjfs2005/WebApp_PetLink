@@ -62,7 +62,7 @@
                     </header>
 
                     <!-- Formulario de Postulación -->
-                    <form action="TemporalUsuarioServlet?action=postular&id_usuario=<%= idUsuario %>" method="POST" style="margin-bottom: 0;" enctype="multipart/form-data">
+                    <form action="TemporalUsuarioServlet?action=postular" method="POST" style="margin-bottom: 0;" enctype="multipart/form-data">
                         <div class="row gtr-uniform">
                             <!-- Nombres y Apellidos (solo visualización) -->
                             <div class="col-6 col-12-xsmall">

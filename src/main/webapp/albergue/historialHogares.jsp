@@ -68,8 +68,8 @@
             </header>
 
             <section class="seccionPrueba" style="background-color: transparent !important; flex-wrap: wrap; gap:20px; justify-content: space-evenly;">
-                <a href="TemporalAlbergueServlet?id_usuario=<%=albergue.getId_usuario()%>">Hogares disponibles</a>
-                <a href="TemporalAlbergueServlet?action=historial&id_usuario=<%=albergue.getId_usuario()%>"><strong>Hogares solicitados</strong></a>
+                <a href="TemporalAlbergueServlet">Hogares disponibles</a>
+                <a href="TemporalAlbergueServlet?action=historial"><strong>Hogares solicitados</strong></a>
             </section>
 
             <% if (solicitudes != null && !solicitudes.isEmpty()) { %>

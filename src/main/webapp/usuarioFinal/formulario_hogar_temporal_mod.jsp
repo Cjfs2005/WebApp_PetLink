@@ -64,7 +64,7 @@
                     </header>
 
                     <!-- Formulario de Postulación -->
-                    <form action="TemporalUsuarioServlet?action=modificar&id_usuario=<%= idUsuario %>&id_postulacion=<%= postulacionHogarTemporal.getId_postulacion_hogar_temporal() %>" method="POST" style="margin-bottom: 0;" enctype="multipart/form-data">
+                    <form action="TemporalUsuarioServlet?action=modificar&id_postulacion=<%= postulacionHogarTemporal.getId_postulacion_hogar_temporal() %>" method="POST" style="margin-bottom: 0;" enctype="multipart/form-data">
                         <div class="row gtr-uniform">
                             <div class="col-6 col-12-xsmall">
                                 <label for="nombres" class="input-label">Nombres</label>

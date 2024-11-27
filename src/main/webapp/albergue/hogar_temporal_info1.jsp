@@ -59,7 +59,9 @@
                     <!-- Información del perfil -->
                     <div class="perfil-info">
                         <div class="left-section">
+                            <%if(postulacion.getUsuario_final().getFoto_perfil()!= null){%>
                             <img src="<%="data:image/png;base64," +Base64.getEncoder().encodeToString(postulacion.getUsuario_final().getFoto_perfil())%>" alt="Foto de perfil">
+                            <%}%>
                         </div>
                         <div class="central-section">
                             <h2><%=postulacion.getUsuario_final().getNombres_usuario_final()%> <%=postulacion.getUsuario_final().getApellidos_usuario_final()%></h2>
@@ -213,8 +215,8 @@
                     <div class="row gtr-uniform">
                         <div class="col-12">
                             <ul class="actions form-buttons">
-                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=solicitar&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>&id_usuario=<%= usuario.getId_usuario() %>" class="button primary big">Contactar</a></li>
-                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=listar&id_usuario=<%= usuario.getId_usuario() %>" class="button big">Regresar</a></li>
+                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=solicitar&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>" class="button primary big">Contactar</a></li>
+                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=listar" class="button big">Regresar</a></li>
                             </ul>
                         </div>
                     </div>

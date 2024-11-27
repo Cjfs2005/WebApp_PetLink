@@ -21,7 +21,7 @@ public class LoginServlet extends HttpServlet {
 
         String action_parameter = request.getParameter("action");
 
-        String action = action_parameter == null ? "login" : action_parameter;
+        String action = action_parameter == null ? "loginForm" : action_parameter;
 
         switch (action){
 
@@ -69,9 +69,39 @@ public class LoginServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("Cerrando Sesion");
-        HttpSession session = request.getSession();
-        session.invalidate();
-        response.sendRedirect(request.getContextPath() + "/index.jsp");
+        String action_parameter = request.getParameter("action");
+
+        String action = action_parameter == null ? "loginForm" : action_parameter;
+        switch(action){
+            case "logout":
+                HttpSession session = request.getSession();
+                session.invalidate();
+                response.sendRedirect(request.getContextPath() + "/index.jsp");
+            case "loginForm":
+                Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+                if (usuario != null) {
+                    response.sendRedirect(request.getContextPath());
+                    String rol = usuario.getRol().getNombre_rol();
+                    switch (rol) {
+                        case "Administrador":
+                            response.sendRedirect(request.getContextPath() + "/administrador/eventos.jsp");
+                            break;
+                        case "Albergue":
+                            response.sendRedirect(request.getContextPath() + "/AdopcionesAlbergueServlet");
+                            break;
+                        case "Coordinador de Zona":
+                            response.sendRedirect(request.getContextPath() + "/coordinadorZonal/eventos.jsp");
+                            break;
+                        case "Usuario Final":
+                            response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet");
+                            break;
+                        default:
+                            response.sendRedirect(request.getContextPath() + "/index.jsp");
+                            break;
+                    }
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/index.jsp");
+                }
+        }
     }
 }
