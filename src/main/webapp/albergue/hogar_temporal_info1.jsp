@@ -215,8 +215,8 @@
                     <div class="row gtr-uniform">
                         <div class="col-12">
                             <ul class="actions form-buttons">
-                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=solicitar&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>&id_usuario=<%= usuario.getId_usuario() %>" class="button primary big">Contactar</a></li>
-                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=listar&id_usuario=<%= usuario.getId_usuario() %>" class="button big">Regresar</a></li>
+                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=solicitar&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>" class="button primary big">Contactar</a></li>
+                                <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=listar" class="button big">Regresar</a></li>
                             </ul>
                         </div>
                     </div>

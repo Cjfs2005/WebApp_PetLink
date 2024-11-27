@@ -26,13 +26,11 @@ public class TemporalUsuarioServlet extends HttpServlet {
         String action = request.getParameter("action") == null ? "listar" : request.getParameter("action");
         HogarTemporalDao hogarTemporalDao = new HogarTemporalDao();
         RequestDispatcher view;
-        String idUsuarioParam = request.getParameter("id_usuario");
+        Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        int idUsuario = usuario.getId_usuario();
         switch (action) {
             case "listar":
-                if (idUsuarioParam != null) {
                     try {
-                        int idUsuario = Integer.parseInt(idUsuarioParam);
-                        Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
                         boolean esBaneado = hogarTemporalDao.isUsuarioBaneado(idUsuario);
 
                         if (usuario != null) {
@@ -61,15 +59,9 @@ public class TemporalUsuarioServlet extends HttpServlet {
                     } catch (NumberFormatException e) {
                         response.sendRedirect(request.getContextPath() + "/error.jsp");
                     }
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/error.jsp");
-                }
                 break;
             case "postularForm":
                 // Redirigir a formulario de nueva postulación
-                if (idUsuarioParam != null) {
-                    int idUsuario = Integer.parseInt(idUsuarioParam);
-                    Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
                     if (usuario != null) {
                         request.setAttribute("usuario", usuario);
                         request.setAttribute("distritos", hogarTemporalDao.obtenerDistritos());
@@ -78,14 +70,9 @@ public class TemporalUsuarioServlet extends HttpServlet {
                     } else {
                         response.sendRedirect(request.getContextPath() + "/error.jsp");
                     }
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/error.jsp");
-                }
+
                 break;
             case "modificarForm":
-                if (idUsuarioParam != null) {
-                    int idUsuario = Integer.parseInt(idUsuarioParam);
-                    Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
                     if (usuario != null) {
                         request.setAttribute("usuario", usuario);
                         request.setAttribute("distritos", hogarTemporalDao.obtenerDistritos());
@@ -94,27 +81,19 @@ public class TemporalUsuarioServlet extends HttpServlet {
                     } else {
                         response.sendRedirect(request.getContextPath() + "/error.jsp");
                     }
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/error.jsp");
-                }
+
                 break;
             case "aceptarSolicitud":
-                if(idUsuarioParam != null) {
-                    int idUsuario = Integer.parseInt(idUsuarioParam);
                     String idSolicitudParam = request.getParameter("id_solicitud");
                     int idSolicitud = Integer.parseInt(idSolicitudParam);
                     hogarTemporalDao.aceptarSolicitud(idSolicitud);
-                    response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
-                }
+                    response.sendRedirect("TemporalUsuarioServlet");
                 break;
             case "rechazarSolicitud":
-                if(idUsuarioParam != null) {
-                    int idUsuario = Integer.parseInt(idUsuarioParam);
-                    String idSolicitudParam = request.getParameter("id_solicitud");
-                    int idSolicitud = Integer.parseInt(idSolicitudParam);
+                    idSolicitudParam = request.getParameter("id_solicitud");
+                    idSolicitud = Integer.parseInt(idSolicitudParam);
                     hogarTemporalDao.rechazarSolicitud(idSolicitud);
-                    response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
-                }
+                    response.sendRedirect("TemporalUsuarioServlet");
                 break;
         }
     }
@@ -125,11 +104,10 @@ public class TemporalUsuarioServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action") == null ? "listar" : request.getParameter("action");
         HogarTemporalDao hogarTemporalDao = new HogarTemporalDao();
-        String idUsuarioParam = request.getParameter("id_usuario");
+        Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        int idUsuario = usuario.getId_usuario();
 
         if ("postular".equals(action)) {
-            int idUsuario = Integer.parseInt(idUsuarioParam);
-            Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
 
             PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
             postulacion.setUsuario_final(usuario);
@@ -169,11 +147,9 @@ public class TemporalUsuarioServlet extends HttpServlet {
                 }
             }
 
-            response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
+            response.sendRedirect("TemporalUsuarioServlet");
 
         } else if ("modificar".equals(action)) {
-            int idUsuario = Integer.parseInt(idUsuarioParam);
-            Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
 
             PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
             postulacion.setId_postulacion_hogar_temporal(Integer.parseInt(request.getParameter("id_postulacion")));
@@ -203,7 +179,7 @@ public class TemporalUsuarioServlet extends HttpServlet {
 
             hogarTemporalDao.modificarPostulacion(postulacion);
 
-            response.sendRedirect("TemporalUsuarioServlet?id_usuario=" + idUsuario);
+            response.sendRedirect("TemporalUsuarioServlet");
         }
     }
 }

@@ -43,7 +43,7 @@
                         <li><a href="donaciones.html">Donaciones</a></li>
                     </ul>
                 </li>
-                <li><a href="TemporalAlbergueServlet?id_usuario=<%=idUsuario%>">Hogar Temporal</a></li>
+                <li><a href="TemporalAlbergueServlet">Hogar Temporal</a></li>
                 <li><a href="denuncias.html">Denuncias por maltrato animal</a></li>
             </ul>
         </nav>

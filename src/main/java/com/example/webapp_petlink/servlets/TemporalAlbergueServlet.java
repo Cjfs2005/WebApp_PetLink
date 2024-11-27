@@ -24,8 +24,8 @@ public class TemporalAlbergueServlet extends HttpServlet {
    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
       String action = request.getParameter("action") == null ? "listar" : request.getParameter("action");
       RequestDispatcher view;
-
-      // Validar el parámetro id_usuario
+      Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+      /* Validar el parámetro id_usuario
       String idUsuarioParam = request.getParameter("id_usuario");
       if (idUsuarioParam == null || idUsuarioParam.isEmpty()) {
          response.sendRedirect("error.jsp");
@@ -40,7 +40,7 @@ public class TemporalAlbergueServlet extends HttpServlet {
          return;
       }
 
-      Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
+      Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);*/
 
       switch (action) {
          case "listar":
@@ -113,7 +113,7 @@ public class TemporalAlbergueServlet extends HttpServlet {
             break;
          case "historial":
             if (usuario != null) {
-               ArrayList<SolicitudHogarTemporal> solicitudes = hogarTemporalDao.obtenerSolicitudesRealizadas(idUsuario);
+               ArrayList<SolicitudHogarTemporal> solicitudes = hogarTemporalDao.obtenerSolicitudesRealizadas(usuario.getId_usuario());
                request.setAttribute("usuario", usuario);
                request.setAttribute("solicitudes", solicitudes);
 
@@ -130,8 +130,7 @@ public class TemporalAlbergueServlet extends HttpServlet {
    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
       String action = request.getParameter("action");
 
-      int idUsuario = Integer.parseInt(request.getParameter("id_usuario"));
-      Usuario usuario = hogarTemporalDao.obtenerUsuarioPorId(idUsuario);
+      Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
 
       switch (action) {
          case "registrarSolicitud":
@@ -159,7 +158,7 @@ public class TemporalAlbergueServlet extends HttpServlet {
 
             hogarTemporalDao.registrarSolicitud(solicitud);
 
-            response.sendRedirect(request.getContextPath() + "/TemporalAlbergueServlet?action=listar&id_usuario=" + idUsuario);
+            response.sendRedirect(request.getContextPath() + "/TemporalAlbergueServlet?action=listar");
             break;
 
          default:

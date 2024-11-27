@@ -56,8 +56,8 @@
             </header>
 
             <section class="seccionPrueba" style="background-color: transparent !important; flex-wrap: wrap; gap:20px; justify-content: space-evenly;">
-                <a href="TemporalAlbergueServlet?id_usuario=<%=albergue.getId_usuario()%>"><strong>Hogares disponibles</strong></a>
-                <a href="TemporalAlbergueServlet?action=historial&id_usuario=<%=albergue.getId_usuario()%>">Hogares solicitados</a>
+                <a href="TemporalAlbergueServlet"><strong>Hogares disponibles</strong></a>
+                <a href="TemporalAlbergueServlet?action=historial">Hogares solicitados</a>
             </section>
 
             <section class="banner">
@@ -92,7 +92,7 @@
                                     <ul class="icons">
                                         <!-- Botón Ver más información -->
                                         <li>
-                                            <a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=ver&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>&id_usuario=<%= albergue.getId_usuario() %>"
+                                            <a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=ver&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>"
                                                class="icon fas fa-eye"
                                                title="Ver más información">
                                                 <span class="label">Ver</span>
@@ -100,7 +100,7 @@
                                         </li>
                                         <!-- Botón Enviar solicitud -->
                                         <li>
-                                            <a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=solicitar&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>&id_usuario=<%= albergue.getId_usuario() %>"
+                                            <a href="<%=request.getContextPath()%>/TemporalAlbergueServlet?action=solicitar&id_postulacion=<%= postulacion.getId_postulacion_hogar_temporal() %>"
                                                class="icon fas fa-envelope"
                                                title="Enviar solicitud">
                                                 <span class="label">Enviar</span>

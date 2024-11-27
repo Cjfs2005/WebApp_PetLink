@@ -44,14 +44,14 @@
                         <li><a href="<%=request.getContextPath()%>/AdopcionesUsuarioFinalServlet?accion=historial">HISTORIAL DE ADOPCIONES</a></li>
                     </ul>
                 </li>
-                <li><a href="<%=request.getContextPath()%>/TemporalUsuarioServlet?id_usuario=<%=idUsuario%>">HOGAR TEMPORAL</a></li>
+                <li><a href="<%=request.getContextPath()%>/TemporalUsuarioServlet">HOGAR TEMPORAL</a></li>
                 <li><a href="<%=request.getContextPath()%>/denuncias">DENUNCIAS POR MALTRATO ANIMAL</a></li>
                 <li><a href="mascotas_perdidas_usuario.html">MASCOTAS PERDIDAS</a></li>
             </ul>
         </nav>
 
         <nav id="logout">
-            <a href="${pageContext.request.contextPath}/LoginServlet" id="cerrar-sesion" id="cerrar-sesion">Cerrar Sesión</a>
+            <a href="${pageContext.request.contextPath}/LoginServlet?action=logout" id="cerrar-sesion" id="cerrar-sesion">Cerrar Sesión</a>
         </nav>
     </div>
 </div>
