@@ -10,6 +10,7 @@ public class HorarioRecepcionDonacion {
 
     // Getters y Setters
 
+
     public int getIdHorarioRecepcionDonacion() {
         return idHorarioRecepcionDonacion;
     }

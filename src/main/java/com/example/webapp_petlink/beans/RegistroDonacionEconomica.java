@@ -1,11 +1,12 @@
 package com.example.webapp_petlink.beans;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class RegistroDonacionEconomica {
     private int idRegistroDonacionEconomica;
     private int montoDonacion;
-    private Date fechaHoraRegistro;
+    private LocalDateTime fechaHoraRegistro;
     private SolicitudDonacionEconomica solicitudDonacionEconomica;
     private Usuario usuarioFinal;
     private Estado estado;
@@ -31,11 +32,11 @@ public class RegistroDonacionEconomica {
         this.montoDonacion = montoDonacion;
     }
 
-    public Date getFechaHoraRegistro() {
+    public LocalDateTime getFechaHoraRegistro() {
         return fechaHoraRegistro;
     }
 
-    public void setFechaHoraRegistro(Date fechaHoraRegistro) {
+    public void setFechaHoraRegistro(LocalDateTime fechaHoraRegistro) {
         this.fechaHoraRegistro = fechaHoraRegistro;
     }
 

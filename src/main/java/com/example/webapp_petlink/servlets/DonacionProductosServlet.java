@@ -1,4 +1,5 @@
 package com.example.webapp_petlink.servlets;
+
 import com.example.webapp_petlink.beans.*;
 import com.example.webapp_petlink.daos.DonacionProductos;
 import jakarta.servlet.RequestDispatcher;
@@ -7,6 +8,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDateTime;
@@ -15,35 +18,48 @@ import java.util.List;
 
 @WebServlet("/ListaSolicitudesDonacionProductos")
 public class DonacionProductosServlet extends HttpServlet {
-    private DonacionProductos donacionProductosDao = new DonacionProductos();
+    private final DonacionProductos donacionProductosDao = new DonacionProductos();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        HttpSession session = request.getSession();
+
+        Integer idAlbergue = (Integer) session.getAttribute("id_usuario");
+
+        if (idAlbergue == null) {
+            idAlbergue = 6;
+        }
+
+        Usuario datosAlbergue = donacionProductosDao.obtenerDatosAlbergue(idAlbergue);
+        session.setAttribute("datosUsuario", datosAlbergue);
+
         if (action == null) action = "listar"; // Valor por defecto
 
         try {
             switch (action) {
                 case "listar":
-                    listarSolicitudes(request, response); // Listar todas las solicitudes
+                    listarSolicitudes(request, response);
                     break;
 
                 case "crear":
-                    mostrarFormularioCreacion(request, response); // Mostrar formulario de creación
+                    mostrarFormularioCreacion(request, response);
                     break;
 
                 case "eliminar":
-                    eliminarSolicitud(request, response); // Eliminar una solicitud (lógica)
+                    eliminarSolicitud(request, response);
                     break;
 
                 case "verDetalles":
-                    verDetalles(request, response); // Ver detalles de una solicitud (incluye donantes)
+
+                    verDetalles(request, response);
                     break;
-                case "modificar":
+                case "modificar": // Aquí llamamos a mostrarFormularioModificacion
                     mostrarFormularioModificacion(request, response);
+                    break;
 
                 default:
-                    listarSolicitudes(request, response); // Por defecto, listar solicitudes
+                    listarSolicitudes(request, response);
                     break;
             }
         } catch (Exception e) {
@@ -54,13 +70,29 @@ public class DonacionProductosServlet extends HttpServlet {
 
     private void mostrarFormularioModificacion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            int idSolicitud = Integer.parseInt(request.getParameter("id"));
+            String idParam = request.getParameter("id");
+            if (idParam == null || idParam.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El ID de la solicitud no fue proporcionado.");
+                return;
+            }
+
+            int idSolicitud = Integer.parseInt(idParam);
             SolicitudDonacionProductos solicitud = donacionProductosDao.obtenerDetallesPorId(idSolicitud);
 
             if (solicitud != null) {
-                // Enviar la solicitud al JSP de creación
+                // Asegurarse de que horarioRecepcion no sea nulo
+                if (solicitud.getHorarioRecepcion() == null) {
+                    solicitud.setHorarioRecepcion(new HorarioRecepcionDonacion());
+                }
+
+                // Cargar puntos de acopio
+                int idUsuarioAlbergue = 6; // ID de usuario del albergue
+                List<PuntoAcopio> puntosAcopio = donacionProductosDao.obtenerPuntosAcopioPorAlbergue(idUsuarioAlbergue);
+
                 request.setAttribute("solicitud", solicitud);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("crearDonacionProductos.jsp");
+                request.setAttribute("puntosAcopio", puntosAcopio);
+
+                RequestDispatcher dispatcher = request.getRequestDispatcher("modificarDonacionProductos.jsp");
                 dispatcher.forward(request, response);
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "No se encontró la solicitud con el ID especificado.");
@@ -69,6 +101,8 @@ public class DonacionProductosServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de solicitud inválido.");
         }
     }
+
+
 
 
     private void listarSolicitudes(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -83,98 +117,67 @@ public class DonacionProductosServlet extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("DonacionProductos.jsp");
         dispatcher.forward(request, response);
     }
+
     private void verDetalles(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            // Obtener el ID de la solicitud desde la URL
-            int idSolicitud = Integer.parseInt(request.getParameter("id"));
-            System.out.println("Recibido ID de solicitud en servlet: " + idSolicitud);
+            String idParam = request.getParameter("id");
+            if (idParam == null || idParam.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de solicitud no proporcionado.");
+                return;
+            }
 
-            // 1. Llamar al DAO para obtener los detalles completos de la solicitud
+            int idSolicitud = Integer.parseInt(idParam);
             SolicitudDonacionProductos solicitud = donacionProductosDao.obtenerDetallesPorId(idSolicitud);
-            if (solicitud != null) {
-                System.out.println("Solicitud encontrada: " + solicitud.getDescripcionDonaciones());
-                if (solicitud.getHorarioRecepcion() != null) {
-                    System.out.println("Fecha de entrega (inicio): " + solicitud.getHorarioRecepcion().getFechaHoraInicio());
-                    System.out.println("Fecha de entrega (fin): " + solicitud.getHorarioRecepcion().getFechaHoraFin());
-                } else {
-                    System.out.println("Horario de recepción es NULL");
-                }
-            } else {
-                System.out.println("No se encontró solicitud para el ID: " + idSolicitud);
+
+            if (solicitud == null) {
+                response.sendRedirect(request.getContextPath() + "/ListaSolicitudesDonacionProductos?action=listar");
+                return;
             }
 
-            // 2. Llamar al DAO para obtener la lista de donantes asociados
             List<RegistroDonacionProductos> donantes = donacionProductosDao.obtenerDetallesDonacionesPorSolicitud(idSolicitud);
-            System.out.println("Total de donantes encontrados: " + (donantes != null ? donantes.size() : 0));
-
-            // Mostrar detalles de cada donante y validar relaciones intermedias
-            if (donantes != null && !donantes.isEmpty()) {
-                for (RegistroDonacionProductos donante : donantes) {
-                    System.out.println("Donante encontrado:");
-                    System.out.println("Nombre: " + donante.getUsuarioFinal().getNombres_usuario_final());
-                    System.out.println("Apellido: " + donante.getUsuarioFinal().getApellidos_usuario_final());
-                    System.out.println("Productos Donados: " + donante.getDescripcionesDonaciones());
-
-                    // Validar relaciones intermedias
-                    if (donante.getHorarioRecepcionDonacion() != null) {
-                        System.out.println("Horario Recepción Donación está presente.");
-                        if (donante.getHorarioRecepcionDonacion().getPuntoAcopioDonacion() != null) {
-                            System.out.println("Punto Acopio Donación está presente.");
-                            if (donante.getHorarioRecepcionDonacion().getPuntoAcopioDonacion().getPuntoAcopio() != null) {
-                                System.out.println("Dirección Punto Acopio: " +
-                                        donante.getHorarioRecepcionDonacion().getPuntoAcopioDonacion().getPuntoAcopio().getDireccion_punto_acopio());
-                            } else {
-                                System.out.println("Punto Acopio es NULL.");
-                            }
-                        } else {
-                            System.out.println("Punto Acopio Donación es NULL.");
-                        }
-                    } else {
-                        System.out.println("Horario Recepción Donación es NULL.");
-                    }
-                }
-            } else {
-                System.out.println("No se encontraron donantes para la solicitud con ID: " + idSolicitud);
-            }
-
-            // 3. Enviar los datos al JSP
             request.setAttribute("solicitud", solicitud);
             request.setAttribute("donantes", donantes);
 
-            // 4. Redirigir a la vista de detalles
             RequestDispatcher dispatcher = request.getRequestDispatcher("DetallesDonacionProductos.jsp");
             dispatcher.forward(request, response);
-
         } catch (NumberFormatException e) {
-            System.out.println("Error: ID de solicitud inválido.");
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de solicitud inválido.");
-        } catch (Exception e) {
-            System.out.println("Error inesperado en el servlet:");
-            e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al mostrar los detalles de la solicitud.");
         }
     }
 
-
-
-
     private void eliminarSolicitud(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            int idSolicitud = Integer.parseInt(request.getParameter("id"));
-            donacionProductosDao.eliminarSolicitudLogica(idSolicitud); // Llama al nuevo método
+            String idParam = request.getParameter("id");
+            System.out.println("ID recibido en eliminarSolicitud: " + idParam); // <-- Línea para depuración
+
+            if (idParam == null || idParam.trim().isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El ID de la solicitud no fue proporcionado.");
+                return;
+            }
+
+            int idSolicitud = Integer.parseInt(idParam);
+            System.out.println("ID convertido a entero: " + idSolicitud); // <-- Línea para depuración
+
+            donacionProductosDao.eliminarSolicitudLogica(idSolicitud);
+            System.out.println("Solicitud eliminada con éxito para ID: " + idSolicitud); // <-- Línea para depuración
+
             response.sendRedirect("ListaSolicitudesDonacionProductos?action=listar");
         } catch (NumberFormatException e) {
+            System.err.println("Error: ID de solicitud inválido."); // <-- Línea para depuración
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de solicitud inválido.");
         } catch (Exception e) {
+            System.err.println("Error al desactivar la solicitud."); // <-- Línea para depuración
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al desactivar la solicitud.");
         }
     }
 
+
     private void mostrarFormularioCreacion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int idUsuarioAlbergue = 6; // ID de albergue para pruebas
         List<PuntoAcopio> puntosAcopio = donacionProductosDao.obtenerPuntosAcopioPorAlbergue(idUsuarioAlbergue);
+
         if (puntosAcopio != null) {
             request.setAttribute("puntosAcopio", puntosAcopio);
         } else {
@@ -192,55 +195,125 @@ public class DonacionProductosServlet extends HttpServlet {
         try {
             if ("publicar".equals(action)) {
                 publicarSolicitud(request, response);
-            } else if ("eliminar".equals(action)) {
-                eliminarSolicitud(request, response);
+            } else if("actualizar".equals(action)) {
+                actualizarSolicitud(request, response);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al procesar la solicitud: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al procesar la solicitud.");
         }
     }
+
+
 
     private void publicarSolicitud(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        // Capturar datos del formulario
-        String descripcion = request.getParameter("descripcion");
-        String fechaRecepcionParam = request.getParameter("fechaRecepcion"); // Ejemplo: "2024-11-20"
-        String horaInicioParam = request.getParameter("horaInicioEvento"); // Ejemplo: "23:29"
-        String horaFinParam = request.getParameter("horaFinEvento"); // Ejemplo: "23:59"
+        try {
+            // Recuperar parámetros del formulario
+            String descripcion = request.getParameter("descripcion");
+            String fechaRecepcionParam = request.getParameter("fechaRecepcion");
+            String horaInicioParam = request.getParameter("horaInicioEvento");
+            String horaFinParam = request.getParameter("horaFinEvento");
+            String idPuntoAcopioParam = request.getParameter("puntoAcopio");
 
-        // Combinar fecha y hora en un formato compatible
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-        LocalDateTime horaInicio = LocalDateTime.parse(fechaRecepcionParam + "T" + horaInicioParam, formatter);
-        LocalDateTime horaFin = LocalDateTime.parse(fechaRecepcionParam + "T" + horaFinParam, formatter);
+            // Validar parámetros obligatorios
+            if (descripcion == null || fechaRecepcionParam == null || horaInicioParam == null || horaFinParam == null || idPuntoAcopioParam == null ||
+                    descripcion.trim().isEmpty() || fechaRecepcionParam.trim().isEmpty() || horaInicioParam.trim().isEmpty() || horaFinParam.trim().isEmpty() || idPuntoAcopioParam.trim().isEmpty()) {
+                throw new IllegalArgumentException("Faltan parámetros obligatorios: descripción, fecha, hora o punto de acopio.");
+            }
 
-        // Obtener el punto de acopio seleccionado
-        String puntoSeleccionado = request.getParameter("puntoAcopio");
-        if (puntoSeleccionado == null || puntoSeleccionado.isEmpty()) {
-            throw new IllegalArgumentException("Debe seleccionar un punto de acopio.");
+            // Convertir las fechas y horas
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+            LocalDateTime horaInicio = LocalDateTime.parse(fechaRecepcionParam + "T" + horaInicioParam, formatter);
+            LocalDateTime horaFin = LocalDateTime.parse(fechaRecepcionParam + "T" + horaFinParam, formatter);
+
+            int idPuntoAcopio = Integer.parseInt(idPuntoAcopioParam);
+
+            // Crear la solicitud
+            SolicitudDonacionProductos solicitud = new SolicitudDonacionProductos();
+            solicitud.setDescripcionDonaciones(descripcion);
+            solicitud.setFechaHoraRegistro(Date.valueOf(fechaRecepcionParam));
+            solicitud.setEsSolicitudActiva(true);
+
+            // Asociar usuario albergue
+            Usuario usuarioAlbergue = new Usuario();
+            usuarioAlbergue.setId_usuario(6); // ID de prueba
+            solicitud.setUsuarioAlbergue(usuarioAlbergue);
+
+            // Asociar estado inicial
+            Estado estado = new Estado();
+            estado.setId_estado(1); // Estado inicial
+            solicitud.setEstado(estado);
+
+            // Asociar horario y punto de acopio
+            HorarioRecepcionDonacion horario = new HorarioRecepcionDonacion();
+            horario.setFechaHoraInicio(horaInicio);
+            horario.setFechaHoraFin(horaFin);
+
+            PuntoAcopio puntoAcopio = new PuntoAcopio();
+            puntoAcopio.setId_punto_acopio(idPuntoAcopio);
+
+            PuntoAcopioDonacion puntoAcopioDonacion = new PuntoAcopioDonacion();
+            puntoAcopioDonacion.setPuntoAcopio(puntoAcopio);
+
+            horario.setPuntoAcopioDonacion(puntoAcopioDonacion);
+            solicitud.setHorarioRecepcion(horario);
+
+            // Guardar en la base de datos
+            donacionProductosDao.crearSolicitudConRelacion(solicitud, idPuntoAcopio, horaInicio, horaFin);
+
+            // Redirigir a la lista con mensaje de éxito
+            response.sendRedirect("ListaSolicitudesDonacionProductos?action=listar&mensaje=creado");
+        } catch (IllegalArgumentException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al procesar la solicitud.");
         }
-        int idPuntoAcopio = Integer.parseInt(puntoSeleccionado);
-
-        // Crear el objeto solicitud
-        SolicitudDonacionProductos solicitud = new SolicitudDonacionProductos();
-        solicitud.setDescripcionDonaciones(descripcion);
-        solicitud.setFechaHoraRegistro(Date.valueOf(fechaRecepcionParam));
-        solicitud.setEsSolicitudActiva(true);
-
-        Usuario usuarioAlbergue = new Usuario();
-        usuarioAlbergue.setId_usuario(6); // ID fijo para pruebas
-        solicitud.setUsuarioAlbergue(usuarioAlbergue);
-
-        // Asignar el estado inicial
-        Estado estado = new Estado();
-        estado.setId_estado(1); // Estado "Pendiente"
-        solicitud.setEstado(estado);
-
-        // Llamar al DAO para insertar
-        donacionProductosDao.crearSolicitudConRelacion(solicitud, idPuntoAcopio, horaInicio, horaFin);
-
-        // Redirigir a la lista de solicitudes
-        response.sendRedirect("ListaSolicitudesDonacionProductos?action=listar");
     }
+    private void actualizarSolicitud(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            // Obtener parámetros del formulario
+            int idSolicitud = Integer.parseInt(request.getParameter("id"));
+            String descripcion = request.getParameter("descripcion");
+            String fechaRecepcion = request.getParameter("fechaRecepcion");
+            String horaInicioEvento = request.getParameter("horaInicioEvento");
+            String horaFinEvento = request.getParameter("horaFinEvento");
+            int idPuntoAcopio = Integer.parseInt(request.getParameter("puntoAcopio"));
 
+            // Configurar los datos de la solicitud
+            SolicitudDonacionProductos solicitud = new SolicitudDonacionProductos();
+            solicitud.setIdSolicitudDonacionProductos(idSolicitud);
+            solicitud.setDescripcionDonaciones(descripcion);
+
+            HorarioRecepcionDonacion horario = new HorarioRecepcionDonacion();
+            horario.setFechaHoraInicio(LocalDateTime.parse(fechaRecepcion + "T" + horaInicioEvento));
+            horario.setFechaHoraFin(LocalDateTime.parse(fechaRecepcion + "T" + horaFinEvento));
+            solicitud.setHorarioRecepcion(horario);
+
+            PuntoAcopio puntoAcopio = new PuntoAcopio();
+            puntoAcopio.setId_punto_acopio(idPuntoAcopio);
+
+            PuntoAcopioDonacion puntoAcopioDonacion = new PuntoAcopioDonacion();
+            puntoAcopioDonacion.setPuntoAcopio(puntoAcopio);
+            horario.setPuntoAcopioDonacion(puntoAcopioDonacion);
+
+            // Llamar al DAO para actualizar todos los datos
+            donacionProductosDao.modificarSolicitudCompleta(solicitud);
+
+            // Redirigir con mensaje de éxito
+            System.out.println(idSolicitud);
+            System.out.println(descripcion);
+            System.out.println(fechaRecepcion);
+            System.out.println(horaInicioEvento);
+            System.out.println(horaFinEvento);
+            System.out.println(idPuntoAcopio);
+
+
+            response.sendRedirect("ListaSolicitudesDonacionProductos?action=listar&mensaje=actualizado");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al actualizar la solicitud.");
+        }
+    }
 
 }

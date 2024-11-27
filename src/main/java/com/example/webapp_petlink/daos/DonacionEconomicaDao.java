@@ -8,111 +8,26 @@ import java.util.List;
 
 public class DonacionEconomicaDao extends DaoBase {
 
-    public List<PuntoAcopio> obtenerPuntosAcopioPorAlbergue(int idUsuarioAlbergue) {
-        List<PuntoAcopio> puntos = new ArrayList<>();
-        String sql = "SELECT id_punto_acopio, direccion_punto_acopio " +
-                "FROM puntoacopio " +
-                "WHERE id_usuario_albergue = ?";
-
-        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idUsuarioAlbergue);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                PuntoAcopio punto = new PuntoAcopio();
-                punto.setId_punto_acopio(rs.getInt("id_punto_acopio"));
-                punto.setDireccion_punto_acopio(rs.getString("direccion_punto_acopio"));
-                puntos.add(punto);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return puntos;
-    }
-
-    public List<RegistroDonacionProductos> obtenerDetallesDonacionesPorSolicitud(int idSolicitud) {
-        List<RegistroDonacionProductos> detallesDonaciones = new ArrayList<>();
-
-        String sql = "SELECT " +
-                "    u.nombres_usuario_final AS nombre_usuario, " +
-                "    u.apellidos_usuario_final AS apellido_usuario, " +
-                "    pac.direccion_punto_acopio AS direccion_acopio, " +
-                "    r.fecha_hora_registro AS fecha_donacion, " +
-                "    r.descripciones_donaciones AS productos_donados " +
-                "FROM " +
-                "    registrodonacionproductos r " +
-                "INNER JOIN " +
-                "    horariorecepciondonacion h ON r.id_horario_recepcion_donacion = h.id_horario_recepcion_donacion " +
-                "INNER JOIN " +
-                "    puntoacopiodonacion pa ON h.id_punto_acopio_donacion = pa.id_punto_acopio_donacion " +
-                "INNER JOIN " +
-                "    puntoacopio pac ON pa.id_punto_acopio = pac.id_punto_acopio " +
-                "INNER JOIN " +
-                "    usuario u ON r.id_usuario_final = u.id_usuario " +
-                "WHERE " +
-                "    pa.id_solicitud_donacion_productos = ?";
-
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, idSolicitud);
-            System.out.println("Parámetro preparado con ID de solicitud: " + idSolicitud);
-
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    // Crear el bean RegistroDonacionProductos
-                    RegistroDonacionProductos registro = new RegistroDonacionProductos();
-
-                    // Crear el bean Usuario y setear sus valores
-                    Usuario usuario = new Usuario();
-                    usuario.setNombres_usuario_final(rs.getString("nombre_usuario"));
-                    usuario.setApellidos_usuario_final(rs.getString("apellido_usuario"));
-
-                    // Crear el bean PuntoAcopio y setear su dirección
-                    PuntoAcopio puntoAcopio = new PuntoAcopio();
-                    puntoAcopio.setDireccion_punto_acopio(rs.getString("direccion_acopio"));
-                    // Setear valores en el RegistroDonacionProductos
-                    registro.setUsuarioFinal(usuario);
-                    registro.setFechaHoraRegistro(rs.getTimestamp("fecha_donacion"));
-                    registro.setDescripcionesDonaciones(rs.getString("productos_donados"));
-                    System.out.println("Registro encontrado:");
-                    System.out.println("Nombre: " + usuario.getNombres_usuario_final());
-                    System.out.println("Apellido: " + usuario.getApellidos_usuario_final());
-                    System.out.println("Punto de Acopio: " + puntoAcopio.getDireccion_punto_acopio());
-                    System.out.println("Fecha de Donación: " + registro.getFechaHoraRegistro());
-                    System.out.println("Productos Donados: " + registro.getDescripcionesDonaciones());
-                    // Añadir el registro a la lista
-                    detallesDonaciones.add(registro);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al ejecutar la consulta:");
-            e.printStackTrace();
-        }
-        System.out.println("Total de registros encontrados: " + detallesDonaciones.size());
-        return detallesDonaciones;
-    }
-
-    public List<SolicitudDonacionProductos> obtenerSolicitudesActivas(int idUsuarioAlbergue) {
-        List<SolicitudDonacionProductos> solicitudes = new ArrayList<>();
-        String sql = "SELECT s.id_solicitud_donacion_productos, s.descripcion_donaciones, " +
+    public List<SolicitudDonacionEconomica> obtenerSolicitudesActivas(int idUsuarioAlbergue) {
+        List<SolicitudDonacionEconomica> solicitudes = new ArrayList<>();
+        String sql = "SELECT s.id_solicitud_donacion_economica, s.monto_solicitado, s.motivo, " +
                 "s.es_solicitud_activa, s.fecha_hora_registro, e.nombre_estado " +
-                "FROM solicituddonacionproductos s " +
+                "FROM solicituddonacioneconomica s " +
                 "JOIN estado e ON s.id_estado = e.id_estado " +
                 "WHERE s.es_solicitud_activa = true " +
                 "AND s.id_usuario_albergue = ?";
 
+
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idUsuarioAlbergue);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                SolicitudDonacionProductos solicitud = new SolicitudDonacionProductos();
-                solicitud.setIdSolicitudDonacionProductos(rs.getInt("id_solicitud_donacion_productos"));
-                solicitud.setDescripcionDonaciones(rs.getString("descripcion_donaciones"));
-                solicitud.setEsSolicitudActiva(rs.getBoolean("es_solicitud_activa"));
-                solicitud.setFechaHoraRegistro(rs.getDate("fecha_hora_registro"));
+                SolicitudDonacionEconomica solicitud = new SolicitudDonacionEconomica();
+                solicitud.setId_solicitud_donacion_economica(rs.getInt("id_solicitud_donacion_economica"));
+                solicitud.setMotivo(rs.getString("motivo"));
+                solicitud.setMonto_solicitado(rs.getInt("monto_solicitado"));
+                solicitud.setFecha_hora_registro(rs.getTimestamp("fecha_hora_registro").toLocalDateTime());
 
                 Estado estado = new Estado();
                 estado.setNombre_estado(rs.getString("nombre_estado"));
@@ -120,71 +35,53 @@ public class DonacionEconomicaDao extends DaoBase {
 
                 solicitudes.add(solicitud);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return solicitudes;
     }
 
-    public void crearSolicitudConRelacion(SolicitudDonacionProductos solicitud, int idPuntoAcopio, LocalDateTime horaInicio, LocalDateTime horaFin) {
-        String sqlInsertSolicitud = "INSERT INTO solicituddonacionproductos (descripcion_donaciones, es_solicitud_activa, fecha_hora_registro, id_estado, id_usuario_albergue) VALUES (?, ?, NOW(), ?, ?)";
-        String sqlInsertPuntoAcopio = "INSERT INTO puntoacopiodonacion (id_solicitud_donacion_productos, id_punto_acopio) VALUES (?, ?)";
-        String sqlInsertHorario = "INSERT INTO horariorecepciondonacion (id_punto_acopio_donacion, fecha_hora_inicio, fecha_hora_fin) VALUES (?, ?, ?)";
+    public void crearSolicitudEconomica(SolicitudDonacionEconomica solicitud) {
+        String sqlInsertSolicitud = "INSERT INTO solicituddonacioneconomica " +
+                "(monto_solicitado, motivo, es_solicitud_activa, fecha_hora_registro, id_estado, id_usuario_albergue) " +
+                "VALUES (?, ?, ?, NOW(), ?, ?)";
 
         try (Connection con = getConnection()) {
-            con.setAutoCommit(false);
+            con.setAutoCommit(false); // Iniciar una transacción
 
-            int idSolicitudGenerada;
+            // Insertar solicitud económica
             try (PreparedStatement psSolicitud = con.prepareStatement(sqlInsertSolicitud, Statement.RETURN_GENERATED_KEYS)) {
-                psSolicitud.setString(1, solicitud.getDescripcionDonaciones());
-                psSolicitud.setBoolean(2, solicitud.isEsSolicitudActiva());
-                psSolicitud.setInt(3, solicitud.getEstado().getId_estado());
-                psSolicitud.setInt(4, solicitud.getUsuarioAlbergue().getId_usuario());
+                psSolicitud.setInt(1, solicitud.getMonto_solicitado());
+                psSolicitud.setString(2, solicitud.getMotivo());
+                psSolicitud.setBoolean(3, solicitud.getEs_solicitud_activa());
+                psSolicitud.setInt(4, solicitud.getEstado().getId_estado());
+                psSolicitud.setInt(5, solicitud.getUsuario_albergue().getId_usuario());
 
                 psSolicitud.executeUpdate();
 
+                // Obtener el ID generado automáticamente
                 ResultSet rs = psSolicitud.getGeneratedKeys();
                 if (rs.next()) {
-                    idSolicitudGenerada = rs.getInt(1);
+                    int idSolicitudGenerada = rs.getInt(1);
+                    solicitud.setId_solicitud_donacion_economica(idSolicitudGenerada); // Guardar el ID en el objeto
                 } else {
-                    throw new SQLException("Error al generar el ID para solicituddonacionproductos.");
+                    throw new SQLException("Error al generar el ID para solicituddonacioneconomica.");
                 }
             }
 
-            int idPuntoAcopioDonacion;
-            try (PreparedStatement psPuntoAcopio = con.prepareStatement(sqlInsertPuntoAcopio, Statement.RETURN_GENERATED_KEYS)) {
-                psPuntoAcopio.setInt(1, idSolicitudGenerada);
-                psPuntoAcopio.setInt(2, idPuntoAcopio);
-                psPuntoAcopio.executeUpdate();
-
-                ResultSet rsPunto = psPuntoAcopio.getGeneratedKeys();
-                if (rsPunto.next()) {
-                    idPuntoAcopioDonacion = rsPunto.getInt(1);
-                } else {
-                    throw new SQLException("Error al generar ID para puntoacopiodonacion.");
-                }
-            }
-
-            try (PreparedStatement psHorario = con.prepareStatement(sqlInsertHorario)) {
-                psHorario.setInt(1, idPuntoAcopioDonacion);
-                psHorario.setTimestamp(2, Timestamp.valueOf(horaInicio));
-                psHorario.setTimestamp(3, Timestamp.valueOf(horaFin));
-                psHorario.executeUpdate();
-            }
-
-            con.commit();
+            con.commit(); // Confirmar la transacción
         } catch (SQLException e) {
             e.printStackTrace();
             try (Connection con = getConnection()) {
-                con.rollback();
+                con.rollback(); // Revertir la transacción si hay un error
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
         }
     }
-
     public void eliminarSolicitudLogica(int idSolicitud) throws SQLException {
-        String sqlUpdateSolicitud = "UPDATE solicituddonacionproductos SET es_solicitud_activa = false WHERE id_solicitud_donacion_productos = ?";
+        String sqlUpdateSolicitud = "UPDATE solicituddonacioneconomica SET es_solicitud_activa = false WHERE id_solicitud_donacion_economica = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlUpdateSolicitud)) {
@@ -204,66 +101,139 @@ public class DonacionEconomicaDao extends DaoBase {
         }
     }
 
-    public SolicitudDonacionProductos obtenerDetallesPorId(int idSolicitud) {
-        SolicitudDonacionProductos solicitud = null;
-
-        String sql = "SELECT s.descripcion_donaciones, h.fecha_hora_inicio, h.fecha_hora_fin " +
-                "FROM solicituddonacionproductos s " +
-                "INNER JOIN puntoacopiodonacion p ON s.id_solicitud_donacion_productos = p.id_solicitud_donacion_productos " +
-                "INNER JOIN horariorecepciondonacion h ON p.id_punto_acopio_donacion = h.id_punto_acopio_donacion " +
-                "WHERE s.id_solicitud_donacion_productos = ? LIMIT 1";
+    public SolicitudDonacionEconomica obtenerDetallesPorId(int idSolicitud) throws SQLException {
+        String sql = "SELECT s.id_solicitud_donacion_economica, s.monto_solicitado, s.motivo, " +
+                "s.fecha_hora_registro, e.nombre_estado, u.id_usuario, u.nombres_usuario_final, " +
+                "u.apellidos_usuario_final, u.imagen_qr " +
+                "FROM solicituddonacioneconomica s " +
+                "JOIN estado e ON s.id_estado = e.id_estado " +
+                "JOIN usuario u ON s.id_usuario_albergue = u.id_usuario " +
+                "WHERE s.id_solicitud_donacion_economica = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, idSolicitud);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    solicitud = new SolicitudDonacionProductos();
-                    solicitud.setDescripcionDonaciones(rs.getString("descripcion_donaciones"));
-
-                    HorarioRecepcionDonacion horario = new HorarioRecepcionDonacion();
-                    if (rs.getTimestamp("fecha_hora_inicio") != null) {
-                        horario.setFechaHoraInicio(rs.getTimestamp("fecha_hora_inicio").toLocalDateTime());
-                    }
-                    if (rs.getTimestamp("fecha_hora_fin") != null) {
-                        horario.setFechaHoraFin(rs.getTimestamp("fecha_hora_fin").toLocalDateTime());
-                    }
-                    solicitud.setHorarioRecepcion(horario);
+                // Verificar si el resultado está vacío
+                if (!rs.next()) {
+                    return null; // Devuelve null si no se encuentra la solicitud
                 }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
-        return solicitud;
+                // Crear la solicitud y asignar valores
+                SolicitudDonacionEconomica solicitud = new SolicitudDonacionEconomica();
+                solicitud.setId_solicitud_donacion_economica(rs.getInt("id_solicitud_donacion_economica"));
+                solicitud.setMotivo(rs.getString("motivo"));
+                solicitud.setMonto_solicitado(rs.getInt("monto_solicitado"));
+                solicitud.setFecha_hora_registro(rs.getTimestamp("fecha_hora_registro").toLocalDateTime());
+
+                // Asignar estado
+                Estado estado = new Estado();
+                estado.setNombre_estado(rs.getString("nombre_estado"));
+                solicitud.setEstado(estado);
+
+                // Asignar usuario asociado (albergue)
+                Usuario usuario = new Usuario();
+                usuario.setId_usuario(rs.getInt("id_usuario"));
+                usuario.setNombres_usuario_final(rs.getString("nombres_usuario_final"));
+                usuario.setApellidos_usuario_final(rs.getString("apellidos_usuario_final"));
+                usuario.setImagen_qr(rs.getBytes("imagen_qr"));
+                solicitud.setUsuario_albergue(usuario);
+
+                return solicitud;
+            }
+        }
     }
-    public void modificarSolicitud(SolicitudDonacionProductos solicitud) throws SQLException {
-        String sql = "UPDATE solicituddonacionproductos " +
-                "SET descripcion_donaciones = ?, id_estado = ?, es_solicitud_activa = ? " +
-                "WHERE id_solicitud_donacion_productos = ?";
+
+
+
+
+    public List<RegistroDonacionEconomica> obtenerRegistrosDonacionPorSolicitud(int idSolicitud) throws SQLException {
+        List<RegistroDonacionEconomica> registros = new ArrayList<>();
+
+        String sql = "SELECT rde.id_registro_donacion_economica, rde.monto_donacion, rde.fecha_hora_registro, " +
+                "u.id_usuario, u.nombres_usuario_final, u.apellidos_usuario_final " +
+                "FROM RegistroDonacionEconomica rde " +
+                "JOIN usuario u ON u.id_usuario = rde.id_usuario_final " +
+                "WHERE rde.id_solicitud_donacion_economica = ? " +
+                "ORDER BY rde.fecha_hora_registro DESC";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            // Establecer los parámetros
-            ps.setString(1, solicitud.getDescripcionDonaciones());
-            ps.setInt(2, solicitud.getEstado().getId_estado());
-            ps.setBoolean(3, solicitud.isEsSolicitudActiva());
-            ps.setInt(4, solicitud.getIdSolicitudDonacionProductos());
+            ps.setInt(1, idSolicitud);
+            System.out.println("Ejecutando consulta para obtener registros de donación con ID de solicitud: " + idSolicitud);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Crear un nuevo objeto RegistroDonacionEconomica
+                    RegistroDonacionEconomica registro = new RegistroDonacionEconomica();
+                    registro.setIdRegistroDonacionEconomica(rs.getInt("id_registro_donacion_economica"));
+                    System.out.println("ID Registro Donación: " + registro.getIdRegistroDonacionEconomica());
+
+                    registro.setMontoDonacion(rs.getInt("monto_donacion"));
+                    System.out.println("Monto Donación: " + registro.getMontoDonacion());
+
+                    registro.setFechaHoraRegistro(rs.getTimestamp("fecha_hora_registro").toLocalDateTime());
+                    System.out.println("Fecha y Hora de Registro: " + registro.getFechaHoraRegistro());
+
+                    // Asociar usuario final
+                    Usuario usuario = new Usuario();
+                    usuario.setId_usuario(rs.getInt("id_usuario"));
+                    System.out.println("ID Usuario Final: " + usuario.getId_usuario());
+
+                    usuario.setNombres_usuario_final(rs.getString("nombres_usuario_final"));
+                    System.out.println("Nombres Usuario Final: " + usuario.getNombres_usuario_final());
+
+                    usuario.setApellidos_usuario_final(rs.getString("apellidos_usuario_final"));
+                    System.out.println("Apellidos Usuario Final: " + usuario.getApellidos_usuario_final());
+
+                    registro.setUsuarioFinal(usuario);
+
+                    registros.add(registro);
+                }
+
+                if (registros.isEmpty()) {
+                    System.out.println("No se encontraron registros de donaciones para la solicitud con ID: " + idSolicitud);
+                } else {
+                    System.out.println("Registros de donación obtenidos con éxito: " + registros.size());
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener registros de donación: " + e.getMessage());
+            throw e;
+        }
+
+        return registros;
+    }
+
+    public void actualizarSolicitud(SolicitudDonacionEconomica solicitud) throws SQLException {
+        String sql = "UPDATE solicituddonacioneconomica " +
+                "SET monto_solicitado = ?, motivo = ?, fecha_hora_registro = NOW() " +
+                "WHERE id_solicitud_donacion_economica = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            // Configurar los parámetros
+            ps.setInt(1, solicitud.getMonto_solicitado());
+            ps.setString(2, solicitud.getMotivo());
+            ps.setInt(3, solicitud.getId_solicitud_donacion_economica());
 
             // Ejecutar la actualización
             int rowsUpdated = ps.executeUpdate();
-
             if (rowsUpdated > 0) {
-                System.out.println("Solicitud actualizada con éxito.");
+                System.out.println("Solicitud actualizada con éxito: ID " + solicitud.getId_solicitud_donacion_economica());
             } else {
-                throw new SQLException("No se encontró la solicitud con el ID especificado para actualizarla.");
+                throw new SQLException("No se encontró la solicitud con el ID especificado.");
             }
-
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
+            System.err.println("Error al actualizar la solicitud: " + e.getMessage());
+            throw e; // Propagar la excepción para manejarla en el Servlet
         }
     }
+
+
+
+
 }

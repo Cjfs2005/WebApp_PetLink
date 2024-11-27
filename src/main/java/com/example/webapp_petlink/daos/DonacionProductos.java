@@ -38,7 +38,9 @@ public class DonacionProductos extends DaoBase {
                 "    u.apellidos_usuario_final AS apellido_usuario, " +
                 "    pac.direccion_punto_acopio AS direccion_acopio, " +
                 "    r.fecha_hora_registro AS fecha_donacion, " +
-                "    r.descripciones_donaciones AS productos_donados " +
+                "    r.descripciones_donaciones AS productos_donados, " +
+                "    h.fecha_hora_inicio AS horario_inicio, " +
+                "    h.fecha_hora_fin AS horario_fin " +
                 "FROM " +
                 "    registrodonacionproductos r " +
                 "INNER JOIN " +
@@ -56,33 +58,45 @@ public class DonacionProductos extends DaoBase {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idSolicitud);
-            System.out.println("Parámetro preparado con ID de solicitud: " + idSolicitud);
-
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    System.out.println("Nombre Usuario: " + rs.getString("nombre_usuario"));
+                    System.out.println("Apellido Usuario: " + rs.getString("apellido_usuario"));
+                    System.out.println("Dirección Punto Acopio: " + rs.getString("direccion_acopio"));
+                    System.out.println("Fecha Donación: " + rs.getTimestamp("fecha_donacion"));
+                    System.out.println("Productos Donados: " + rs.getString("productos_donados"));
                     // Crear el bean RegistroDonacionProductos
                     RegistroDonacionProductos registro = new RegistroDonacionProductos();
 
-                    // Crear el bean Usuario y setear sus valores
+                    // Usuario
                     Usuario usuario = new Usuario();
                     usuario.setNombres_usuario_final(rs.getString("nombre_usuario"));
                     usuario.setApellidos_usuario_final(rs.getString("apellido_usuario"));
+                    registro.setUsuarioFinal(usuario);
 
-                    // Crear el bean PuntoAcopio y setear su dirección
+                    // HorarioRecepcionDonacion
+                    HorarioRecepcionDonacion horarioRecepcion = new HorarioRecepcionDonacion();
+                    horarioRecepcion.setFechaHoraInicio(rs.getTimestamp("horario_inicio").toLocalDateTime());
+                    horarioRecepcion.setFechaHoraFin(rs.getTimestamp("horario_fin").toLocalDateTime());
+
+                    // PuntoAcopio
                     PuntoAcopio puntoAcopio = new PuntoAcopio();
                     puntoAcopio.setDireccion_punto_acopio(rs.getString("direccion_acopio"));
-                    // Setear valores en el RegistroDonacionProductos
-                    registro.setUsuarioFinal(usuario);
+
+                    // PuntoAcopioDonacion
+                    PuntoAcopioDonacion puntoAcopioDonacion = new PuntoAcopioDonacion();
+                    puntoAcopioDonacion.setPuntoAcopio(puntoAcopio);
+
+                    // Relacionar los objetos
+                    horarioRecepcion.setPuntoAcopioDonacion(puntoAcopioDonacion);
+                    registro.setHorarioRecepcionDonacion(horarioRecepcion);
+
+                    // Asignar otros valores al registro
                     registro.setFechaHoraRegistro(rs.getTimestamp("fecha_donacion"));
                     registro.setDescripcionesDonaciones(rs.getString("productos_donados"));
-                    System.out.println("Registro encontrado:");
-                    System.out.println("Nombre: " + usuario.getNombres_usuario_final());
-                    System.out.println("Apellido: " + usuario.getApellidos_usuario_final());
-                    System.out.println("Punto de Acopio: " + puntoAcopio.getDireccion_punto_acopio());
-                    System.out.println("Fecha de Donación: " + registro.getFechaHoraRegistro());
-                    System.out.println("Productos Donados: " + registro.getDescripcionesDonaciones());
-                    // Añadir el registro a la lista
+
+                    // Agregar registro a la lista
                     detallesDonaciones.add(registro);
                 }
             }
@@ -90,9 +104,11 @@ public class DonacionProductos extends DaoBase {
             System.err.println("Error al ejecutar la consulta:");
             e.printStackTrace();
         }
-        System.out.println("Total de registros encontrados: " + detallesDonaciones.size());
+
         return detallesDonaciones;
     }
+
+
 
     public List<SolicitudDonacionProductos> obtenerSolicitudesActivas(int idUsuarioAlbergue) {
         List<SolicitudDonacionProductos> solicitudes = new ArrayList<>();
@@ -204,6 +220,9 @@ public class DonacionProductos extends DaoBase {
         }
     }
 
+
+
+
     public SolicitudDonacionProductos obtenerDetallesPorId(int idSolicitud) {
         SolicitudDonacionProductos solicitud = null;
 
@@ -230,6 +249,7 @@ public class DonacionProductos extends DaoBase {
                         horario.setFechaHoraFin(rs.getTimestamp("fecha_hora_fin").toLocalDateTime());
                     }
                     solicitud.setHorarioRecepcion(horario);
+                    solicitud.setIdSolicitudDonacionProductos(idSolicitud);
                 }
             }
         } catch (SQLException e) {
@@ -238,35 +258,70 @@ public class DonacionProductos extends DaoBase {
 
         return solicitud;
     }
-    public void modificarSolicitud(SolicitudDonacionProductos solicitud) throws SQLException {
-        String sql = "UPDATE solicituddonacionproductos " +
-                "SET descripcion_donaciones = ?, id_estado = ?, es_solicitud_activa = ? " +
-                "WHERE id_solicitud_donacion_productos = ?";
+
+    public void modificarSolicitudCompleta(SolicitudDonacionProductos solicitud) throws SQLException {
+        // Consulta SQL para actualizar todas las columnas
+        String sql = "UPDATE solicituddonacionproductos s " +
+                "JOIN puntoacopiodonacion p ON s.id_solicitud_donacion_productos = p.id_solicitud_donacion_productos " +
+                "JOIN horariorecepciondonacion h ON p.id_punto_acopio_donacion = h.id_punto_acopio_donacion " +
+                "SET s.descripcion_donaciones = ?, " +
+                "    h.fecha_hora_inicio = ?, " +
+                "    h.fecha_hora_fin = ?, " +
+                "    p.id_punto_acopio = ? " +
+                "WHERE s.id_solicitud_donacion_productos = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            // Establecer los parámetros
+            // Asignar parámetros a la consulta
             ps.setString(1, solicitud.getDescripcionDonaciones());
-            ps.setInt(2, solicitud.getEstado().getId_estado());
-            ps.setBoolean(3, solicitud.isEsSolicitudActiva());
-            ps.setInt(4, solicitud.getIdSolicitudDonacionProductos());
+            ps.setTimestamp(2, Timestamp.valueOf(solicitud.getHorarioRecepcion().getFechaHoraInicio()));
+            ps.setTimestamp(3, Timestamp.valueOf(solicitud.getHorarioRecepcion().getFechaHoraFin()));
+            ps.setInt(4, solicitud.getHorarioRecepcion().getPuntoAcopioDonacion().getPuntoAcopio().getId_punto_acopio());
+            ps.setInt(5, solicitud.getIdSolicitudDonacionProductos());
 
             // Ejecutar la actualización
             int rowsUpdated = ps.executeUpdate();
-
             if (rowsUpdated > 0) {
-                System.out.println("Solicitud actualizada con éxito.");
+                System.out.println("Solicitud actualizada correctamente.");
             } else {
-                throw new SQLException("No se encontró la solicitud con el ID especificado para actualizarla.");
+                throw new SQLException("No se encontró la solicitud con el ID especificado.");
             }
 
+        }
+        System.out.println("Actualizando solicitud:");
+        System.out.println("Descripción: " + solicitud.getDescripcionDonaciones());
+        System.out.println("Fecha Hora Inicio: " + solicitud.getHorarioRecepcion().getFechaHoraInicio());
+        System.out.println("Fecha Hora Fin: " + solicitud.getHorarioRecepcion().getFechaHoraFin());
+        System.out.println("ID Punto Acopio: " + solicitud.getHorarioRecepcion().getPuntoAcopioDonacion().getPuntoAcopio().getId_punto_acopio());
+        System.out.println("ID Solicitud: " + solicitud.getIdSolicitudDonacionProductos());
+
+    }
+    //Método para obtener los datos del albergue
+    public Usuario obtenerDatosAlbergue(int idAlbergue) {
+        Usuario albergue = null;
+        String sql = "SELECT u.id_usuario, u.nombre_albergue, u.foto_perfil FROM Usuario u  WHERE u.id_usuario = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idAlbergue);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                System.out.println("Se ha leido correctamente la data del usuario");
+                albergue = new Usuario();
+                albergue.setId_usuario(rs.getInt("id_usuario"));
+                albergue.setNombre_albergue(rs.getString("nombre_albergue"));
+                byte[] fotoUsuario = rs.getBytes("foto_perfil");
+                if (fotoUsuario != null) {
+                    albergue.setFoto_perfil(fotoUsuario);
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw e;
         }
-    }
 
+        return albergue;
+    }
 
 
 }
