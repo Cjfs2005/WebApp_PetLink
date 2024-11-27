@@ -1,22 +1,24 @@
 package com.example.webapp_petlink.servlets;
 
-import com.example.webapp_petlink.beans.InscripcionEventoBenefico;
-import com.example.webapp_petlink.beans.LugarEvento;
-import com.example.webapp_petlink.beans.PublicacionEventoBenefico;
-import com.example.webapp_petlink.beans.Usuario;
+import com.example.webapp_petlink.beans.*;
 import com.example.webapp_petlink.daos.EventoUsuarioDao;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 
 @WebServlet(name="EventoAlbergueServlet", value="/EventoAlbergueServlet")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,  // 1 MB
+        maxFileSize = 1024 * 1024 * 5,       // 5 MB
+        maxRequestSize = 1024 * 1024 * 50     // 50 MB
+)
 public class EventoAlbergueServlet extends HttpServlet {
 
     @Override
@@ -81,6 +83,22 @@ public class EventoAlbergueServlet extends HttpServlet {
                 dispatcher.forward(request, response);
                 break;
 
+            case "editar":
+                String idEventoStr = request.getParameter("id");
+                int iDEvento = Integer.parseInt(idEventoStr);
+                PublicacionEventoBenefico Evento = daoEvento.buscarPorId(iDEvento);
+                ArrayList<LugarEvento> lugares2 = daoEvento.listarLugaresEventos();
+                request.setAttribute("lugares", lugares2);
+
+                if(Evento != null){
+                    request.setAttribute("evento", Evento);
+                    request.getRequestDispatcher("albergue/evento_modificar.jsp").forward(request,response);
+                }
+                else{
+                    response.sendRedirect(request.getContextPath() + "/EventoAlbergueServlet");
+                }
+                break;
+
             case "eliminar":
                 String idEvento = request.getParameter("id");
                 int EventID = Integer.parseInt(idEvento);
@@ -122,7 +140,258 @@ public class EventoAlbergueServlet extends HttpServlet {
                 break;
 
             case "guardar":
+                System.out.println("HE LLEGADO AL SERVLET");
+                // 1. Extraer datos del formulario
+                String nombreEvento = request.getParameter("nombre_evento");
+                String diaEvento = request.getParameter("diaEvento");
+                String horaInicio = request.getParameter("horaInicioEvento");
+                String horaFin = request.getParameter("horaEvento");
+                String entrada = request.getParameter("entrada");
+                String razon = request.getParameter("razonEvento");
+                String descripcion = request.getParameter("descripcionEvento");
+                String artistas = request.getParameter("artistasInvitados");
+                String idLugarEventoStr = request.getParameter("distrito");
+                String aforoStr = request.getParameter("aforo");
+
+                System.out.println(horaInicio);
+                System.out.println(horaFin);
+                System.out.println(diaEvento);
+
+
+                // 2. Validar datos obligatorios
+                if (nombreEvento == null || diaEvento == null || horaInicio == null || horaFin == null ||
+                        entrada == null || razon == null || descripcion == null || idLugarEventoStr == null) {
+                    request.setAttribute("error", "Por favor, complete todos los campos obligatorios.");
+                    request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                    return;
+                }
+
+                int idLugarEvento;
+                try {
+                    idLugarEvento = Integer.parseInt(idLugarEventoStr);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "El lugar del evento seleccionado no es válido.");
+                    request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                    return;
+                }
+
+                int aforoEvento;
+                try {
+                    aforoEvento = Integer.parseInt(aforoStr);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "El aforo no es válido.");
+                    request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                    return;
+                }
+
+                // Obtener el archivo de la imagen
+                Part filePart = request.getPart("fotosEvento"); // Campo "name" en el formulario JSP
+                String fileName = null;
+                byte[] fotoBytes = null;
+
+                if (filePart != null && filePart.getSize() > 0) {
+                    // Validar tamaño máximo del archivo
+                    if (filePart.getSize() > (1024 * 1024 * 5)) { // Más de 5 MB
+                        request.setAttribute("error", "El archivo no debe superar los 5 MB.");
+                        request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                        return;
+                    }
+
+                    // Validar formato del archivo
+                    fileName = filePart.getSubmittedFileName();
+                    if (!fileName.endsWith(".png")) {
+                        request.setAttribute("error", "El archivo debe ser una imagen PNG.");
+                        request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                        return;
+                    }
+
+                    // Leer los bytes de la imagen
+                    fotoBytes = filePart.getInputStream().readAllBytes();
+                } else {
+                    request.setAttribute("error", "Debe adjuntar una imagen para el evento.");
+                    request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                    return;
+                }
+
+                // 3. Convertir fecha y hora a java.util.Date
+                Date fechaHoraInicioEvento = null;
+                Date fechaHoraFinEvento = null;
+                Date fechaHoraRegistroEvento = new Date(); // Fecha y hora actuales
+                try {
+                    SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    fechaHoraInicioEvento = dateTimeFormat.parse(diaEvento + " " + horaInicio);
+                    fechaHoraFinEvento = dateTimeFormat.parse(diaEvento + " " + horaFin);
+                } catch (Exception e) {
+                    request.setAttribute("error", "Error al procesar la fecha y hora del evento.");
+                    request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                    return;
+                }
+
+                // 3. Construir objeto PublicacionEventoBenefico
+                PublicacionEventoBenefico evento = new PublicacionEventoBenefico();
+                evento.setNombreEvento(nombreEvento);
+                evento.setEntradaEvento(entrada);
+                evento.setRazonEvento(razon);
+                evento.setAforoEvento(aforoEvento);
+
+                evento.setFechaHoraInicioEvento(fechaHoraInicioEvento);
+                evento.setFechaHoraFinEvento(fechaHoraFinEvento);
+                evento.setFechaHoraRegistro(fechaHoraRegistroEvento);
+
+                evento.setNombreFoto(fileName); // Nombre del archivo
+                evento.setFoto(fotoBytes);     // Bytes de la imagen
+
+                evento.setDescripcionEvento(descripcion);
+                evento.setArtistasProvedoresInvitados(artistas);
+
+                LugarEvento lugar = new LugarEvento();
+                lugar.setId_lugar_evento(idLugarEvento);
+                evento.setLugarEvento(lugar);
+
+                Usuario usuario = new Usuario();
+                usuario.setId_usuario(idAlbergue);
+                evento.setUsuarioAlbergue(usuario);
+
+                // Colocamos algunos ID que luego serán modificados en la opeación
+                int IdEstado = 1;
+                boolean eventoActivo = true;
+
+                Estado estado = new Estado();
+                estado.setId_estado(IdEstado);
+                evento.setEstado(estado);
+
+                evento.setEsEventoActivo(eventoActivo);
+
+                System.out.println("Datos del evento a guardar:");
+                System.out.println("Nombre: " + evento.getNombreEvento());
+                System.out.println("Fecha y Hora Inicio: " + evento.getFechaHoraInicioEvento());
+                System.out.println("Fecha y Hora Fin: " + evento.getFechaHoraFinEvento());
+                System.out.println("Lugar Evento ID: " + evento.getLugarEvento().getId_lugar_evento());
+                System.out.println("Usuario Albergue ID: " + evento.getUsuarioAlbergue().getId_usuario());
+                System.out.println("Estado ID: " + evento.getEstado().getId_estado());
+
+
+                // 4. Guardar el evento en la base de datos
+                boolean guardado = daoEvento.guardarEvento(evento);
+
+                if (guardado) {
+                    // 5. Redirigir a la lista de eventos con un mensaje de éxito
+                    response.sendRedirect(request.getContextPath() + "/EventoAlbergueServlet?action=lista&success=true");
+                } else {
+                    // Manejar el error si no se pudo guardar
+                    request.setAttribute("error", "Hubo un problema al guardar el evento. Por favor, inténtelo nuevamente.");
+                    System.out.println("ha ocurrido un error en el guardado");
+                    request.getRequestDispatcher("albergue/organizar_evento.jsp").forward(request, response);
+                }
                 break;
+
+            case "actualizar": {
+                // Obtener parámetros del formulario
+                int idEvento = Integer.parseInt(request.getParameter("id_evento"));
+                String nombreEvento1 = request.getParameter("nombre_evento");
+                String diaEvento1 = request.getParameter("diaEvento");
+                String horaInicio1 = request.getParameter("horaInicioEvento");
+                String horaFin1 = request.getParameter("horaEvento");
+                String entrada1 = request.getParameter("entrada");
+                String razon1 = request.getParameter("razonEvento");
+                String descripcion1 = request.getParameter("descripcionEvento");
+                String artistas1 = request.getParameter("artistasInvitados");
+                String idLugarEventoStr1 = request.getParameter("distrito");
+                String aforoStr1 = request.getParameter("aforo");
+
+                // Validar campos obligatorios
+                if (nombreEvento1 == null || diaEvento1 == null || horaInicio1 == null || horaFin1 == null ||
+                        entrada1 == null || razon1 == null || descripcion1 == null || idLugarEventoStr1 == null || aforoStr1 == null) {
+                    request.setAttribute("error", "Por favor, complete todos los campos obligatorios.");
+                    request.getRequestDispatcher("albergue/evento_modificar.jsp").forward(request, response);
+                    return;
+                }
+
+                // Validar y convertir datos
+                int idLugarEvento1;
+                try {
+                    idLugarEvento = Integer.parseInt(idLugarEventoStr1);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "El lugar del evento seleccionado no es válido.");
+                    request.getRequestDispatcher("albergue/evento_modificar.jsp").forward(request, response);
+                    return;
+                }
+
+                int aforoEvento1;
+                try {
+                    aforoEvento = Integer.parseInt(aforoStr1);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "El aforo no es válido.");
+                    request.getRequestDispatcher("albergue/evento_modificar.jsp").forward(request, response);
+                    return;
+                }
+
+                // Obtener la imagen desde el formulario
+                Part filePart1 = request.getPart("fotosEvento");
+                byte[] nuevaFoto = null;
+                String nuevoNombreFoto = null;
+
+                if (filePart1 != null && filePart1.getSize() > 0) {
+                    String fileName1 = filePart1.getSubmittedFileName();
+                    if (!fileName1.endsWith(".png")) {
+                        request.setAttribute("error", "El archivo debe ser una imagen PNG.");
+                        request.getRequestDispatcher("albergue/evento_modificar.jsp").forward(request, response);
+                        return;
+                    }
+                    nuevaFoto = filePart1.getInputStream().readAllBytes();
+                    nuevoNombreFoto = filePart1.getSubmittedFileName();
+                }
+
+                // Obtener evento actual para conservar la imagen si no se sube una nueva
+                PublicacionEventoBenefico eventoActual = daoEvento.buscarPorId(idEvento);
+
+                // Crear el objeto evento actualizado
+                PublicacionEventoBenefico evento1 = new PublicacionEventoBenefico();
+                evento1.setIdPublicacionEventoBenefico(idEvento);
+                evento1.setNombreEvento(nombreEvento1);
+                evento1.setEntradaEvento(entrada1);
+                evento1.setRazonEvento(razon1);
+                evento1.setAforoEvento(aforoEvento);
+                evento1.setDescripcionEvento(descripcion1);
+                evento1.setArtistasProvedoresInvitados(artistas1);
+
+                LugarEvento lugar1 = new LugarEvento();
+                lugar1.setId_lugar_evento(idLugarEvento);
+                evento1.setLugarEvento(lugar1);
+
+                Usuario usuario1 = new Usuario();
+                usuario1.setId_usuario((Integer) session.getAttribute("id_usuario"));
+                evento1.setUsuarioAlbergue(usuario1);
+
+                try {
+                    SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    evento1.setFechaHoraInicioEvento(dateTimeFormat.parse(diaEvento1 + " " + horaInicio1));
+                    evento1.setFechaHoraFinEvento(dateTimeFormat.parse(diaEvento1 + " " + horaFin1));
+                } catch (Exception e) {
+                    request.setAttribute("error", "Error al procesar la fecha y hora del evento.");
+                    request.getRequestDispatcher("albergue/evento_modificar.jsp").forward(request, response);
+                    return;
+                }
+
+                // Si no se sube una nueva imagen, conservar la existente
+                if (nuevaFoto != null) {
+                    evento1.setFoto(nuevaFoto);
+                    evento1.setNombreFoto(nuevoNombreFoto);
+                } else {
+                    evento1.setFoto(eventoActual.getFoto());
+                    evento1.setNombreFoto(eventoActual.getNombreFoto());
+                }
+
+                // Actualizar el evento en la base de datos
+                boolean actualizado = daoEvento.actualizarEvento(evento1);
+                if (actualizado) {
+                    response.sendRedirect(request.getContextPath() + "/EventoAlbergueServlet?action=lista&success=true");
+                } else {
+                    request.setAttribute("error", "Hubo un problema al actualizar el evento. Inténtelo nuevamente.");
+                    request.getRequestDispatcher("albergue/evento_modificar.jsp").forward(request, response);
+                }
+                break;
+            }
 
         }
     }

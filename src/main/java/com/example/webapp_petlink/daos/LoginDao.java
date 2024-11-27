@@ -7,6 +7,8 @@ import com.example.webapp_petlink.beans.Distrito;
 import com.example.webapp_petlink.beans.Rol;
 import com.example.webapp_petlink.beans.Zona;
 import com.example.webapp_petlink.beans.PostulacionHogarTemporal;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginDao extends DaoBase{
 
@@ -18,12 +20,18 @@ public class LoginDao extends DaoBase{
                 "LEFT JOIN distrito d ON u.id_distrito = d.id_distrito " +
                 "LEFT JOIN zona z ON d.id_zona = z.id_zona " +
                 "LEFT JOIN postulacionhogartemporal p ON u.id_ultima_postulacion_hogar_temporal = p.id_postulacion_hogar_temporal " +
-                "WHERE u.correo_electronico = ? AND u.contrasenia = ? AND u.es_usuario_activo = 1";
+                "WHERE u.correo_electronico = ? AND u.contrasenia_hashed = ? AND u.es_usuario_activo = 1";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, correo);
-            pstmt.setString(2, contrasenia);
+
+
+            String contrasenia_hashed = hashString(contrasenia, "SHA-256");
+
+            System.out.println(contrasenia_hashed);
+
+            pstmt.setString(2, contrasenia_hashed);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -38,6 +46,28 @@ public class LoginDao extends DaoBase{
         return usuario;
     }
 
+    public static String hashString(String input, String algorithm) {
+        try {
+            // Create MessageDigest instance for the specified algorithm
+            MessageDigest digest = MessageDigest.getInstance(algorithm);
+
+            // Perform the hashing
+            byte[] hashBytes = digest.digest(input.getBytes());
+
+            // Convert byte array to hexadecimal String
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("No se encontro ningun algoritmo asi!", e);
+        }
+    }
 
     private Usuario fetchUsuarioData(ResultSet rs) throws SQLException {
         Usuario usuario = new Usuario();
@@ -87,6 +117,8 @@ public class LoginDao extends DaoBase{
         usuario.setFecha_nacimiento(
                 rs.getDate("fecha_nacimiento") != null ? rs.getDate("fecha_nacimiento").toLocalDate() : null);
         usuario.setDescripcion_perfil(rs.getString("descripcion_perfil"));
+
+        usuario.setContrasenia_hashed(rs.getString("contrasenia_hashed"));
 
         // Asignación del Rol
         if (rs.getObject("id_rol") != null) { // Verificar si el rol es null

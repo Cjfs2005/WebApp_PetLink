@@ -70,7 +70,7 @@ public class DenunciaServlet extends HttpServlet {
     private void listarDenuncias(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<DenunciaMaltratoAnimal> denuncias = denunciaDAO.obtenerTodasLasDenuncias();
         request.setAttribute("denuncias", denuncias);
-        request.getRequestDispatcher("denuncias.jsp").forward(request, response);
+        request.getRequestDispatcher("usuarioFinal/denuncia_usuario.jsp").forward(request, response);
     }
 
     // Mostrar una denuncia específica
@@ -79,7 +79,7 @@ public class DenunciaServlet extends HttpServlet {
         DenunciaMaltratoAnimal denuncia = denunciaDAO.obtenerDenunciaPorId(id);
         if (denuncia != null) {
             request.setAttribute("denuncia", denuncia);
-            request.getRequestDispatcher("ver_denuncia.jsp").forward(request, response);
+            request.getRequestDispatcher("usuarioFinal/denuncia_usuario.jsp").forward(request, response);
         } else {
             response.sendRedirect("denuncias?action=list");
         }

@@ -21,16 +21,16 @@ public class AdopcionesAlbergueServlet extends HttpServlet{
         RequestDispatcher view;
 
         // Validar el parámetro id_usuario
-        String idUsuarioParam = request.getParameter("id_usuario");
-        if (idUsuarioParam == null || idUsuarioParam.isEmpty()) {
-            response.sendRedirect("error.jsp");
-            return;
-        }
 
-        int idUsuario;
-        try {
-            idUsuario = Integer.parseInt(idUsuarioParam);
-        } catch (NumberFormatException e) {
+        HttpSession sesion = request.getSession();
+
+        Usuario sessionUsuario = (Usuario) sesion.getAttribute("usuario");
+
+        int idUsuario = sessionUsuario.getId_usuario();
+
+        Integer idUsuarioParam = idUsuario;
+
+        if (idUsuarioParam == null) {
             response.sendRedirect("error.jsp");
             return;
         }

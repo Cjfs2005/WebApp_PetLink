@@ -32,7 +32,7 @@ public class AdopcionesUsuarioFinalServlet extends HttpServlet {
         }
 
         switch (accion) {
-            case "ver":
+            case "ver": {
 
                 // Obtenemos la ID del usuario desde la sesion
                 HttpSession session = request.getSession();
@@ -53,7 +53,7 @@ public class AdopcionesUsuarioFinalServlet extends HttpServlet {
 
                 request.setAttribute("datosUsuario", datosUsuario);
 
-                ArrayList<PublicacionMascotaAdopcion> publicacionesAdopcion= adopcionUsuarioFinalDao.obtenerListaPublicacionesAdopcion();
+                ArrayList<PublicacionMascotaAdopcion> publicacionesAdopcion = adopcionUsuarioFinalDao.obtenerListaPublicacionesAdopcion();
 
                 request.setAttribute("publicacionesAdopcion", publicacionesAdopcion);
 
@@ -82,6 +82,48 @@ public class AdopcionesUsuarioFinalServlet extends HttpServlet {
                 }
 
                 break;
+            }
+            case "detalles": {
+
+                HttpSession session = request.getSession();
+                Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+                if (usuario != null) {
+
+                    //Validaciones
+
+                   String idPublicacionParameter = request.getParameter("idPublicacion");
+
+                    System.out.println("idPublicacionParameter: " + idPublicacionParameter);
+
+                    if(idPublicacionParameter != null){
+
+                        int idPublicacion = Integer.parseInt(idPublicacionParameter);
+
+                        //Obtencion de la data y envio hacia el jsp
+
+                        PublicacionMascotaAdopcion publicacion = adopcionUsuarioFinalDao.obtenerPublicacionAdopcion(idPublicacion);
+
+                        request.setAttribute("publicacion", publicacion);
+
+                        dispatcher = request.getRequestDispatcher("usuarioFinal/detalles_adopciones_usuario_final.jsp");
+
+                        dispatcher.forward(request, response);
+                        break;
+                    }
+                    else{
+                        System.out.println("Id Publicacion nula");
+                        response.sendRedirect("error.jsp");
+                        break;
+                    }
+                }
+                else{
+                    System.out.println("Usuario nulo");
+                    response.sendRedirect("error.jsp");
+                }
+
+                break;
+            }
             default:
                 response.sendRedirect("error.jsp");
                 break;

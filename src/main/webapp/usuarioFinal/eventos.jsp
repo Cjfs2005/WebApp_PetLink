@@ -6,7 +6,7 @@
 <%@ page import="java.util.Base64" %>
 <%
     ArrayList<PublicacionEventoBenefico> listaEventos = (ArrayList<PublicacionEventoBenefico>) request.getAttribute("listaEventos");
-    Usuario usuario = (Usuario) session.getAttribute("datosUsuario");
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
     String nombreUsuario = usuario.getNombres_usuario_final();
     String apellidoUsuario = usuario.getApellidos_usuario_final();
     String fotoPerfilBase64 = "";

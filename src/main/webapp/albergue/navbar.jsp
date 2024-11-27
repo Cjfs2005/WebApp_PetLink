@@ -49,7 +49,7 @@
         </nav>
 
         <nav id="logout">
-            <a href="../bienvenidos.html" id="cerrar-sesion">Cerrar Sesión</a>
+            <a href="${pageContext.request.contextPath}/LoginServlet" id="cerrar-sesion">Cerrar Sesión</a>
         </nav>
     </div>
 </div>
