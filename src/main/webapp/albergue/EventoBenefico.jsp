@@ -23,6 +23,23 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/albergue/assets/css/aditional.css">
     <script src="<%=request.getContextPath()%>/albergue/assets/js/pagination.js"></script>
     <link rel="icon" href="<%=request.getContextPath()%>/albergue/images/favicon.png" type="image/x-icon">
+    <style>
+        .estado-aprobada {
+            color: green;
+            font-weight: bold;
+        }
+
+        .estado-pendiente {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .estado-rechazada {
+            color: red;
+            font-weight: bold;
+        }
+
+    </style>
 </head>
 <body class="is-preload">
 
@@ -39,7 +56,11 @@
                 <h1 class="logo" style="display: inline-block;"><strong>EVENTOS BENÉFICOS</strong></h1>
                 <!-- Sección para el nombre y enlace al perfil -->
                 <a href="<%=request.getContextPath()%>/albergue/perfil.jsp" class="user-profile">
-                    <span class="ocultar"><%=nombreUsuario %></span> <img src="<%=request.getContextPath()%>/albergue/images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
+                    <% if (albergue.getFoto_perfil() != null) {%>
+                    <span class="ocultar"><%=nombreUsuario%></span> <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
+                    <% } else {%>
+                    <span class="ocultar"><%=nombreUsuario%></span> <img src="<%=request.getContextPath()%>/albergue/images/sin_perfil.png" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+                    <% } %>
                 </a>
             </header>
 
@@ -59,7 +80,7 @@
                 <ul class="actions" style="list-style: none; margin: 0; padding: 0;">
                     <li style="display: inline; padding-left: 0;">
                         <a href="<%=request.getContextPath()%>/EventoAlbergueServlet?action=crear" class="button primary big" style="float: left; margin: 0;">
-                            Publicar aviso
+                            Crear nuevo evento
                         </a>
                     </li>
                 </ul>
@@ -94,7 +115,11 @@
                         </ul>
                     </div>
                     <span class="image object">
-                            <img src="" alt="<%=evento.getNombreFoto()%>" />
+                            <% if (evento.getFoto() != null && evento.getFoto().length > 0) { %>
+                        <img src="data:image/png;base64,<%= Base64.getEncoder().encodeToString(evento.getFoto()) %>" alt="Imagen de evento" />
+                    <% } else { %>
+                        <img src="<%=request.getContextPath()%>/usuarioFinal/images/pic01.jpg" alt="Imagen de evento" />
+                    <% } %>
                         </span>
                 </section>
                 <%

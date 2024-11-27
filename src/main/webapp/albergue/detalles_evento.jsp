@@ -6,6 +6,11 @@
 <%@ page import="java.util.Base64" %>
 <%
     PublicacionEventoBenefico evento = (PublicacionEventoBenefico) request.getAttribute("evento");
+    String fotoEventoBase64 = "";
+    if (evento.getFoto() != null) {
+        fotoEventoBase64 = Base64.getEncoder().encodeToString(evento.getFoto());
+    }
+
     Usuario albergue = (Usuario) session.getAttribute("datosUsuario");
     String nombreUsuario = albergue.getNombre_albergue();
     String fotoPerfilBase64 = "";
@@ -68,7 +73,11 @@
                 <h1 class="logo"><strong>Detalles del evento</strong></h1>
                 <!-- Sección para el nombre y enlace al perfil -->
                 <a href="perfil.html" class="user-profile">
-                    <span class="ocultar"><%=nombreUsuario%></span> <img src="images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
+                    <% if (albergue.getFoto_perfil() != null) {%>
+                    <span class="ocultar"><%=nombreUsuario%></span> <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
+                    <% } else {%>
+                    <span class="ocultar"><%=nombreUsuario%></span> <img src="<%=request.getContextPath()%>/albergue/images/sin_perfil.png" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+                    <% } %>
                 </a>
             </header>
 
@@ -81,8 +90,11 @@
                     </header>
 
                     <div class="contenedor-imagenes">
-                        <img src="images/evento1.png" alt="Imagen 1">
-
+                        <% if (evento.getFoto() != null) {%>
+                        <img src="data:image/png;base64,<%= fotoEventoBase64 %>" alt="<%=evento.getNombreFoto()%>" class="img-unica">
+                        <% } else {%>
+                        <img src="<%=request.getContextPath()%>/usuarioFinal/images/pic01.jpg" alt="<%=evento.getNombreFoto()%>" class="img-unica">
+                        <% } %>
                     </div>
 
                     <p><strong>Razón del evento: </strong><%=evento.getRazonEvento()%></p>
@@ -110,7 +122,7 @@
                         </li>
                         <li><strong>Lugar: </strong>
                             <% if (evento.getLugarEvento() != null && evento.getLugarEvento().getDistrito() != null) { %>
-                            <%=evento.getLugarEvento().getDireccion_lugar_evento()%> - <%=evento.getLugarEvento().getDistrito()%>
+                            <%=evento.getLugarEvento().getDireccion_lugar_evento()%> - <%=evento.getLugarEvento().getDistrito().getNombre_distrito()%>
                             <% } else { %>
                             Información no disponible
                             <% } %>
@@ -129,7 +141,7 @@
                             </span>
                         </li>
                     </ul>
-                    <p><strong>Lista de usuarios inscritos: </strong>3/100</p>
+                    <p><strong>Lista de usuarios inscritos: </strong><%=inscritos.size()%>/<%=evento.getAforoEvento()%></p>
                     <div class="table-responsive">
                         <table table id="example" class="table table-striped" style="width:100%;">
                             <thead>
@@ -180,7 +192,7 @@
                         <!-- Break -->
                         <div class="col-12">
                             <ul class="actions form-buttons">
-                                <li><a href="evento_modificar.html" class="button primary big">Modificar</a></li>
+                                <li><a href="<%=request.getContextPath()%>/EventoAlbergueServlet?action=editar&id=<%=evento.getIdPublicacionEventoBenefico()%>" class="button primary big">Modificar</a></li>
                                 <li><a href="#" class="button big" id="openModal">Eliminar</a></li>
                             </ul>
                         </div>
