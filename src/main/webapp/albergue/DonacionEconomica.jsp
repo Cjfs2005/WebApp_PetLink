@@ -46,7 +46,7 @@
             <section style="margin: 0; margin-top: 20px; padding: 0; height: auto; display: flex; align-items: center;">
                 <ul class="actions" style="list-style: none; margin: 0; padding: 0;">
                     <li style="display: inline; padding-left: 0;">
-                        <a href="FormularioDonacionEconomica.jsp" class="button primary big" style="float: left; margin: 0;">
+                        <a href="ListaSolicitudesDonacionEconomica?action=mostrar" class="button primary big" style="float: left; margin: 0;">
                             Publicar aviso
                         </a>
 

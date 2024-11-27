@@ -17,9 +17,9 @@
     <title>Crear Solicitud de Donaciones de Productos</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="albergue/assets/css/main.css" />
-    <link rel="stylesheet" href="albergue/assets/css/aditional.css">
-    <link rel="icon" href="albergue/images/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="assets/css/aditional.css">
+    <link rel="icon" href="images/favicon.png" type="image/x-icon">
     <style>
         #charCount {
             font-size: 12px;
@@ -59,7 +59,7 @@
                 <h1 class="logo"><strong>Crear Donación de Productos</strong></h1>
                 <a href="perfil.html" class="user-profile">
                     <span class="ocultar">Huellitas PUCP</span>
-                    <img src="albergue/images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
+                    <img src="images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
                 </a>
             </header>
 
@@ -67,7 +67,7 @@
             <section class="banner">
                 <div class="content">
                     <header>
-                        <img src="albergue/images/form.png" class="icons">
+                        <img src="images/form.png" class="icons">
                         <h2>Formulario para Crear Solicitud</h2>
                     </header>
                     <p><strong>Descripción:</strong> Complete los detalles para registrar una nueva solicitud de donaciones de productos.</p>
@@ -138,7 +138,7 @@
             <section class="perfil">
                 <div class="mini-posts">
                     <article>
-                        <img src="albergue/images/logo_huellitas.png" alt="" id="image-perfil">
+                        <img src="images/logo_huellitas.png" alt="" id="image-perfil">
                         <h2 id="usuario">HUELLITAS PUCP</h2>
                     </article>
                 </div>
@@ -182,11 +182,11 @@
 </script>
 
 <!-- Scripts -->
-<script src="albergue/assets/js/jquery.min.js"></script>
-<script src="albergue/assets/js/browser.min.js"></script>
-<script src="albergue/assets/js/breakpoints.min.js"></script>
-<script src="albergue/assets/js/util.js"></script>
-<script src="albergue/assets/js/main.js"></script>
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

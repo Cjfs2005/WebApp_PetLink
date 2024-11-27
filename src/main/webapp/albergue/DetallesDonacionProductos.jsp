@@ -12,9 +12,9 @@
   <!-- Bootstrap y DataTables -->
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css"/>
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css"/>
-  <link rel="stylesheet" href="albergue/assets/css/main.css" />
-  <link rel="stylesheet" href="albergue/assets/css/aditional.css">
-  <link rel="icon" href="albergue/images/favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link rel="stylesheet" href="assets/css/aditional.css">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
 
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -44,8 +44,8 @@
   <!-- Bootstrap y DataTables -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="albergue/assets/css/main.css">
-  <link rel="stylesheet" href="albergue/assets/css/aditional.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/aditional.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
@@ -60,7 +60,7 @@
         <h1 class="logo"><strong>Detalles</strong></h1>
         <a href="perfil.html" class="user-profile">
           <span class="ocultar">Huellitas PUCP</span>
-          <img src="albergue/images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
+          <img src="images/logo_huellitas.png" style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
         </a>
       </header>
 
@@ -68,7 +68,7 @@
       <section class="banner">
         <div class="content">
           <header>
-            <img src="albergue/images/form.png" class="icons">
+            <img src="images/form.png" class="icons">
             <h2>Detalles de la donación de productos</h2>
           </header>
           <p><strong>Descripción:</strong> <%= descripcion %></p>
@@ -118,10 +118,7 @@
                 </td>
               </tr>
               <% } %>
-              <% } else { %>
-              <tr>
-                <td colspan="5" class="text-center">No hay donantes disponibles</td>
-              </tr>
+
               <% } %>
               </tbody>
             </table>
@@ -169,13 +166,13 @@
   <div id="sidebar">
     <div class="inner">
       <section class="alt" id="sidebar-header">
-        <img src="albergue/images/favicon.png" alt="Logo" id="sidebar-icon">
+        <img src="images/favicon.png" alt="Logo" id="sidebar-icon">
         <p id="sidebar-title">PetLink</p>
       </section>
       <section class="perfil">
         <div class="mini-posts">
           <article>
-            <img src="albergue/images/logo_huellitas.png" alt="" id="image-perfil">
+            <img src="images/logo_huellitas.png" alt="" id="image-perfil">
             <h2 id="usuario">HUELLITAS PUCP</h2>
           </article>
         </div>
@@ -207,7 +204,7 @@
 <script src="<%=request.getContextPath()%>assets/js/jquery.min.js"></script>
 <script src="<%=request.getContextPath()%>assets/js/browser.min.js"></script>
 <script src="<%=request.getContextPath()%>assets/js/breakpoints.min.js"></script>
-<script src="albergue/assets/js/util.js"></script>
-<script src="albergue/assets/js/main.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>

@@ -30,6 +30,7 @@
     </style>
 
 </head>
+
 <body class="is-preload">
 
     <!-- Wrapper -->
@@ -43,7 +44,11 @@
 
                 <!-- Header -->
                 <header id="header">
-                    <img src="<%=request.getContextPath()%>/albergue/images/logo_adopcion.png" class="icons">
+                    <img src="<%=request.getContextPath()%>
+
+
+
+                    /images/logo_adopcion.png" class="icons">
                     <h1 class="logo" style="display: inline-block;"><strong>ADOPCIONES</strong></h1>
 
                     <!-- Sección para el nombre y enlace al perfil -->

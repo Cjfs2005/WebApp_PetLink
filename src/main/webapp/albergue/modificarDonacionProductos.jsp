@@ -154,7 +154,7 @@
             </section>
         </div>
     </div>
-       <jsp:include page="albergue/navbar.jsp">
+       <jsp:include page="navbar.jsp">
         <jsp:param name="idUsuario" value="<%= albergue.getId_usuario() %>" />
         <jsp:param name="nombreAlbergue" value="<%= albergue.getNombre_albergue() %>" />
         <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />

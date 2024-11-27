@@ -92,7 +92,7 @@ public class DonacionProductosServlet extends HttpServlet {
                 request.setAttribute("solicitud", solicitud);
                 request.setAttribute("puntosAcopio", puntosAcopio);
 
-                RequestDispatcher dispatcher = request.getRequestDispatcher("modificarDonacionProductos.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/modificarDonacionProductos.jsp");
                 dispatcher.forward(request, response);
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "No se encontró la solicitud con el ID especificado.");
@@ -114,7 +114,7 @@ public class DonacionProductosServlet extends HttpServlet {
             request.setAttribute("error", "No se pudieron cargar las solicitudes.");
         }
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("DonacionProductos.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/DonacionProductos.jsp");
         dispatcher.forward(request, response);
     }
 
@@ -138,7 +138,7 @@ public class DonacionProductosServlet extends HttpServlet {
             request.setAttribute("solicitud", solicitud);
             request.setAttribute("donantes", donantes);
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("DetallesDonacionProductos.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/DetallesDonacionProductos.jsp");
             dispatcher.forward(request, response);
         } catch (NumberFormatException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de solicitud inválido.");
@@ -184,7 +184,7 @@ public class DonacionProductosServlet extends HttpServlet {
             request.setAttribute("error", "No se pudieron cargar los puntos de acopio.");
         }
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("crearDonacionProductos.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/crearDonacionProductos.jsp");
         dispatcher.forward(request, response);
     }
 

@@ -45,6 +45,8 @@
                     case "VerDetalles":
                         verDetalles(request, response);
                         break;
+                    case "mostrar":
+                        mostrarFormularioCreacion(request, response);
                     default:
                         response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
                         break;
@@ -59,9 +61,15 @@
             int idUsuarioAlbergue = 6; // ID de albergue (prueba)
             List<SolicitudDonacionEconomica> solicitudes = donacionEconomicaDao.obtenerSolicitudesActivas(idUsuarioAlbergue);
             request.setAttribute("solicitudes", solicitudes);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("DonacionEconomica.jsp");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/DonacionEconomica.jsp");
             dispatcher.forward(request, response);
         }
+
+        private void mostrarFormularioCreacion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/FormularioDonacionEconomica.jsp");
+            dispatcher.forward(request, response);
+        }
+
 
         private void crearSolicitud(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
             try {
@@ -166,7 +174,7 @@
                 request.setAttribute("registrosDonacion", registros);
 
                 // Redirigir al JSP
-                RequestDispatcher dispatcher = request.getRequestDispatcher("detalles_don_economica.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/detalles_don_economica.jsp");
                 dispatcher.forward(request, response);
                 System.out.println("Redirigiendo al JSP de detalles...");
             } catch (NumberFormatException e) {
@@ -199,7 +207,7 @@
 
                 // Pasar los datos al JSP
                 request.setAttribute("solicitud", solicitud);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("modificarDonacionEconomica.jsp");
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/modificarDonacionEconomica.jsp");
                 dispatcher.forward(request, response);
             } catch (NumberFormatException | SQLException e) {
                 e.printStackTrace();
