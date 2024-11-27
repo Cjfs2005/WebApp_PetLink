@@ -2,10 +2,7 @@ package com.example.webapp_petlink.daos;
 
 import com.example.webapp_petlink.beans.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class EventoUsuarioDao extends DaoBase{
@@ -126,7 +123,7 @@ public class EventoUsuarioDao extends DaoBase{
         String sql = "SELECT p.id_publicacion_evento_benefico, p.nombre_evento, p.fecha_hora_registro, " +
                 "p.foto, p.nombre_foto, p.razon_evento, p.descripcion_evento, p.artistas_provedores_invitados, " +
                 "p.fecha_hora_inicio_evento, p.fecha_hora_fin_evento, p.es_evento_activo, " +
-                "p.aforo_evento, p.entrada_evento, u.nombre_albergue, l.direccion_lugar_evento, d.nombre_distrito, e.nombre_estado, " +
+                "p.aforo_evento, p.entrada_evento, u.nombre_albergue, l.*, d.nombre_distrito, e.nombre_estado, " +
                 "(SELECT COUNT(*) FROM InscripcionEventoBenefico i " +
                 "WHERE i.id_evento_benefico = p.id_publicacion_evento_benefico) AS cantidad_asistentes " +
                 "FROM PublicacionEventoBenefico p " +
@@ -162,6 +159,13 @@ public class EventoUsuarioDao extends DaoBase{
 
                     LugarEvento lugar = new LugarEvento();
                     lugar.setDireccion_lugar_evento(rs.getString("direccion_lugar_evento"));
+                    lugar.setNombre_lugar_evento(rs.getString("nombre_lugar_evento"));
+                    System.out.println(lugar.getDireccion_lugar_evento());
+                    System.out.println(lugar.getNombre_lugar_evento());
+
+                    lugar.setAforo_maximo(rs.getInt("aforo_maximo"));
+                    System.out.println(lugar.getAforo_maximo());
+
 
                     Distrito distrito = new Distrito();
                     distrito.setNombre_distrito(rs.getString("nombre_distrito"));
@@ -303,7 +307,9 @@ public class EventoUsuarioDao extends DaoBase{
         ArrayList<PublicacionEventoBenefico> listaEventos = new ArrayList<>();
 
 
-        String sql = "SELECT * FROM PublicacionEventoBenefico WHERE id_usuario_albergue = ?";
+        String sql = "SELECT * FROM PublicacionEventoBenefico WHERE id_usuario_albergue = ? "
+                + "AND PublicacionEventoBenefico.fecha_hora_fin_evento >= CURDATE() "
+                + "ORDER BY PublicacionEventoBenefico.fecha_hora_inicio_evento ASC";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -426,17 +432,6 @@ public class EventoUsuarioDao extends DaoBase{
         }
     }
 
-    public void crearEvento() {
-        String sql = "UPDATE FROM PublicacionEventoBenefico";
-
-        try (Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public ArrayList<LugarEvento> listarLugaresEventos () {
         ArrayList<LugarEvento> lugares = new ArrayList<>();
         String sql = "SELECT * FROM LugarEvento l " +
@@ -479,4 +474,75 @@ public class EventoUsuarioDao extends DaoBase{
             e.printStackTrace();
         }
     }
+
+    public boolean guardarEvento(PublicacionEventoBenefico evento) {
+        String sql = "INSERT INTO PublicacionEventoBenefico (nombre_evento, fecha_hora_inicio_evento, fecha_hora_fin_evento, entrada_evento, razon_evento, descripcion_evento, artistas_provedores_invitados, id_lugar_evento, id_usuario_albergue, es_evento_activo, id_estado, fecha_hora_registro, aforo_evento, foto, nombre_foto) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, evento.getNombreEvento());
+            stmt.setTimestamp(2, new Timestamp(evento.getFechaHoraInicioEvento().getTime()));
+            stmt.setTimestamp(3, new Timestamp(evento.getFechaHoraFinEvento().getTime()));
+
+            stmt.setString(4, evento.getEntradaEvento());
+            stmt.setString(5, evento.getRazonEvento());
+            stmt.setString(6, evento.getDescripcionEvento());
+            stmt.setString(7, evento.getArtistasProvedoresInvitados());
+            stmt.setInt(8, evento.getLugarEvento().getId_lugar_evento());
+            stmt.setInt(9, evento.getUsuarioAlbergue().getId_usuario());
+            stmt.setBoolean(10, evento.isEsEventoActivo());
+            stmt.setInt(11, evento.getEstado().getId_estado());
+            stmt.setTimestamp(12, new Timestamp(evento.getFechaHoraRegistro().getTime())); // Agregar fecha de registro
+            stmt.setInt(13, evento.getAforoEvento());
+            stmt.setBytes(14, evento.getFoto());
+            stmt.setString(15, evento.getNombreFoto());
+
+            return stmt.executeUpdate() > 0; // Retorna true si se guardó correctamente
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean actualizarEvento(PublicacionEventoBenefico evento) {
+        String sql = "UPDATE PublicacionEventoBenefico SET nombre_evento = ?, fecha_hora_inicio_evento = ?, fecha_hora_fin_evento = ?, "
+                + "entrada_evento = ?, razon_evento = ?, descripcion_evento = ?, artistas_provedores_invitados = ?, "
+                + "id_lugar_evento = ?, aforo_evento = ?, foto = ?, nombre_foto = ? WHERE id_publicacion_evento_benefico = ?";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Asignar valores a los parámetros
+            stmt.setString(1, evento.getNombreEvento());
+            stmt.setTimestamp(2, new Timestamp(evento.getFechaHoraInicioEvento().getTime()));
+            stmt.setTimestamp(3, new Timestamp(evento.getFechaHoraFinEvento().getTime()));
+            stmt.setString(4, evento.getEntradaEvento());
+            stmt.setString(5, evento.getRazonEvento());
+            stmt.setString(6, evento.getDescripcionEvento());
+            stmt.setString(7, evento.getArtistasProvedoresInvitados());
+            stmt.setInt(8, evento.getLugarEvento().getId_lugar_evento());
+            stmt.setInt(9, evento.getAforoEvento());
+
+            // Manejar la imagen: si es nula, asignar NULL en la base de datos
+            if (evento.getFoto() != null) {
+                stmt.setBytes(10, evento.getFoto());
+                stmt.setString(11, evento.getNombreFoto());
+            } else {
+                stmt.setNull(10, java.sql.Types.BLOB);
+                stmt.setNull(11, java.sql.Types.VARCHAR);
+            }
+
+            // ID del evento
+            stmt.setInt(12, evento.getIdPublicacionEventoBenefico());
+
+            // Ejecutar la actualización
+            return stmt.executeUpdate() > 0; // Retorna true si se actualizó al menos un registro
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
