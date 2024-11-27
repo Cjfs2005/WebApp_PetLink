@@ -59,7 +59,9 @@
                     <!-- Información del perfil -->
                     <div class="perfil-info">
                         <div class="left-section">
+                            <%if(postulacion.getUsuario_final().getFoto_perfil()!= null){%>
                             <img src="<%="data:image/png;base64," +Base64.getEncoder().encodeToString(postulacion.getUsuario_final().getFoto_perfil())%>" alt="Foto de perfil">
+                            <%}%>
                         </div>
                         <div class="central-section">
                             <h2><%=postulacion.getUsuario_final().getNombres_usuario_final()%> <%=postulacion.getUsuario_final().getApellidos_usuario_final()%></h2>
