@@ -65,7 +65,7 @@ public class HogarTemporalDao extends DaoBase {
 
     public Estado fetchEstadoData(int idEstado) {
         Estado estado = null;
-        String sql = "SELECT * FROM estado WHERE id_estado = ?";
+        String sql = "SELECT * FROM Estado WHERE id_estado = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -88,8 +88,8 @@ public class HogarTemporalDao extends DaoBase {
         ArrayList<SolicitudHogarTemporal> solicitudes = new ArrayList<>();
         String sql = "SELECT s.*, u.id_usuario, u.nombre_albergue, u.id_rol, e.id_estado AS estado_id, e.nombre_estado " +
                 "FROM SolicitudHogarTemporal s " +
-                "LEFT JOIN usuario u ON s.id_usuario_albergue = u.id_usuario " +
-                "LEFT JOIN estado e ON s.id_estado = e.id_estado " +
+                "LEFT JOIN Usuario u ON s.id_usuario_albergue = u.id_usuario " +
+                "LEFT JOIN Estado e ON s.id_estado = e.id_estado " +
                 "WHERE s.id_postulacion_hogar_temporal = ? " +
                 "ORDER BY s.id_solicitud_hogar_temporal DESC;";
 
