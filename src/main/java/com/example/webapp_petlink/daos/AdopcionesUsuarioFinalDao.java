@@ -131,7 +131,7 @@ public class AdopcionesUsuarioFinalDao extends DaoBase{
 
         ArrayList<PostulacionConPublicacionAdopcion> historialPostulacionMascotaAdopcion = new ArrayList<>();
 
-        String query = "SELECT po.id_publicacion_mascota_adopcion, po.fecha_hora_registro, po.id_estado, pu.nombre_mascota, pu.foto_mascota FROM postulacionmascotaadopcion po JOIN publicacionmascotaadopcion pu ON po.id_publicacion_mascota_adopcion = pu.id_publicacion_mascota_adopcion WHERE po.id_usuario_final = ?";
+        String query = "SELECT po.id_publicacion_mascota_adopcion, po.fecha_hora_registro, po.id_estado, pu.nombre_mascota, pu.foto_mascota FROM PostulacionMascotaAdopcion po JOIN PostulacionMascotaAdopcion pu ON po.id_publicacion_mascota_adopcion = pu.id_publicacion_mascota_adopcion WHERE po.id_usuario_final = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
