@@ -12,8 +12,8 @@ public class DonacionEconomicaDao extends DaoBase {
         List<SolicitudDonacionEconomica> solicitudes = new ArrayList<>();
         String sql = "SELECT s.id_solicitud_donacion_economica, s.monto_solicitado, s.motivo, " +
                 "s.es_solicitud_activa, s.fecha_hora_registro, e.nombre_estado " +
-                "FROM solicituddonacioneconomica s " +
-                "JOIN estado e ON s.id_estado = e.id_estado " +
+                "FROM SolicitudDonacionEconomica s " +
+                "JOIN Estado e ON s.id_estado = e.id_estado " +
                 "WHERE s.es_solicitud_activa = true " +
                 "AND s.id_usuario_albergue = ?";
 
@@ -43,7 +43,7 @@ public class DonacionEconomicaDao extends DaoBase {
     }
 
     public void crearSolicitudEconomica(SolicitudDonacionEconomica solicitud) {
-        String sqlInsertSolicitud = "INSERT INTO solicituddonacioneconomica " +
+        String sqlInsertSolicitud = "INSERT INTO SolicitudDonacionEconomica " +
                 "(monto_solicitado, motivo, es_solicitud_activa, fecha_hora_registro, id_estado, id_usuario_albergue) " +
                 "VALUES (?, ?, ?, NOW(), ?, ?)";
 
@@ -81,7 +81,7 @@ public class DonacionEconomicaDao extends DaoBase {
         }
     }
     public void eliminarSolicitudLogica(int idSolicitud) throws SQLException {
-        String sqlUpdateSolicitud = "UPDATE solicituddonacioneconomica SET es_solicitud_activa = false WHERE id_solicitud_donacion_economica = ?";
+        String sqlUpdateSolicitud = "UPDATE SolicitudDonacionEconomica SET es_solicitud_activa = false WHERE id_solicitud_donacion_economica = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlUpdateSolicitud)) {
@@ -105,9 +105,9 @@ public class DonacionEconomicaDao extends DaoBase {
         String sql = "SELECT s.id_solicitud_donacion_economica, s.monto_solicitado, s.motivo, " +
                 "s.fecha_hora_registro, e.nombre_estado, u.id_usuario, u.nombres_usuario_final, " +
                 "u.apellidos_usuario_final, u.imagen_qr " +
-                "FROM solicituddonacioneconomica s " +
-                "JOIN estado e ON s.id_estado = e.id_estado " +
-                "JOIN usuario u ON s.id_usuario_albergue = u.id_usuario " +
+                "FROM SolicitudDonacionEconomica s " +
+                "JOIN Estado e ON s.id_estado = e.id_estado " +
+                "JOIN Usuario u ON s.id_usuario_albergue = u.id_usuario " +
                 "WHERE s.id_solicitud_donacion_economica = ?";
 
         try (Connection conn = getConnection();
@@ -154,7 +154,7 @@ public class DonacionEconomicaDao extends DaoBase {
         String sql = "SELECT rde.id_registro_donacion_economica, rde.monto_donacion, rde.fecha_hora_registro, " +
                 "u.id_usuario, u.nombres_usuario_final, u.apellidos_usuario_final " +
                 "FROM RegistroDonacionEconomica rde " +
-                "JOIN usuario u ON u.id_usuario = rde.id_usuario_final " +
+                "JOIN Usuario u ON u.id_usuario = rde.id_usuario_final " +
                 "WHERE rde.id_solicitud_donacion_economica = ? " +
                 "ORDER BY rde.fecha_hora_registro DESC";
 
@@ -208,7 +208,7 @@ public class DonacionEconomicaDao extends DaoBase {
     }
 
     public void actualizarSolicitud(SolicitudDonacionEconomica solicitud) throws SQLException {
-        String sql = "UPDATE solicituddonacioneconomica " +
+        String sql = "UPDATE SolicitudDonacionEconomica " +
                 "SET monto_solicitado = ?, motivo = ?, fecha_hora_registro = NOW() " +
                 "WHERE id_solicitud_donacion_economica = ?";
 

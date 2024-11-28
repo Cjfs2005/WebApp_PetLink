@@ -11,7 +11,7 @@ public class DonacionProductos extends DaoBase {
     public List<PuntoAcopio> obtenerPuntosAcopioPorAlbergue(int idUsuarioAlbergue) {
         List<PuntoAcopio> puntos = new ArrayList<>();
         String sql = "SELECT id_punto_acopio, direccion_punto_acopio " +
-                "FROM puntoacopio " +
+                "FROM PuntoAcopio " +
                 "WHERE id_usuario_albergue = ?";
 
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -42,15 +42,15 @@ public class DonacionProductos extends DaoBase {
                 "    h.fecha_hora_inicio AS horario_inicio, " +
                 "    h.fecha_hora_fin AS horario_fin " +
                 "FROM " +
-                "    registrodonacionproductos r " +
+                "    RegistroDonacionProductos r " +
                 "INNER JOIN " +
-                "    horariorecepciondonacion h ON r.id_horario_recepcion_donacion = h.id_horario_recepcion_donacion " +
+                "    HorarioRecepcionDonacion h ON r.id_horario_recepcion_donacion = h.id_horario_recepcion_donacion " +
                 "INNER JOIN " +
-                "    puntoacopiodonacion pa ON h.id_punto_acopio_donacion = pa.id_punto_acopio_donacion " +
+                "    PuntoAcopioDonacion pa ON h.id_punto_acopio_donacion = pa.id_punto_acopio_donacion " +
                 "INNER JOIN " +
-                "    puntoacopio pac ON pa.id_punto_acopio = pac.id_punto_acopio " +
+                "    PuntoAcopio pac ON pa.id_punto_acopio = pac.id_punto_acopio " +
                 "INNER JOIN " +
-                "    usuario u ON r.id_usuario_final = u.id_usuario " +
+                "    Usuario u ON r.id_usuario_final = u.id_usuario " +
                 "WHERE " +
                 "    pa.id_solicitud_donacion_productos = ?";
 
@@ -114,7 +114,7 @@ public class DonacionProductos extends DaoBase {
         List<SolicitudDonacionProductos> solicitudes = new ArrayList<>();
         String sql = "SELECT s.id_solicitud_donacion_productos, s.descripcion_donaciones, " +
                 "s.es_solicitud_activa, s.fecha_hora_registro, e.nombre_estado " +
-                "FROM solicituddonacionproductos s " +
+                "FROM SolicitudDonacionProductos s " +
                 "JOIN estado e ON s.id_estado = e.id_estado " +
                 "WHERE s.es_solicitud_activa = true " +
                 "AND s.id_usuario_albergue = ?";
@@ -143,9 +143,9 @@ public class DonacionProductos extends DaoBase {
     }
 
     public void crearSolicitudConRelacion(SolicitudDonacionProductos solicitud, int idPuntoAcopio, LocalDateTime horaInicio, LocalDateTime horaFin) {
-        String sqlInsertSolicitud = "INSERT INTO solicituddonacionproductos (descripcion_donaciones, es_solicitud_activa, fecha_hora_registro, id_estado, id_usuario_albergue) VALUES (?, ?, NOW(), ?, ?)";
-        String sqlInsertPuntoAcopio = "INSERT INTO puntoacopiodonacion (id_solicitud_donacion_productos, id_punto_acopio) VALUES (?, ?)";
-        String sqlInsertHorario = "INSERT INTO horariorecepciondonacion (id_punto_acopio_donacion, fecha_hora_inicio, fecha_hora_fin) VALUES (?, ?, ?)";
+        String sqlInsertSolicitud = "INSERT INTO SolicitudDonacionProductos (descripcion_donaciones, es_solicitud_activa, fecha_hora_registro, id_estado, id_usuario_albergue) VALUES (?, ?, NOW(), ?, ?)";
+        String sqlInsertPuntoAcopio = "INSERT INTO PuntoAcopioDonacion (id_solicitud_donacion_productos, id_punto_acopio) VALUES (?, ?)";
+        String sqlInsertHorario = "INSERT INTO HorarioRecepcionDonacion (id_punto_acopio_donacion, fecha_hora_inicio, fecha_hora_fin) VALUES (?, ?, ?)";
 
         try (Connection con = getConnection()) {
             con.setAutoCommit(false);
@@ -200,7 +200,7 @@ public class DonacionProductos extends DaoBase {
     }
 
     public void eliminarSolicitudLogica(int idSolicitud) throws SQLException {
-        String sqlUpdateSolicitud = "UPDATE solicituddonacionproductos SET es_solicitud_activa = false WHERE id_solicitud_donacion_productos = ?";
+        String sqlUpdateSolicitud = "UPDATE SolicitudDonacionProductos SET es_solicitud_activa = false WHERE id_solicitud_donacion_productos = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sqlUpdateSolicitud)) {
@@ -227,9 +227,9 @@ public class DonacionProductos extends DaoBase {
         SolicitudDonacionProductos solicitud = null;
 
         String sql = "SELECT s.descripcion_donaciones, h.fecha_hora_inicio, h.fecha_hora_fin " +
-                "FROM solicituddonacionproductos s " +
-                "INNER JOIN puntoacopiodonacion p ON s.id_solicitud_donacion_productos = p.id_solicitud_donacion_productos " +
-                "INNER JOIN horariorecepciondonacion h ON p.id_punto_acopio_donacion = h.id_punto_acopio_donacion " +
+                "FROM SolicitudDonacionProductos s " +
+                "INNER JOIN PuntoAcopioDonacion p ON s.id_solicitud_donacion_productos = p.id_solicitud_donacion_productos " +
+                "INNER JOIN HorarioRecepcionDonacion h ON p.id_punto_acopio_donacion = h.id_punto_acopio_donacion " +
                 "WHERE s.id_solicitud_donacion_productos = ? LIMIT 1";
 
         try (Connection conn = getConnection();
@@ -261,9 +261,9 @@ public class DonacionProductos extends DaoBase {
 
     public void modificarSolicitudCompleta(SolicitudDonacionProductos solicitud) throws SQLException {
         // Consulta SQL para actualizar todas las columnas
-        String sql = "UPDATE solicituddonacionproductos s " +
-                "JOIN puntoacopiodonacion p ON s.id_solicitud_donacion_productos = p.id_solicitud_donacion_productos " +
-                "JOIN horariorecepciondonacion h ON p.id_punto_acopio_donacion = h.id_punto_acopio_donacion " +
+        String sql = "UPDATE SolicitudDonacionProductos s " +
+                "JOIN PuntoAcopioDonacion p ON s.id_solicitud_donacion_productos = p.id_solicitud_donacion_productos " +
+                "JOIN HorarioRecepcionDonacion h ON p.id_punto_acopio_donacion = h.id_punto_acopio_donacion " +
                 "SET s.descripcion_donaciones = ?, " +
                 "    h.fecha_hora_inicio = ?, " +
                 "    h.fecha_hora_fin = ?, " +
