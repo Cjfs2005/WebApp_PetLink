@@ -3,6 +3,7 @@ package com.example.webapp_petlink.servlets;
 import com.example.webapp_petlink.beans.*;
 import com.example.webapp_petlink.daos.HogarTemporalDao;
 
+import com.example.webapp_petlink.daos.LoginDao;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;

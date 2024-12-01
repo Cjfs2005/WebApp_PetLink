@@ -5,6 +5,7 @@ import com.example.webapp_petlink.beans.Usuario;
 import com.example.webapp_petlink.beans.SolicitudHogarTemporal;
 import com.example.webapp_petlink.beans.PostulacionHogarTemporal;
 import com.example.webapp_petlink.daos.HogarTemporalDao;
+import com.example.webapp_petlink.daos.LoginDao;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -27,6 +28,11 @@ public class TemporalUsuarioServlet extends HttpServlet {
         HogarTemporalDao hogarTemporalDao = new HogarTemporalDao();
         RequestDispatcher view;
         Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        String correo = usuario.getCorreo_electronico();
+        String contrasenia = usuario.getContrasenia();
+        LoginDao loginDao = new LoginDao();
+        usuario = loginDao.obtenerUsuario(correo, contrasenia);
+        request.getSession().setAttribute("usuario", usuario);
         int idUsuario = usuario.getId_usuario();
         switch (action) {
             case "listar":
@@ -105,6 +111,11 @@ public class TemporalUsuarioServlet extends HttpServlet {
         String action = request.getParameter("action") == null ? "listar" : request.getParameter("action");
         HogarTemporalDao hogarTemporalDao = new HogarTemporalDao();
         Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        String correo = usuario.getCorreo_electronico();
+        String contrasenia = usuario.getContrasenia();
+        LoginDao loginDao = new LoginDao();
+        usuario = loginDao.obtenerUsuario(correo, contrasenia);
+        request.getSession().setAttribute("usuario", usuario);
         int idUsuario = usuario.getId_usuario();
 
         if ("postular".equals(action)) {
