@@ -32,7 +32,7 @@ public class ListasAdminDao extends DaoBase{
 
         ArrayList<Usuario> coordinadores = new ArrayList<>();
 
-        String sql = "SELECT * FROM Usuario u JOIN Zona z on u.id_zona = z.id_zona  WHERE id_rol = 3";
+        String sql = "SELECT * FROM Usuario u  WHERE id_rol = 3";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
