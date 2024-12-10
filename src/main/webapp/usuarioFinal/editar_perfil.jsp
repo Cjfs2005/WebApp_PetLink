@@ -77,11 +77,11 @@
               <!-- Break -->
               <div class="col-6 col-12-xsmall">
                 <label for="direccion" class="input-label">Dirección</label>
-                <input type="text" id="direccion" name="direccion" value="<%= usuarioPerfil.getDireccion() %>" placeholder="" required/>
+                <input type="text" id="direccion" name="direccion" value="<%= usuarioPerfil.getDireccion() %>" placeholder="" disabled/>
               </div>
               <div class="col-6 col-12-xsmall">
                 <label for="correo" class="input-label">Correo electrónico</label>
-                <input type="email" id="correo" name="correo" value="<%= usuarioPerfil.getCorreo_electronico() %>" placeholder="" required/>
+                <input type="email" id="correo" name="correo" value="<%= usuarioPerfil.getCorreo_electronico() %>" placeholder="" disabled/>
               </div>
 
               <!-- Break -->

@@ -77,6 +77,7 @@ public class LoginServlet extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.invalidate();
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
+                break;
             case "loginForm":
                 Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
                 if (usuario != null) {
@@ -102,6 +103,7 @@ public class LoginServlet extends HttpServlet {
                 } else {
                     response.sendRedirect(request.getContextPath() + "/index.jsp");
                 }
+                break;
         }
     }
 }
