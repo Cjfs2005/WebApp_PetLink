@@ -13,6 +13,9 @@
     if (usuario.getFoto_perfil() != null) {
         fotoPerfilBase64 = Base64.getEncoder().encodeToString(usuario.getFoto_perfil());
     }
+    else {
+        fotoPerfilBase64 = "../../albergue/images/sin_perfil.png";
+    }
 %>
 
 <!DOCTYPE HTML>
