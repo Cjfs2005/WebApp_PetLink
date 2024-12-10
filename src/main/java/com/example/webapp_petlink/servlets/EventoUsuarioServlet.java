@@ -13,9 +13,13 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @WebServlet(name= "EventoUsuarioServlet", value="/EventoUsuarioServlet")
 public class EventoUsuarioServlet extends HttpServlet {
+
+    private static final List<String> ACCIONES_VALIDAS = Arrays.asList("lista", "mostrar", "inscribir", "buscar");
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -23,6 +27,12 @@ public class EventoUsuarioServlet extends HttpServlet {
 
         // Si no tiene una acción, será entonces lista
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
+
+        if (!ACCIONES_VALIDAS.contains(action)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
+            return;
+        }
+
         String filter = request.getParameter("filter") == null ? "solicitudes" : request.getParameter("filter");
 
         EventoUsuarioDao dao = new EventoUsuarioDao();
@@ -31,77 +41,116 @@ public class EventoUsuarioServlet extends HttpServlet {
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
+        if (usuario == null) {
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            return;
+        }
+
         int idUsuario = usuario.getId_usuario();
 
         Usuario datosUsuario = dao.obtenerDatoUsuario(idUsuario);
         session.setAttribute("datosUsuario", datosUsuario);
 
-        switch (action) {
-            case "lista":
-                ArrayList<PublicacionEventoBenefico> listaEventos;
-                if (filter.equals("realizadas")) {
-                    // Filtrar eventos en los que el usuario está inscrito
-                    listaEventos = dao.listarEventosInscritos(idUsuario);
-                } else {
-                    // Mostrar todos los eventos
-                    listaEventos = dao.listarEventos();
-                }
-                request.setAttribute("listaEventos", listaEventos);
-                request.setAttribute("filter", filter);
-                RequestDispatcher disp = request.getRequestDispatcher("usuarioFinal/eventos.jsp");
-                disp.forward(request, response);
-                break;
-            case "mostrar":
-                // Obtener el ID del evento desde los parámetros de la solicitud
-                int idPublicacion;
-                try {
-                    idPublicacion = Integer.parseInt(request.getParameter("id"));
-                } catch (NumberFormatException e) {
-                    response.sendRedirect(request.getContextPath()+"/usuarioFinal/eventos.jsp");
-                    return;
-                }
+        try {
+            switch (action) {
+                case "lista":
+                    ArrayList<PublicacionEventoBenefico> listaEventos;
+                    if (!filter.matches("solicitudes|realizadas")) {
+                        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Filtro no válido");
+                        return;
+                    }
+                    if (filter.equals("realizadas")) {
+                        // Filtrar eventos en los que el usuario está inscrito
+                        listaEventos = dao.listarEventosInscritos(idUsuario);
+                    } else {
+                        // Mostrar todos los eventos
+                        listaEventos = dao.listarEventos();
+                    }
+                    request.setAttribute("listaEventos", listaEventos);
+                    request.setAttribute("filter", filter);
+                    RequestDispatcher disp = request.getRequestDispatcher("usuarioFinal/eventos.jsp");
+                    disp.forward(request, response);
+                    break;
+                case "mostrar":
+                    // Obtener el ID del evento desde los parámetros de la solicitud
+                    int idPublicacion;
+                    try {
+                        idPublicacion = Integer.parseInt(request.getParameter("id"));
+                    } catch (NumberFormatException e) {
+                        response.sendRedirect(request.getContextPath()+"/usuarioFinal/eventos.jsp");
+                        return;
+                    }
 
-                // Crear instancia del DAO y buscar el evento por ID
+                    // Crear instancia del DAO y buscar el evento por ID
 
-                PublicacionEventoBenefico evento = dao.buscarPorId(idPublicacion);
-                boolean usuarioInscrito = dao.verificarInscripcion(idPublicacion, idUsuario);
 
-                if (evento != null) {
-                    System.out.println("Evento encontrado: " + evento.getNombreEvento());
-                    System.out.println("Razón del Evento: " + evento.getRazonEvento());
-                    System.out.println("Lugar del Evento: " + (evento.getLugarEvento() != null ? evento.getLugarEvento().getDireccion_lugar_evento() : "Lugar no encontrado"));
-                    System.out.println("Nombre del albergue: " + (evento.getUsuarioAlbergue() != null ? evento.getUsuarioAlbergue().getNombre_albergue() : "Albergue no encontrado"));
-                    System.out.println("Direccion del evento: " + (evento.getLugarEvento() != null ? evento.getLugarEvento().getDistrito().getNombre_distrito() : "Distrito no encontrado"));
-                } else {
-                    System.out.println("Evento no encontrado para el id: " + idPublicacion);
-                }
 
-                // Pasar el evento como atributo a la solicitud para mostrar en el JSP
-                request.setAttribute("evento", evento);
-                request.setAttribute("usuarioInscrito", usuarioInscrito);
+                    PublicacionEventoBenefico evento = dao.buscarPorId(idPublicacion);
+                    boolean es_activo = dao.verSiEsActivo(idPublicacion);
+                    boolean usuarioInscrito = dao.verificarInscripcion(idPublicacion, idUsuario);
 
-                // Redirigir a la página de detalles
-                RequestDispatcher dispatcher = request.getRequestDispatcher("usuarioFinal/formulario_eventos.jsp");
-                dispatcher.forward(request, response);
-                break;
+                    if (evento != null && es_activo) {
+                        System.out.println("Evento encontrado: " + evento.getNombreEvento());
+                        System.out.println("Razón del Evento: " + evento.getRazonEvento());
+                        System.out.println("Lugar del Evento: " + (evento.getLugarEvento() != null ? evento.getLugarEvento().getDireccion_lugar_evento() : "Lugar no encontrado"));
+                        System.out.println("Nombre del albergue: " + (evento.getUsuarioAlbergue() != null ? evento.getUsuarioAlbergue().getNombre_albergue() : "Albergue no encontrado"));
+                        System.out.println("Direccion del evento: " + (evento.getLugarEvento() != null ? evento.getLugarEvento().getDistrito().getNombre_distrito() : "Distrito no encontrado"));
+                    } else {
+                        System.out.println("Evento no encontrado para el id: " + idPublicacion);
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=lista&error=eventoNoEncontrado");
+                        return;
+                    }
 
-            case "inscribir":
-                int idEvento;
-                try {
-                    idEvento = Integer.parseInt(request.getParameter("id"));
-                } catch (NumberFormatException e) {
-                    response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=lista");
-                    return;
-                }
+                    // Pasar el evento como atributo a la solicitud para mostrar en el JSP
+                    request.setAttribute("evento", evento);
+                    request.setAttribute("usuarioInscrito", usuarioInscrito);
 
-                // Llama al método del DAO para insertar la inscripción
-                boolean exito = dao.inscribibirseEvento(idUsuario, idEvento);
-                if (exito) {
-                    response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=mostrar&id=" + idEvento + "&success=1");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=mostrar&id=" + idEvento + "&error=1");
-                }
-                break;
+                    // Redirigir a la página de detalles
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("usuarioFinal/formulario_eventos.jsp");
+                    dispatcher.forward(request, response);
+                    break;
+
+                case "inscribir":
+                    int idEvento;
+                    try {
+                        idEvento = Integer.parseInt(request.getParameter("id"));
+                    } catch (NumberFormatException e) {
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=lista");
+                        return;
+                    }
+
+                    evento = dao.buscarPorId(idEvento);
+                    if (evento == null) {
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=lista&error=eventoNoEncontrado");
+                        return;
+                    }
+
+                    if (evento.getAforoEvento() <= evento.getCantAsistentes()) {
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=mostrar&id=" + idEvento + "&error=noVacantes");
+                        return;
+                    }
+
+                    if (dao.verificarInscripcion(idEvento, idUsuario)) {
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=mostrar&id=" + idEvento + "&error=yaInscrito");
+                        return;
+                    }
+
+                    // Llama al método del DAO para insertar la inscripción
+                    boolean exito = dao.inscribibirseEvento(idUsuario, idEvento);
+                    if (exito) {
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=mostrar&id=" + idEvento + "&success=1");
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=mostrar&id=" + idEvento + "&error=1");
+                    }
+                    break;
+
+                default:
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ocurrió un error en el servidor");
         }
     }
 
@@ -110,29 +159,41 @@ public class EventoUsuarioServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
+        if (!ACCIONES_VALIDAS.contains(action)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
+            return;
+        }
 
         EventoUsuarioDao daoEvento = new EventoUsuarioDao();
 
-        switch (action) {
-            case "crea":
-                String hola = request.getParameter("hola");
-                break;
+        try {
+            switch (action) {
+                case "buscar":
+                    String query = request.getParameter("query");
+                    if (query != null) {
+                        query = query.replaceAll("[<>\"']", ""); // Sanitizar entrada
+                    }
+                    System.out.println(query);
+                    ArrayList<PublicacionEventoBenefico> eventos = daoEvento.buscarEventoNombre(query);
 
-            case "buscar":
-                String query = request.getParameter("query");
-                System.out.println(query);
-                ArrayList<PublicacionEventoBenefico> eventos = daoEvento.buscarEventoNombre(query);
+                    System.out.println("Número de eventos encontrados: " + eventos.size());
+                    for (PublicacionEventoBenefico evento : eventos) {
+                        System.out.println("Evento encontrado: " + evento.getNombreEvento());
+                    }
+                    request.setAttribute("listaEventos", eventos);
+                    request.setAttribute("busqueda", query);
 
-                System.out.println("Número de eventos encontrados: " + eventos.size());
-                for (PublicacionEventoBenefico evento : eventos) {
-                    System.out.println("Evento encontrado: " + evento.getNombreEvento());
-                }
-                request.setAttribute("listaEventos", eventos);
-                request.setAttribute("busqueda", query);
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("usuarioFinal/eventos.jsp");
+                    dispatcher.forward(request, response);
+                    break;
 
-                RequestDispatcher dispatcher = request.getRequestDispatcher("usuarioFinal/eventos.jsp");
-                dispatcher.forward(request, response);
-                break;
+                default:
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción no válida");
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace(); // Para depuración
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ocurrió un error en el servidor");
         }
     }
 }
