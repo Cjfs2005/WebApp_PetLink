@@ -44,7 +44,7 @@
             <!-- Header -->
             <header id="header">
                 <h1 class="logo"><strong>Postulación para ser hogar temporal</strong></h1>
-                <a href="perfil_usuario.html" class="user-profile">
+                <a href="<%=request.getContextPath()%>/PerfilUsuarioServlet?accion=ver" class="user-profile">
                     <span class="ocultar"><%= usuario.getNombres_usuario_final() %> <%= usuario.getApellidos_usuario_final() %></span>
                     <% if (!fotoPerfilBase64.isEmpty()) { %>
                     <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" alt="Foto de perfil"

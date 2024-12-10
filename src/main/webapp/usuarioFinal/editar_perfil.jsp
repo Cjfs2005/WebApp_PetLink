@@ -7,8 +7,13 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.example.webapp_petlink.beans.Usuario" %>
+<%@ page import="java.util.Base64" %>
 <%
   Usuario usuarioPerfil = (Usuario) request.getAttribute("usuarioPerfil");
+  String fotoPerfilBase64 = "";
+  if (usuarioPerfil.getFoto_perfil() != null) {
+    fotoPerfilBase64 = Base64.getEncoder().encodeToString(usuarioPerfil.getFoto_perfil());
+  }
 %>
 <!DOCTYPE HTML>
 <html>
@@ -37,9 +42,9 @@
         <h1 class="logo"><strong>Editar perfil</strong></h1>
 
         <!-- Sección para el nombre y enlace al perfil -->
-        <a href="perfil_usuario.html" class="user-profile">
+        <a href="<%=request.getContextPath()%>/PerfilUsuarioServlet?accion=ver" class="user-profile">
           <span class="ocultar"><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></span>
-          <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+          <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
         </a>
       </header>
 
@@ -67,11 +72,7 @@
               </div>
               <div class="col-6 col-12-xsmall">
                 <label for="distrito" class="input-label">Distrito</label>
-                <select id="distrito" disabled>
-                  <option value="">Seleccione su distrito</option>
-                  <option value="35" <%= "San Miguel".equals(usuarioPerfil.getDistrito().getNombre_distrito()) ? "selected" : "" %>>San Miguel</option>
-                  <!-- Aquí deberías colocar todas las demás opciones de distrito, con lógica similar para el valor seleccionado -->
-                </select>
+                <input type="text" id="distrito" value="<%= usuarioPerfil.getDistrito().getNombre_distrito() %>" placeholder="" disabled/>
               </div>
               <!-- Break -->
               <div class="col-6 col-12-xsmall">
@@ -97,57 +98,12 @@
     </div>
   </div>
 
-  <!-- Sidebar -->
-  <div id="sidebar">
-    <div class="inner">
-
-      <!-- Logo -->
-      <section class="alt" id="sidebar-header">
-        <img src="${pageContext.request.contextPath}/usuarioFinal/images/favicon.png" alt="Logo" id="sidebar-icon">
-        <p id="sidebar-title">PetLink</p>
-      </section>
-
-      <!-- Perfil -->
-      <section class="perfil">
-        <div class="mini-posts">
-          <article>
-            <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" alt="" id="image-perfil">
-            <h2 id="usuario"><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></h2>
-          </article>
-        </div>
-      </section>
-
-      <!-- Menu -->
-      <nav id="menu">
-        <header class="major">
-          <h2>Menu</h2>
-        </header>
-        <ul>
-          <li><a href="perfil_usuario.html">PERFIL</a></li>
-          <li>
-            <span class="opener">ALBERGUES</span>
-            <ul>
-              <li><a href="albergue_usuario.html">LISTA DE ALBERGUES</a></li>
-              <li><a href="eventos.html">EVENTOS BENÉFICOS</a></li>
-              <li><a href="Donaciones1.html">SOLICITUDES DE DONACIÓN</a></li>
-              <li><a href="Donaciones_historial.html">HISTORIAL DE DONACIONES</a></li>
-              <li><a href="adopciones_usuario.html">MASCOTAS EN ADOPCIÓN</a></li>
-              <li><a href="adopciones_historial_usuario.html">HISTORIAL DE ADOPCIONES</a></li>
-            </ul>
-          </li>
-          <li><a href="Hogar_temporal.html">HOGAR TEMPORAL</a></li>
-          <li><a href="denuncias_usuario.html">DENUNCIAS POR MALTRATO ANIMAL</a></li>
-          <li><a href="mascotas_perdidas_usuario.html">MASCOTAS PERDIDAS</a></li>
-        </ul>
-      </nav>
-
-      <!-- Logout -->
-      <nav id="logout">
-        <a href="#" id="cerrar-sesion">Cerrar Sesión</a>
-      </nav>
-
-    </div>
-  </div>
+  <jsp:include page="navbar.jsp">
+    <jsp:param name="idUsuario" value="<%= usuarioPerfil.getId_usuario() %>" />
+    <jsp:param name="nombresUsuario" value="<%= usuarioPerfil.getNombres_usuario_final() %>" />
+    <jsp:param name="apellidosUsuario" value="<%= usuarioPerfil.getApellidos_usuario_final() %>" />
+    <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />
+  </jsp:include>
 
 </div>
 

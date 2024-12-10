@@ -39,9 +39,9 @@
         <img src="${pageContext.request.contextPath}/usuarioFinal/images/perfil_logo.png" class="icons">
         <h1 class="logo"><strong>MI PERFIL</strong></h1>
         <!-- Sección para el nombre y enlace al perfil -->
-        <a href="perfil_usuario.html" class="user-profile">
+        <a href="<%=request.getContextPath()%>/PerfilUsuarioServlet?accion=ver" class="user-profile">
           <span class="ocultar"><%= usuarioPerfil.getNombres_usuario_final() %> <%= usuarioPerfil.getApellidos_usuario_final() %></span>
-          <img src="${pageContext.request.contextPath}/usuarioFinal/images/foto_perfil.jpg" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+          <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
         </a>
       </header>
 
