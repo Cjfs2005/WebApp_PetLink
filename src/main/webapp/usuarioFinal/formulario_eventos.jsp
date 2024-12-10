@@ -9,6 +9,7 @@
   if (evento.getFoto() != null) {
     fotoEventoBase64 = Base64.getEncoder().encodeToString(evento.getFoto());
   }
+
 %>
 
 <%
@@ -19,6 +20,9 @@
   if (usuario.getFoto_perfil() != null) {
     fotoPerfilBase64 = Base64.getEncoder().encodeToString(usuario.getFoto_perfil());
   }
+  else {
+    fotoPerfilBase64 = "../../albergue/images/sin_perfil.png";
+}
 
   boolean hayVacantes = (evento.getAforoEvento() - evento.getCantAsistentes()) > 0;
   boolean estaInscrito = (boolean) request.getAttribute("usuarioInscrito");
