@@ -190,6 +190,30 @@ public class EventoUsuarioDao extends DaoBase{
         return evento;
     }
 
+    public boolean verSiEsActivo(int idEvento) {
+        String sql = "SELECT COUNT(*) AS total " +
+                "FROM PublicacionEventoBenefico " +
+                "WHERE id_publicacion_evento_benefico = ? AND es_evento_activo = 1 AND id_estado = 2";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            // Configura el parámetro del ID del evento
+            ps.setInt(1, idEvento);
+
+            // Ejecuta la consulta
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Si hay al menos una coincidencia, retorna true
+                    return rs.getInt("total") > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Retorna false si no cumple las condiciones o si ocurre un error
+    }
+
     // Para buscar los eventos que coincidan en el buscador
     public ArrayList<PublicacionEventoBenefico> buscarEventoNombre(String nombre){
         ArrayList<PublicacionEventoBenefico> listaEventos = new ArrayList<>();
