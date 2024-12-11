@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public class Correo {
 
-    private static final String senderEmail = "correo@gmail.com";
+    private static final String senderEmail = "temporalpetlink@gmail.com";
     private static final String senderPassword = "iyly olxq qyzw wlyg";
 
     public void sendEmail(String correoReceptor, String asunto, String mensaje) throws MessagingException {
