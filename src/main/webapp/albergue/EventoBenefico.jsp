@@ -73,6 +73,20 @@
                             <input type="text" name="query" id="query" placeholder="Buscar" value="<%=request.getAttribute("busqueda") != null ? request.getAttribute("busqueda") : ""%>" />
                         </form>
                     </section>
+
+                    <section class="filter-menu">
+                        <label for="filter" class="label-filter">Filtrar por:</label>
+                        <form method="GET" action="<%=request.getContextPath()%>/EventoAlbergueServlet">
+
+                            <select name="filter" id="filter" onchange="this.form.submit()">
+                                <option value="activos" <%= "activos".equals(request.getParameter("filter")) || request.getParameter("filter") == null ? "selected" : "" %>>Eventos próximos</option>
+                                <option value="realizados" <%= "realizados".equals(request.getParameter("filter")) ? "selected" : "" %>>Eventos realizados</option>
+                                <option value="pendientes" <%= "pendientes".equals(request.getParameter("filter")) ? "selected" : "" %>>Eventos pendientes</option>
+                                <option value="rechazados" <%= "rechazados".equals(request.getParameter("filter")) ? "selected" : "" %> >Eventos rechazados</option>
+                                <input type="hidden" name="action" value="lista">
+                            </select>
+                        </form>
+                    </section>
                 </div>
             </section>
 
@@ -158,6 +172,3 @@
 
 </body>
 </html>
-
-
-
