@@ -55,12 +55,21 @@
       <%@ page contentType="text/html;charset=UTF-8" language="java" %>
       <p class="registro-texto">¿No tienes una cuenta? ¡Regístrate!</p>
     </form>
-    <button id="registrarseBtn" class="registro-usuario">
-      <i class="fas fa-users"></i> Registrarse como usuario
-    </button>
-    <button id="registrarseAlbergueBtn" class="registro-albergue">
-      <i class="fas fa-home"></i> Registrarse como albergue
-    </button>
+
+    <form action="RegisterServlet" method="get">
+      <input type="hidden" name="action" value="usuarioFinal">
+      <button id="registrarseBtn" class="registro-usuario" type="submit">
+        <i class="fas fa-users"></i> Registrarse como usuario
+      </button>
+    </form>
+
+    <form action="RegisterServlet" method="get">
+      <input type="hidden" name="action" value="albergue">
+      <button id="registrarseAlbergueBtn" class="registro-albergue" type="submit">
+        <i class="fas fa-home"></i> Registrarse como albergue
+      </button>
+    </form>
+
   </div>
 </div>
 </body>

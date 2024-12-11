@@ -166,7 +166,6 @@ public class EventoUsuarioDao extends DaoBase{
                     lugar.setAforo_maximo(rs.getInt("aforo_maximo"));
                     System.out.println(lugar.getAforo_maximo());
 
-
                     Distrito distrito = new Distrito();
                     distrito.setNombre_distrito(rs.getString("nombre_distrito"));
 
@@ -213,6 +212,7 @@ public class EventoUsuarioDao extends DaoBase{
         }
         return false; // Retorna false si no cumple las condiciones o si ocurre un error
     }
+
 
     // Para buscar los eventos que coincidan en el buscador
     public ArrayList<PublicacionEventoBenefico> buscarEventoNombre(String nombre){
@@ -297,7 +297,6 @@ public class EventoUsuarioDao extends DaoBase{
         return false;
     }
 
-
     // PARA ALBERGUE
 
     //Método para obtener los datos del albergue
@@ -322,7 +321,6 @@ public class EventoUsuarioDao extends DaoBase{
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return albergue;
     }
 
@@ -332,7 +330,7 @@ public class EventoUsuarioDao extends DaoBase{
 
 
         String sql = "SELECT * FROM PublicacionEventoBenefico WHERE id_usuario_albergue = ? "
-                + "AND PublicacionEventoBenefico.fecha_hora_fin_evento >= CURDATE() "
+                + "AND PublicacionEventoBenefico.fecha_hora_fin_evento >= CURDATE() AND id_estado = 2 "
                 + "ORDER BY PublicacionEventoBenefico.fecha_hora_inicio_evento ASC";
 
         try (Connection conn = getConnection();
@@ -359,8 +357,184 @@ public class EventoUsuarioDao extends DaoBase{
         catch(SQLException e){
             e.printStackTrace();
         }
-
         return listaEventos;
+    }
+
+    public ArrayList<PublicacionEventoBenefico> listarEventosRealizados(int idUsuarioAlbergue){
+        ArrayList<PublicacionEventoBenefico> listaEventos = new ArrayList<>();
+
+
+        String sql = "SELECT * FROM PublicacionEventoBenefico WHERE id_usuario_albergue = ? "
+                + "AND PublicacionEventoBenefico.fecha_hora_fin_evento < CURDATE() AND id_estado = 2 "
+                + "ORDER BY PublicacionEventoBenefico.fecha_hora_inicio_evento ASC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)){
+
+            pstmt.setInt(1, idUsuarioAlbergue);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()){
+                PublicacionEventoBenefico evento = new PublicacionEventoBenefico();
+                evento.setIdPublicacionEventoBenefico(rs.getInt("id_publicacion_evento_benefico"));
+                evento.setNombreEvento(rs.getString("nombre_evento"));
+                evento.setFechaHoraRegistro(rs.getDate("fecha_hora_registro"));
+                evento.setNombreFoto(rs.getString("nombre_foto"));
+                evento.setFechaHoraInicioEvento(rs.getTimestamp("fecha_hora_inicio_evento"));
+                byte[] fotoEvento = rs.getBytes("foto");
+                if (fotoEvento != null) {
+                    evento.setFoto(fotoEvento);
+                }
+                listaEventos.add(evento);
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        return listaEventos;
+    }
+
+    public ArrayList<PublicacionEventoBenefico> listarEventosPendientes(int idUsuarioAlbergue){
+        ArrayList<PublicacionEventoBenefico> listaEventos = new ArrayList<>();
+
+
+        String sql = "SELECT * FROM PublicacionEventoBenefico WHERE id_usuario_albergue = ? "
+                + "AND PublicacionEventoBenefico.fecha_hora_fin_evento >= CURDATE() AND id_estado = 1 "
+                + "ORDER BY PublicacionEventoBenefico.fecha_hora_inicio_evento ASC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)){
+
+            pstmt.setInt(1, idUsuarioAlbergue);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()){
+                PublicacionEventoBenefico evento = new PublicacionEventoBenefico();
+
+                evento.setIdPublicacionEventoBenefico(rs.getInt("id_publicacion_evento_benefico"));
+                evento.setNombreEvento(rs.getString("nombre_evento"));
+                evento.setFechaHoraRegistro(rs.getDate("fecha_hora_registro"));
+                evento.setNombreFoto(rs.getString("nombre_foto"));
+                evento.setFechaHoraInicioEvento(rs.getTimestamp("fecha_hora_inicio_evento"));
+                byte[] fotoEvento = rs.getBytes("foto");
+                if (fotoEvento != null) {
+                    evento.setFoto(fotoEvento);
+                }
+                listaEventos.add(evento);
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        return listaEventos;
+    }
+
+    public ArrayList<PublicacionEventoBenefico> listarEventosRechazados(int idUsuarioAlbergue){
+        ArrayList<PublicacionEventoBenefico> listaEventos = new ArrayList<>();
+
+
+        String sql = "SELECT * FROM PublicacionEventoBenefico WHERE id_usuario_albergue = ? "
+                + "AND PublicacionEventoBenefico.fecha_hora_fin_evento >= CURDATE() AND id_estado = 3 "
+                + "ORDER BY PublicacionEventoBenefico.fecha_hora_inicio_evento ASC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)){
+
+            pstmt.setInt(1, idUsuarioAlbergue);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()){
+                PublicacionEventoBenefico evento = new PublicacionEventoBenefico();
+
+                evento.setIdPublicacionEventoBenefico(rs.getInt("id_publicacion_evento_benefico"));
+                evento.setNombreEvento(rs.getString("nombre_evento"));
+                evento.setFechaHoraRegistro(rs.getDate("fecha_hora_registro"));
+                evento.setNombreFoto(rs.getString("nombre_foto"));
+                evento.setFechaHoraInicioEvento(rs.getTimestamp("fecha_hora_inicio_evento"));
+                byte[] fotoEvento = rs.getBytes("foto");
+                if (fotoEvento != null) {
+                    evento.setFoto(fotoEvento);
+                }
+                listaEventos.add(evento);
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+        }
+        return listaEventos;
+    }
+
+    public PublicacionEventoBenefico buscarPorIdDeAlbergue(int idPublicacion, int idAlbergue){
+        PublicacionEventoBenefico evento = null;
+        String sql = "SELECT p.id_publicacion_evento_benefico, p.nombre_evento, p.fecha_hora_registro, " +
+                "p.foto, p.nombre_foto, p.razon_evento, p.descripcion_evento, p.artistas_provedores_invitados, " +
+                "p.fecha_hora_inicio_evento, p.fecha_hora_fin_evento, p.es_evento_activo, " +
+                "p.aforo_evento, p.entrada_evento, u.nombre_albergue, l.*, d.nombre_distrito, e.nombre_estado, " +
+                "(SELECT COUNT(*) FROM InscripcionEventoBenefico i " +
+                "WHERE i.id_evento_benefico = p.id_publicacion_evento_benefico) AS cantidad_asistentes " +
+                "FROM PublicacionEventoBenefico p " +
+                "JOIN Usuario u ON p.id_usuario_albergue = u.id_usuario " +
+                "JOIN LugarEvento l ON p.id_lugar_evento = l.id_lugar_evento " +
+                "JOIN Distrito d ON l.id_distrito = d.id_distrito " +
+                "JOIN Estado e ON p.id_estado = e.id_estado " +
+                "WHERE p.id_publicacion_evento_benefico = ? AND p.id_usuario_albergue = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idPublicacion);
+            pstmt.setInt(2, idAlbergue);
+
+            try(ResultSet rs = pstmt.executeQuery()){
+                if (rs.next()){
+                    evento = new PublicacionEventoBenefico();
+                    evento.setIdPublicacionEventoBenefico(rs.getInt("id_publicacion_evento_benefico"));
+                    evento.setNombreEvento(rs.getString("nombre_evento"));
+                    evento.setNombreFoto(rs.getString("nombre_foto"));
+                    byte[] fotoEvento = rs.getBytes("foto");
+                    if (fotoEvento != null) {
+                        evento.setFoto(fotoEvento);
+                    }
+                    evento.setRazonEvento(rs.getString("razon_evento"));
+                    evento.setDescripcionEvento(rs.getString("descripcion_evento"));
+                    evento.setArtistasProvedoresInvitados(rs.getString("artistas_provedores_invitados"));
+                    evento.setAforoEvento(rs.getInt("aforo_evento"));
+                    evento.setEntradaEvento(rs.getString("entrada_evento"));
+                    evento.setFechaHoraInicioEvento(rs.getTimestamp("fecha_hora_inicio_evento"));
+                    evento.setFechaHoraFinEvento(rs.getTimestamp("fecha_hora_fin_evento"));
+                    evento.setCantAsistentes(rs.getInt("cantidad_asistentes"));
+
+                    LugarEvento lugar = new LugarEvento();
+                    lugar.setDireccion_lugar_evento(rs.getString("direccion_lugar_evento"));
+                    lugar.setNombre_lugar_evento(rs.getString("nombre_lugar_evento"));
+                    System.out.println(lugar.getDireccion_lugar_evento());
+                    System.out.println(lugar.getNombre_lugar_evento());
+
+                    lugar.setAforo_maximo(rs.getInt("aforo_maximo"));
+                    System.out.println(lugar.getAforo_maximo());
+
+
+                    Distrito distrito = new Distrito();
+                    distrito.setNombre_distrito(rs.getString("nombre_distrito"));
+
+                    lugar.setDistrito(distrito);
+                    evento.setLugarEvento(lugar);
+
+                    Usuario usuario = new Usuario();
+                    usuario.setNombre_albergue(rs.getString("nombre_albergue"));
+
+                    Estado estado = new Estado();
+                    estado.setNombre_estado(rs.getString("nombre_estado"));
+                    evento.setEstado(estado);
+
+                    evento.setUsuarioAlbergue(usuario);
+                }
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return evento;
     }
 
     // Para la búsqueda en el search de la página EventoBenefico.jsp
@@ -389,7 +563,6 @@ public class EventoUsuarioDao extends DaoBase{
                     if (fotoEvento != null) {
                         evento.setFoto(fotoEvento);
                     }
-
                     listaEventos.add(evento);
                 }
             }
@@ -568,5 +741,4 @@ public class EventoUsuarioDao extends DaoBase{
             return false;
         }
     }
-
 }

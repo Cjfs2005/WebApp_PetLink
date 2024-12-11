@@ -93,8 +93,12 @@
                     </header>
                     <p><strong>Descripción:</strong> Modifica los datos que creas conveniente para el evento <%=evento.getNombreEvento()%></p>
 
-                    <form id="eventoForm" method="post" action="<%=request.getContextPath()%>/EventoAlbergueServlet?action=actualizar" onsubmit="return validarFormulario();">
+                    <form id="eventoForm" method="post" action="<%=request.getContextPath()%>/EventoAlbergueServlet?action=actualizar" onsubmit="return validarFormulario();" enctype="multipart/form-data">
                         <div class="row gtr-uniform">
+
+                            <div class="col-12">
+                                <input type="hidden" class="input-label" name="id_evento" value="<%=evento.getIdPublicacionEventoBenefico()%>">
+                            </div>
                             <!--Nombre del albergue-->
                             <div class="col-12">
                                 <label for="nombre-albergue" class="input-label">Nombre del albergue</label>
@@ -311,14 +315,6 @@
             { id: 'fotosEvento', errorId: 'error-fotosEvento', message: 'Debe adjuntar una foto válida en formato PNG.' }
         ];
 
-        requiredFields.forEach(function (field) {
-            const input = document.getElementById(field.id);
-            if (!input.value.trim() || (field.id === 'fotosEvento' && input.files.length === 0)) {
-                isValid = false;
-                document.getElementById(field.errorId).textContent = field.message;
-            }
-        });
-
         // Validar selección del campo "distrito"
         const distrito = document.getElementById('distrito');
         if (distrito.value === 'sin-lugar') {
@@ -346,7 +342,6 @@
             }
         }
 
-
         // Validar que la hora final sea mayor que la de inicio
         const horaInicio = document.getElementById('horaInicioEvento').value;
         const horaFin = document.getElementById('horaEvento').value;
@@ -362,9 +357,9 @@
             if (file.type !== 'image/png') {
                 isValid = false;
                 document.getElementById('error-fotosEvento').textContent = 'El archivo debe ser una imagen PNG.';
-            } else if (file.size > 2 * 1024 * 1024) { // 2 MB
+            } else if (file.size > 5 * 1024 * 1024) { // 2 MB
                 isValid = false;
-                document.getElementById('error-fotosEvento').textContent = 'El archivo no puede superar los 2 MB.';
+                document.getElementById('error-fotosEvento').textContent = 'El archivo no puede superar los 5 MB.';
             }
         }
 
@@ -406,13 +401,5 @@
         document.getElementById('diaEvento').setAttribute('min', hoy);
     });
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-

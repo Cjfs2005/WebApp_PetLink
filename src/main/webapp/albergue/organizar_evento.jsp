@@ -31,7 +31,6 @@
                     color: #888;
                     float: right;
                 }
-
                 /* Estilos para centrar el modal */
                 .modal {
                     display: none; /* Mantener oculto inicialmente */
@@ -66,7 +65,6 @@
 
         <!-- Wrapper -->
             <div id="wrapper">
-
                 <!-- Main -->
                 <div id="main">
                     <div class="inner">
@@ -92,7 +90,7 @@
                                 </header>
                                 <p><strong>Descripción:</strong> Completa el formulario para registrar tu evento benéfico. Incluye la fecha, lugar, aforo y otros detalles importantes.</p>
 
-                                <form id="eventoForm" method="post" action="<%=request.getContextPath()%>/EventoAlbergueServlet?action=guardar" onsubmit="return validarFormulario();">
+                                <form id="eventoForm" method="post" action="<%=request.getContextPath()%>/EventoAlbergueServlet?action=guardar" onsubmit="return validarFormulario();" enctype="multipart/form-data">
                                     <div class="row gtr-uniform">
                                         <!--Nombre del albergue-->
                                         <div class="col-12">
@@ -387,13 +385,5 @@
                 document.getElementById('diaEvento').setAttribute('min', hoy);
             });
         </script>
-
         </body>
     </html>
-
-
-
-
-
-
-
