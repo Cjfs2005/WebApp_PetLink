@@ -49,7 +49,7 @@ public class LoginServlet extends HttpServlet {
                             response.sendRedirect(request.getContextPath() + "/AdopcionesAlbergueServlet");
                             break;
                         case "Coordinador de Zona":
-                            response.sendRedirect(request.getContextPath() + "/coordinadorZonal/eventos.jsp");
+                            response.sendRedirect(request.getContextPath() + "/GestionCoordinadorServlet");
                             break;
                         case "Usuario Final":
                             response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet");
