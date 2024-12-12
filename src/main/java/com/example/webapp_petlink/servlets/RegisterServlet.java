@@ -30,14 +30,15 @@ public class RegisterServlet extends HttpServlet  {
 
                 //Validar que los datos ingresados por el usuario cumplen con los tipos de datos
 
+                String nombre = request.getParameter("nombre");
+                String apellido = request.getParameter("apellido");
+                String dni = request.getParameter("dni");
+                String direccion = request.getParameter("direccion");
+                String email = request.getParameter("email");
+
                 try {
 
-                    String nombre = request.getParameter("nombre");
-                    String apellido = request.getParameter("apellido");
-                    String dni = request.getParameter("dni");
                     int distrito = Integer.parseInt(request.getParameter("distrito"));
-                    String direccion = request.getParameter("direccion");
-                    String email = request.getParameter("email");
 
                     if (nombre == null || nombre.length() > 45) {
 
@@ -85,13 +86,6 @@ public class RegisterServlet extends HttpServlet  {
                         view = request.getRequestDispatcher("registro_usuario.jsp");
                         view.forward(request, response);
                     }
-                    else{
-                        request.setAttribute("estado", "satisfactorio");
-                        view = request.getRequestDispatcher("registro_usuario.jsp");
-                        view.forward(request, response);
-
-                    }
-
                 }
                 catch (Exception e) {
                     request.setAttribute("estado", "errorFormato");
@@ -99,13 +93,27 @@ public class RegisterServlet extends HttpServlet  {
                     view.forward(request, response);
                 }
 
+                int distrito = Integer.parseInt(request.getParameter("distrito"));
+
                 //Valida que no existe usuario activo que coincida con el correo electronico
 
+                boolean existe = registerDao.existeUsuario(dni,email);
 
+                if(existe) {
+                    request.setAttribute("estado", "errorRegistroExistente");
+                    view = request.getRequestDispatcher("registro_usuario.jsp");
+                    view.forward(request, response);
+                }
+                else{
+                    //Crear el usuario en la BD con la contrasenia temporal
 
-                //Crear el usuario en la BD con la contrasenia temporal
+                }
 
                 //Redirige al formulario de registro de usuarios y muestra el modal de que recibira la aceptacion pronto
+
+                request.setAttribute("estado", "satisfactorio");
+                view = request.getRequestDispatcher("registro_usuario.jsp");
+                view.forward(request, response);
 
                 break;
             case "registroAlbergue":

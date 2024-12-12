@@ -138,24 +138,30 @@
         <!-- Botón para cerrar en la parte superior derecha -->
         <span id="closeModal">&times;</span>
 
-        <h3>Registro Completado</h3>
         <%
-
+            String titulo;
             String mensaje;
 
             switch (estado){
 
                 case "errorFormato":
                     mensaje = "Alguno de los datos ingresados en su solicitud no cumple con el formato, vuelva a intentarlo.";
+                    titulo = "Registro Fallido";
                     break;
                 case "errorRegistroExistente":
                     mensaje = "Ya existe una cuenta con ese DNI o correo electronico, intente con otros datos o inicie sesión.";
+                    titulo = "Registro Fallido";
                     break;
                 default:
                     mensaje = "Su solicitud de registro ha sido enviada satisfactoriamente.\n" +
                             " Pronto recibirá un correo de aceptación indicándole los pasos a seguir para completar su registro.";
+                    titulo = "Registro Completado";
             }
         %>
+
+        <h3>
+            <%=titulo%>
+        </h3>
 
         <p>
             <%= mensaje %>
