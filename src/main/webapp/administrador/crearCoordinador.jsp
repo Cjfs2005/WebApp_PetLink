@@ -33,7 +33,7 @@
 
       <!-- Header -->
       <header id="header">
-        <img src="<%=request.getContextPath()%>/administrador/assetsimages/cjfs.png" class="icons">
+        <img src="<%=request.getContextPath()%>/administrador/images/cjfs.png" class="icons">
         <h1 class="logo" style="display: inline-block;"><strong>GESTIÓN DE USUARIOS</strong></h1>
       </header>
 
@@ -41,12 +41,12 @@
       <section class="banner">
         <div class="content">
           <header>
-            <img src="<%=request.getContextPath()%>/administrador/ass" class="icons">
+            <img src="<%=request.getContextPath()%>/administrador/images/form.png" class="icons">
             <h2>Formulario de Coordinador Zonal</h2>
           </header>
           <p>Complete el siguiente formulario para registrar un nuevo coordinador zonal. Asegúrese de proporcionar todos los detalles solicitados de manera correcta.</p>
 
-          <form method="POST" >
+          <form method="POST" action="<%=request.getContextPath()%>/ListasAdminServlet?action=guardar">
             <div class="row gtr-uniform">
               <!-- Nombre -->
               <div class="col-6 col-12-xsmall">
@@ -83,8 +83,12 @@
                 <label for="zonaAsignada" class="input-label">Zona Asignada <span class="required">*</span></label>
                 <select id="zonaAsignada" name="zonaAsignada" required>
                   <option value="sin-zona">Seleccione una zona</option>
+                  <%
+                    if (zonas != null && !zonas.isEmpty()) {
+                  %>
                   <% for (Zona zona : zonas) { %>
-                  <option value="<%=zona.getId_zona()%>"><%=zona.getNombre_zona()%>></option>
+                  <option value="<%=zona.getId_zona()%>"><%=zona.getNombre_zona()%></option>
+                  <% } %>
                   <% } %>
                 </select>
               </div>
@@ -99,10 +103,10 @@
               <div class="col-12">
                 <ul class="actions form-buttons">
                   <li><a href="#" class="button primary big" id="creationButton">Aceptar</a></li>
+                  <li><a href="<%=request.getContextPath()%>/ListasAdminServlet?action=listaCoord" class="button big" id="cancelar">Cancelar</a></li>
                 </ul>
               </div>
             </div>
-
           </form>
 
         </div>
@@ -124,7 +128,7 @@
       <section class="perfil">
         <div class="mini-posts">
           <article>
-            <img src="<%=request.getContextPath()%>/administrador/assetsimages/aa.png" alt="" id="image-perfil">
+            <img src="<%=request.getContextPath()%>/administrador/images/aa.png" alt="" id="image-perfil">
             <h2 id="usuario">Administrador</h2>
           </article>
         </div>
@@ -166,34 +170,38 @@
   <div class="modal-content">
     <p>¡Se creó con éxito!</p>
     <ul class="actions modal-buttons">
-      <li><a href="gestion_usuarios.html" class="button primary big" id="closeCreationModal">Aceptar</a></li>
+      <li><a href="#" class="button primary big" id="modalAcceptLink">Aceptar</a></li> <!--closeCreationModal-->
     </ul>
   </div>
 </div>
 
 <!-- Scripts -->
-<script src="<%=request.getContextPath()%>/administrador/assetsassets/js/jquery.min.js"></script>
-<script src="<%=request.getContextPath()%>/administrador/assetsassets/js/browser.min.js"></script>
-<script src="<%=request.getContextPath()%>/administrador/assetsassets/js/breakpoints.min.js"></script>
-<script src="<%=request.getContextPath()%>/administrador/assetsassets/js/util.js"></script>
-<script src="<%=request.getContextPath()%>/administrador/assetsassets/js/main.js"></script>
+<script src="<%=request.getContextPath()%>/administrador/assets/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/administrador/assets/js/browser.min.js"></script>
+<script src="<%=request.getContextPath()%>/administrador/assets/js/breakpoints.min.js"></script>
+<script src="<%=request.getContextPath()%>/administrador/assets/js/util.js"></script>
+<script src="<%=request.getContextPath()%>/administrador/assets/js/main.js"></script>
 
 <!-- Script de manejo de modales -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const creationButton = document.getElementById('creationButton');
     const creationModal = document.getElementById('creationModal');
-    const closeCreationModalButton = document.getElementById('closeCreationModal');
+    const modalAcceptLink = document.getElementById('modalAcceptLink'); // Enlace "Aceptar" del modal
+    const form = document.querySelector('form'); // Formulario principal
 
-    // Abrir modal de "Creación de lugar"
-    creationButton.addEventListener('click', function(e) {
-      e.preventDefault(); // Evitar la recarga
-      creationModal.classList.add('show');
+    creationButton.addEventListener('click', function (e) {
+      e.preventDefault(); // Evitar el envío inmediato del formulario
+      if (form.checkValidity()) { // Verifica si el formulario es válido
+        creationModal.classList.add('show'); // Muestra el modal
+      }
     });
 
-    // Redirigir al hacer clic en "Aceptar" en el modal de creación
-    closeCreationModalBuhtton.addEventListener('click', function() {
-      window.location.href = 'historial.html'; // Cambia 'historial.html' si quieres redirigir a otro lado
+    // Enviar el formulario al presionar el enlace del modal
+    modalAcceptLink.addEventListener('click', function (e) {
+      e.preventDefault(); // Evitar el comportamiento predeterminado del enlace
+      creationModal.classList.remove('show'); // Opcional: ocultar el modal
+      form.submit(); // Envía el formulario al servidor
     });
   });
 </script>
@@ -225,7 +233,7 @@
               telefonoInput.value.trim().length === 9 && // Teléfono exactamente 9 dígitos
               correoInput.value.trim() !== "" &&
               fechaNacimientoInput.value.trim() !== "" &&
-              zonaAsignadaSelect.value !== "" && // Validación de zona asignada
+              zonaAsignadaSelect.value !== "sin-zona" && // Validación de zona asignada
               correoInput.checkValidity() && // Correo válido
               fechaNacimientoInput.value <= new Date().toISOString().split("T")[0] // Fecha válida
       );
@@ -292,17 +300,9 @@
     // Cerrar el modal al hacer clic en "Aceptar"
     closeCreationModalButton.addEventListener('click', function() {
       creationModal.classList.remove('show');
-      window.location.href = 'gestion_usuarios.html';
+      window.location.href = '<%=request.getContextPath()%>/ListasAdminServlet';
     });
   });
 </script>
-
-
-
-
-
-
-
-
 </body>
 </html>
