@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,9 +80,6 @@ public class EventoUsuarioServlet extends HttpServlet {
                     }
 
                     // Crear instancia del DAO y buscar el evento por ID
-
-
-
                     PublicacionEventoBenefico evento = dao.buscarPorId(idPublicacion);
                     boolean es_activo = dao.verSiEsActivo(idPublicacion);
                     boolean usuarioInscrito = dao.verificarInscripcion(idPublicacion, idUsuario);
@@ -97,9 +96,22 @@ public class EventoUsuarioServlet extends HttpServlet {
                         return;
                     }
 
+                    LocalDateTime fechaInicio = evento.getFechaHoraInicioEvento().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                    LocalDateTime fechaFin = evento.getFechaHoraFinEvento().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+                    System.out.println("-----FECHAS:");
+                    System.out.println(fechaInicio);
+                    System.out.println(fechaFin);
+                    System.out.println("---------");
+
+                    boolean hayTraslape = dao.verificarTraslape(idUsuario, fechaInicio, fechaFin);
+
+                    System.out.println("------TRASLAPE? "+hayTraslape);
+
                     // Pasar el evento como atributo a la solicitud para mostrar en el JSP
                     request.setAttribute("evento", evento);
                     request.setAttribute("usuarioInscrito", usuarioInscrito);
+                    request.setAttribute("hayTraslape", hayTraslape);
 
                     // Redirigir a la página de detalles
                     RequestDispatcher dispatcher = request.getRequestDispatcher("usuarioFinal/formulario_eventos.jsp");
@@ -131,6 +143,15 @@ public class EventoUsuarioServlet extends HttpServlet {
                         return;
                     }
 
+                    // Convertir fechas de `Date` a `LocalDateTime`
+                    LocalDateTime inicio = evento.getFechaHoraInicioEvento().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                    LocalDateTime fin = evento.getFechaHoraFinEvento().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+                    if (dao.verificarTraslape(idUsuario, inicio, fin)) {
+                        response.sendRedirect(request.getContextPath() + "/EventoUsuarioServlet?action=mostrar&id=" + idEvento + "&error=traslapeHorario");
+                        return;
+                    }
+
                     // Llama al método del DAO para insertar la inscripción
                     boolean exito = dao.inscribibirseEvento(idUsuario, idEvento);
                     if (exito) {
@@ -145,7 +166,7 @@ public class EventoUsuarioServlet extends HttpServlet {
             }
         }
         catch (Exception e) {
-            response.sendRedirect("EventoUsuarioServlet?action=lista");
+            response.sendRedirect("EventoUsuarioServlet?action=lista&error");
         }
     }
 
@@ -187,7 +208,7 @@ public class EventoUsuarioServlet extends HttpServlet {
             }
         }
         catch (Exception e){
-            response.sendRedirect("EventoUsuarioServlet?action=lista");
+            response.sendRedirect("EventoUsuarioServlet?action=lista&error");
         }
     }
 }
