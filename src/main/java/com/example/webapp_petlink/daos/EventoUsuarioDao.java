@@ -297,6 +297,46 @@ public class EventoUsuarioDao extends DaoBase{
         return false;
     }
 
+    public boolean verificarTraslape(int idUsuario, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        String query = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM InscripcionEventoBenefico ie
+                INNER JOIN PublicacionEventoBenefico pe ON ie.id_evento_benefico = pe.id_publicacion_evento_benefico
+                WHERE ie.id_usuario_final = ?
+                AND pe.es_evento_activo = 1
+                AND (
+                    (? BETWEEN pe.fecha_hora_inicio_evento AND pe.fecha_hora_fin_evento) OR
+                    (? BETWEEN pe.fecha_hora_inicio_evento AND pe.fecha_hora_fin_evento) OR
+                    (pe.fecha_hora_inicio_evento BETWEEN ? AND ?) OR
+                    (pe.fecha_hora_fin_evento BETWEEN ? AND ?)
+                )
+            )
+        """;
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, idUsuario);
+            statement.setTimestamp(2, Timestamp.valueOf(fechaInicio));
+            statement.setTimestamp(3, Timestamp.valueOf(fechaFin));
+            statement.setTimestamp(4, Timestamp.valueOf(fechaInicio));
+            statement.setTimestamp(5, Timestamp.valueOf(fechaFin));
+            statement.setTimestamp(6, Timestamp.valueOf(fechaInicio));
+            statement.setTimestamp(7, Timestamp.valueOf(fechaFin));
+
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean(1); // Retorna true si hay traslape
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false; // Si ocurre un error o no hay traslape
+    }
+
     // PARA ALBERGUE
 
     //Método para obtener los datos del albergue
