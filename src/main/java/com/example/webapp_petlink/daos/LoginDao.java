@@ -42,7 +42,7 @@ public class LoginDao extends DaoBase{
         return usuario;
     }
 
-    public static String hashString(String input, String algorithm) {
+    public String hashString(String input, String algorithm) {
         try {
             // Create MessageDigest instance for the specified algorithm
             MessageDigest digest = MessageDigest.getInstance(algorithm);
