@@ -3,6 +3,7 @@ package com.example.webapp_petlink.daos;
 import com.example.webapp_petlink.beans.*;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class EventoUsuarioDao extends DaoBase{
