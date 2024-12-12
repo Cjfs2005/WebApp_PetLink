@@ -41,14 +41,10 @@ public class EventoUsuarioServlet extends HttpServlet {
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-        if (usuario == null) {
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
-            return;
-        }
+        Usuario datosUsuario = usuario;
 
         int idUsuario = usuario.getId_usuario();
 
-        Usuario datosUsuario = dao.obtenerDatoUsuario(idUsuario);
         session.setAttribute("datosUsuario", datosUsuario);
 
         try {
@@ -149,8 +145,7 @@ public class EventoUsuarioServlet extends HttpServlet {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ocurrió un error en el servidor");
+            response.sendRedirect("EventoUsuarioServlet?action=lista");
         }
     }
 
@@ -192,8 +187,7 @@ public class EventoUsuarioServlet extends HttpServlet {
             }
         }
         catch (Exception e){
-            e.printStackTrace(); // Para depuración
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ocurrió un error en el servidor");
+            response.sendRedirect("EventoUsuarioServlet?action=lista");
         }
     }
 }

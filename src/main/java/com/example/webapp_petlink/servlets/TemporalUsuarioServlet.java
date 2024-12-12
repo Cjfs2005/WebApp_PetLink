@@ -27,14 +27,17 @@ public class TemporalUsuarioServlet extends HttpServlet {
         String action = request.getParameter("action") == null ? "listar" : request.getParameter("action");
         HogarTemporalDao hogarTemporalDao = new HogarTemporalDao();
         RequestDispatcher view;
+        Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        int idUsuario = usuario.getId_usuario();
         try{
-            Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
-            int idUsuario = usuario.getId_usuario();
             switch (action) {
                 case "listar":
-                    try {
                         boolean esBaneado = hogarTemporalDao.isUsuarioBaneado(idUsuario);
-
+                        String correo = usuario.getCorreo_electronico();
+                        String contrasenia = usuario.getContrasenia();
+                        LoginDao loginDao = new LoginDao();
+                        usuario = loginDao.obtenerUsuario(correo, contrasenia);
+                        request.getSession().setAttribute("usuario", usuario);
                         if (usuario != null) {
 
                             // Verificar si el usuario está habilitado y tiene una última postulación
@@ -58,9 +61,6 @@ public class TemporalUsuarioServlet extends HttpServlet {
                         } else {
                             response.sendRedirect(request.getContextPath() + "/error.jsp"); // Redirigir si el usuario no existe
                         }
-                    } catch (NumberFormatException e) {
-                        response.sendRedirect(request.getContextPath() + "/error.jsp");
-                    }
                     break;
                 case "postularForm":
                     // Redirigir a formulario de nueva postulación
@@ -99,7 +99,7 @@ public class TemporalUsuarioServlet extends HttpServlet {
                     break;
             }
         } catch (Exception e){
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            response.sendRedirect("TemporalUsuarioServlet");
         }
     }
 
@@ -109,98 +109,98 @@ public class TemporalUsuarioServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action") == null ? "listar" : request.getParameter("action");
         HogarTemporalDao hogarTemporalDao = new HogarTemporalDao();
-        try{
-            Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
-            int idUsuario = usuario.getId_usuario();
-
+        Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        int idUsuario = usuario.getId_usuario();
             if ("postular".equals(action)) {
+                try{
+                    PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
+                    postulacion.setUsuario_final(usuario);
+                    postulacion.setEdad_usuario(request.getParameter("edad"));
+                    postulacion.setGenero_usuario(request.getParameter("genero"));
+                    postulacion.setCelular_usuario(request.getParameter("telefono"));
+                    postulacion.setCantidad_cuartos(request.getParameter("cuartos"));
+                    postulacion.setMetraje_vivienda(request.getParameter("metraje"));
+                    postulacion.setTiene_mascotas("1".equals(request.getParameter("tieneMascota")));
+                    postulacion.setTipo_mascotas(request.getParameter("tipoMascotas"));
+                    postulacion.setTiene_hijos("1".equals(request.getParameter("tieneHijo")));
+                    postulacion.setTiene_dependientes("2".equals(request.getParameter("viveSolo")));
+                    postulacion.setForma_trabajo("1".equals(request.getParameter("trabajaRemoto")) ? "Remoto" : "Presencial");
+                    postulacion.setNombre_persona_referencia(request.getParameter("nombreRef"));
+                    postulacion.setCelular_persona_referencia(request.getParameter("numeroRef"));
+                    postulacion.setFecha_inicio_temporal(LocalDate.parse(request.getParameter("fechaInicio")));
+                    postulacion.setFecha_fin_temporal(LocalDate.parse(request.getParameter("fechaFin")));
+                    postulacion.setFecha_hora_registro(LocalDateTime.now());
+                    postulacion.setCantidad_rechazos_consecutivos(0);
 
-                PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
-                postulacion.setUsuario_final(usuario);
-                postulacion.setEdad_usuario(request.getParameter("edad"));
-                postulacion.setGenero_usuario(request.getParameter("genero"));
-                postulacion.setCelular_usuario(request.getParameter("telefono"));
-                postulacion.setCantidad_cuartos(request.getParameter("cuartos"));
-                postulacion.setMetraje_vivienda(request.getParameter("metraje"));
-                postulacion.setTiene_mascotas("1".equals(request.getParameter("tieneMascota")));
-                postulacion.setTipo_mascotas(request.getParameter("tipoMascotas"));
-                postulacion.setTiene_hijos("1".equals(request.getParameter("tieneHijo")));
-                postulacion.setTiene_dependientes("2".equals(request.getParameter("viveSolo")));
-                postulacion.setForma_trabajo("1".equals(request.getParameter("trabajaRemoto")) ? "Remoto" : "Presencial");
-                postulacion.setNombre_persona_referencia(request.getParameter("nombreRef"));
-                postulacion.setCelular_persona_referencia(request.getParameter("numeroRef"));
-                postulacion.setFecha_inicio_temporal(LocalDate.parse(request.getParameter("fechaInicio")));
-                postulacion.setFecha_fin_temporal(LocalDate.parse(request.getParameter("fechaFin")));
-                postulacion.setFecha_hora_registro(LocalDateTime.now());
-                postulacion.setCantidad_rechazos_consecutivos(0);
+                    Estado estado = new Estado();
+                    estado.setId_estado(1); // Estado inicial: Pendiente
+                    postulacion.setEstado(estado);
+                    postulacion.setLlamo_al_postulante(false);
+                    postulacion.setFecha_visita(null);
 
-                Estado estado = new Estado();
-                estado.setId_estado(1); // Estado inicial: Pendiente
-                postulacion.setEstado(estado);
-                postulacion.setLlamo_al_postulante(false);
-                postulacion.setFecha_visita(null);
+                    hogarTemporalDao.guardarNuevaPostulacion(postulacion);
+                    hogarTemporalDao.actualizarUltimaPostulacionUsuario(postulacion.getUsuario_final());
 
-                hogarTemporalDao.guardarNuevaPostulacion(postulacion);
-                hogarTemporalDao.actualizarUltimaPostulacionUsuario(postulacion.getUsuario_final());
+                    int idUltimaPostulacion = hogarTemporalDao.obtenerIdUltimaPostulacionUsuario(idUsuario);
 
-                int idUltimaPostulacion = hogarTemporalDao.obtenerIdUltimaPostulacionUsuario(idUsuario);
-
-                for (Part filePart : request.getParts()) {
-                    if (filePart.getName().equals("archivo") && filePart.getSize() > 0) {
-                        String fileName = filePart.getSubmittedFileName();
-                        byte[] fileContent = filePart.getInputStream().readAllBytes();
-                        hogarTemporalDao.guardarFotoPostulacion(idUltimaPostulacion, fileContent, fileName);
+                    for (Part filePart : request.getParts()) {
+                        if (filePart.getName().equals("archivo") && filePart.getSize() > 0) {
+                            String fileName = filePart.getSubmittedFileName();
+                            byte[] fileContent = filePart.getInputStream().readAllBytes();
+                            hogarTemporalDao.guardarFotoPostulacion(idUltimaPostulacion, fileContent, fileName);
+                        }
                     }
-                }
-                String correo = usuario.getCorreo_electronico();
-                String contrasenia = usuario.getContrasenia();
-                LoginDao loginDao = new LoginDao();
-                usuario = loginDao.obtenerUsuario(correo, contrasenia);
-                request.getSession().setAttribute("usuario", usuario);
+                    String correo = usuario.getCorreo_electronico();
+                    String contrasenia = usuario.getContrasenia();
+                    LoginDao loginDao = new LoginDao();
+                    usuario = loginDao.obtenerUsuario(correo, contrasenia);
+                    request.getSession().setAttribute("usuario", usuario);
 
-                response.sendRedirect("TemporalUsuarioServlet");
+                    response.sendRedirect("TemporalUsuarioServlet");
+                } catch (RuntimeException e) {
+                    response.sendRedirect("TemporalUsuarioServlet?action=postularForm");
+                }
 
             } else if ("modificar".equals(action)) {
+                try{
+                    PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
+                    postulacion.setId_postulacion_hogar_temporal(Integer.parseInt(request.getParameter("id_postulacion")));
+                    postulacion.setUsuario_final(usuario);
+                    postulacion.setEdad_usuario(request.getParameter("edad"));
+                    postulacion.setGenero_usuario(request.getParameter("genero"));
+                    postulacion.setCelular_usuario(request.getParameter("telefono"));
+                    postulacion.setCantidad_cuartos(request.getParameter("cuartos"));
+                    postulacion.setMetraje_vivienda(request.getParameter("metraje"));
+                    postulacion.setTiene_mascotas("1".equals(request.getParameter("tieneMascota")));
+                    postulacion.setTipo_mascotas(request.getParameter("tipoMascotas"));
+                    postulacion.setTiene_hijos("1".equals(request.getParameter("tieneHijo")));
+                    postulacion.setTiene_dependientes("2".equals(request.getParameter("viveSolo")));
+                    postulacion.setForma_trabajo("1".equals(request.getParameter("trabajaRemoto")) ? "Remoto" : "Presencial");
+                    postulacion.setNombre_persona_referencia(request.getParameter("nombreRef"));
+                    postulacion.setCelular_persona_referencia(request.getParameter("numeroRef"));
+                    postulacion.setFecha_inicio_temporal(LocalDate.parse(request.getParameter("fechaInicio")));
+                    postulacion.setFecha_fin_temporal(LocalDate.parse(request.getParameter("fechaFin")));
+                    postulacion.setFecha_hora_registro(LocalDateTime.now());
+                    postulacion.setCantidad_rechazos_consecutivos(0);
 
-                PostulacionHogarTemporal postulacion = new PostulacionHogarTemporal();
-                postulacion.setId_postulacion_hogar_temporal(Integer.parseInt(request.getParameter("id_postulacion")));
-                postulacion.setUsuario_final(usuario);
-                postulacion.setEdad_usuario(request.getParameter("edad"));
-                postulacion.setGenero_usuario(request.getParameter("genero"));
-                postulacion.setCelular_usuario(request.getParameter("telefono"));
-                postulacion.setCantidad_cuartos(request.getParameter("cuartos"));
-                postulacion.setMetraje_vivienda(request.getParameter("metraje"));
-                postulacion.setTiene_mascotas("1".equals(request.getParameter("tieneMascota")));
-                postulacion.setTipo_mascotas(request.getParameter("tipoMascotas"));
-                postulacion.setTiene_hijos("1".equals(request.getParameter("tieneHijo")));
-                postulacion.setTiene_dependientes("2".equals(request.getParameter("viveSolo")));
-                postulacion.setForma_trabajo("1".equals(request.getParameter("trabajaRemoto")) ? "Remoto" : "Presencial");
-                postulacion.setNombre_persona_referencia(request.getParameter("nombreRef"));
-                postulacion.setCelular_persona_referencia(request.getParameter("numeroRef"));
-                postulacion.setFecha_inicio_temporal(LocalDate.parse(request.getParameter("fechaInicio")));
-                postulacion.setFecha_fin_temporal(LocalDate.parse(request.getParameter("fechaFin")));
-                postulacion.setFecha_hora_registro(LocalDateTime.now());
-                postulacion.setCantidad_rechazos_consecutivos(0);
+                    Estado estado = new Estado();
+                    estado.setId_estado(1); // Estado inicial: Pendiente
+                    postulacion.setEstado(estado);
+                    postulacion.setLlamo_al_postulante(false);
+                    postulacion.setFecha_visita(null);
 
-                Estado estado = new Estado();
-                estado.setId_estado(1); // Estado inicial: Pendiente
-                postulacion.setEstado(estado);
-                postulacion.setLlamo_al_postulante(false);
-                postulacion.setFecha_visita(null);
+                    hogarTemporalDao.modificarPostulacion(postulacion);
 
-                hogarTemporalDao.modificarPostulacion(postulacion);
+                    String correo = usuario.getCorreo_electronico();
+                    String contrasenia = usuario.getContrasenia();
+                    LoginDao loginDao = new LoginDao();
+                    usuario = loginDao.obtenerUsuario(correo, contrasenia);
+                    request.getSession().setAttribute("usuario", usuario);
 
-                String correo = usuario.getCorreo_electronico();
-                String contrasenia = usuario.getContrasenia();
-                LoginDao loginDao = new LoginDao();
-                usuario = loginDao.obtenerUsuario(correo, contrasenia);
-                request.getSession().setAttribute("usuario", usuario);
-
-                response.sendRedirect("TemporalUsuarioServlet");
+                    response.sendRedirect("TemporalUsuarioServlet");
+                } catch (RuntimeException e) {
+                    response.sendRedirect("TemporalUsuarioServlet?action=modificarForm");
+                }
             }
-        } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
-        }
-
     }
 }

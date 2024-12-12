@@ -22,10 +22,10 @@ public class PerfilUsuarioServlet extends HttpServlet {
         if (accion == null || accion.isEmpty()) {
             accion = "ver";
         }
-        try{
-            Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
-            int ID_usuario = usuario.getId_usuario();
+        Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        int ID_usuario = usuario.getId_usuario();
 
+        try{
             switch (accion) {
                 case "ver":
                     Usuario usuarioPerfil = usuario;
@@ -44,7 +44,7 @@ public class PerfilUsuarioServlet extends HttpServlet {
                     break;
             }
         } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            response.sendRedirect("PerfilUsuarioServlet");
         }
 
     }
@@ -53,9 +53,9 @@ public class PerfilUsuarioServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String accion = request.getParameter("accion");
+        Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
+        int idUsuario = usuario.getId_usuario();
         try{
-            Usuario usuario = (Usuario) request.getSession().getAttribute("usuario");
-            int idUsuario = usuario.getId_usuario();
             if ("actualizar".equals(accion)) {
                 String nombres = request.getParameter("nombres");
                 String apellidos = request.getParameter("apellidos");
@@ -74,7 +74,7 @@ public class PerfilUsuarioServlet extends HttpServlet {
                 response.sendRedirect("PerfilUsuarioServlet?accion=ver");
             }
         } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            response.sendRedirect("PerfilUsuarioServlet?accion=editar");
         }
 
     }

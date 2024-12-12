@@ -43,12 +43,11 @@
                 <img src="<%=request.getContextPath()%>/usuarioFinal/images/eventos.png" class="icons">
                 <h1 class="logo"><strong>EVENTOS BENÉFICOS</strong></h1>
 
-                <!-- Sección para el nombre y enlace al perfil -->
-                <a href="<%=request.getContextPath()%>/usuarioFinal/perfil_usuario.html" class="user-profile">
-                    <% if (usuario.getFoto_perfil() != null) {%>
-                    <span class="ocultar"><%=nombreUsuario + " " + apellidoUsuario%></span> <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;"></img>
-                    <% } else {%>
-                    <span class="ocultar"><%=nombreUsuario + " " + apellidoUsuario%></span> <img src="<%=request.getContextPath()%>/albergue/images/sin_perfil.png" alt="<%=usuario.getFoto_perfil()%>" style="border-radius: 100%; height: 45px; width: 45px;object-fit: cover;">
+                <a href="<%=request.getContextPath()%>/PerfilUsuarioServlet?accion=ver" class="user-profile">
+                    <span class="ocultar"><%= usuario.getNombres_usuario_final() %> <%= usuario.getApellidos_usuario_final() %></span>
+                    <% if (!fotoPerfilBase64.isEmpty()) { %>
+                    <img src="data:image/png;base64,<%= fotoPerfilBase64 %>" alt="Foto de perfil"
+                         style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
                     <% } %>
                 </a>
             </header>
