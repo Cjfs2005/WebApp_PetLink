@@ -22,10 +22,11 @@
   }
   else {
     fotoPerfilBase64 = "../../albergue/images/sin_perfil.png";
-}
+  }
 
   boolean hayVacantes = (evento.getAforoEvento() - evento.getCantAsistentes()) > 0;
   boolean estaInscrito = (boolean) request.getAttribute("usuarioInscrito");
+  boolean hayTraslape = (boolean) request.getAttribute("hayTraslape");
 %>
 <!DOCTYPE HTML>
 <html>
@@ -120,24 +121,37 @@
             <div class="col-12">
               <ul class="actions form-buttons">
 
-                <% if (hayVacantes) { %>
                 <% if (estaInscrito) { %>
                 <li>
-                  <button class="button big" disabled style="background-color: #b0b0b0; color:#ffffff; cursor: not-allowed;">Usted ya está inscrito</button>
+                  <button class="button big" disabled style="background-color: #b0b0b0; color:#ffffff; cursor: not-allowed;">
+                    Usted ya está inscrito
+                  </button>
+                </li>
+                <% } else { %>
+                <% if (hayVacantes) { %>
+                <% if (hayTraslape) { %>
+                <li>
+                  <button class="button big" disabled style="background-color: #b0b0b0; color:#ffffff; cursor: not-allowed;">
+                    Coincide con evento inscrito
+                  </button>
                 </li>
                 <% } else { %>
                 <li>
-                  <a href="#" id="openModal"
-                     class="button primary big">
+                  <a href="#" id="openModal" class="button primary big">
                     Inscribirme
                   </a>
                 </li>
                 <% } %>
                 <% } else { %>
                 <li>
-                  <button class="button big" disabled style="background-color: grey; cursor: not-allowed;">No hay vacantes disponibles</button>
+                  <button class="button big" disabled style="background-color: grey; cursor: not-allowed;">
+                    No hay vacantes disponibles
+                  </button>
                 </li>
                 <% } %>
+                <% } %>
+
+
                 <li><a href="<%=request.getContextPath()%>/EventoUsuarioServlet" class="button big" >Regresar</a></li>
               </ul>
             </div>
@@ -147,12 +161,12 @@
     </div>
   </div>
 
-    <jsp:include page="navbar.jsp">
-        <jsp:param name="idUsuario" value="<%= usuario.getId_usuario() %>" />
-        <jsp:param name="nombresUsuario" value="<%= usuario.getNombres_usuario_final() %>" />
-        <jsp:param name="apellidosUsuario" value="<%= usuario.getApellidos_usuario_final() %>" />
-        <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />
-    </jsp:include>
+  <jsp:include page="navbar.jsp">
+    <jsp:param name="idUsuario" value="<%= usuario.getId_usuario() %>" />
+    <jsp:param name="nombresUsuario" value="<%= usuario.getNombres_usuario_final() %>" />
+    <jsp:param name="apellidosUsuario" value="<%= usuario.getApellidos_usuario_final() %>" />
+    <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />
+  </jsp:include>
 
 </div>
 
