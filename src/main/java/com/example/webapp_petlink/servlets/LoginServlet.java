@@ -43,7 +43,7 @@ public class LoginServlet extends HttpServlet {
 
                     switch (rol) {
                         case "Administrador":
-                            response.sendRedirect(request.getContextPath() + "/administrador/eventos.jsp");
+                            response.sendRedirect(request.getContextPath() + "/ListasAdminServlet");
                             break;
                         case "Albergue":
                             response.sendRedirect(request.getContextPath() + "/AdopcionesAlbergueServlet");
