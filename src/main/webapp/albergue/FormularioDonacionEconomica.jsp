@@ -58,7 +58,7 @@
                     </header>
 
                     <!-- Formulario -->
-                    <form action="<%= request.getContextPath()%>/ListaSolicitudesDonacionEconomica?action=crear" method="post">
+                    <form action="<%= request.getContextPath()%>/DonacionEconomicaServlet?action=crear" method="post">
                         <!-- Campo oculto para el ID del estado -->
                         <input type="hidden" name="idEstado" value="1" />
 
@@ -87,7 +87,7 @@
                             <div class="col-12">
                                 <ul class="actions form-buttons">
                                     <li><button type="submit" class="button primary big">Publicar</button></li>
-                                    <li><a href="<%= request.getContextPath()%>/ListaSolicitudesDonacionEconomica?action=listar" class="button big">Cancelar</a></li>
+                                    <li><a href="<%= request.getContextPath()%>/DonacionEconomicaServlet?action=listar" class="button big">Cancelar</a></li>
                                 </ul>
                             </div>
                         </div>
