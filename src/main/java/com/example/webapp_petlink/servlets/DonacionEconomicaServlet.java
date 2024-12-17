@@ -1,7 +1,9 @@
 package com.example.webapp_petlink.servlets;
 
 import com.example.webapp_petlink.beans.*;
-import com.example.webapp_petlink.daos.DonacionProductos;
+import com.example.webapp_petlink.daos.DonacionEconomicaDao;
+import com.example.webapp_petlink.daos.EventoUsuarioDao;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,55 +13,52 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.sql.SQLException;
+import java.util.Base64;
 import java.util.List;
 
-@WebServlet(name = "DonacionProductosServlet", value = "/DonacionProductosServlet")
-public class DonacionProductosServlet extends HttpServlet {
-    private final DonacionProductos donacionProductosDao = new DonacionProductos();
+@WebServlet(name = "DonacionEconomicaServlet", value = "/DonacionEconomicaServlet")
+public class DonacionEconomicaServlet extends HttpServlet {
+    private final DonacionEconomicaDao donacionEconomicaDao = new DonacionEconomicaDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
         HttpSession session = request.getSession();
-
-        // Obtener ID del usuario/albergue desde la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
+
         if (usuario == null) {
             response.sendRedirect(request.getContextPath() + "/index.jsp");
             return;
         }
-        Integer idAlbergue = usuario.getId_usuario();
 
+        System.out.println("estamos en el servlet con un user");
 
-        // Obtener los datos del usuario/albergue y almacenarlos en sesión
-        Usuario datosAlbergue = donacionProductosDao.obtenerDatosAlbergue(idAlbergue);
+        EventoUsuarioDao daoEvento = new EventoUsuarioDao();
+        Usuario datosAlbergue = daoEvento.obtenerDatosAlbergue(usuario.getId_usuario());
         session.setAttribute("datosUsuario", datosAlbergue);
 
-        if (action == null) action = "listar"; // Valor por defecto
+        String action = request.getParameter("action");
+        if (action == null) action = "listar";
 
         try {
             switch (action) {
                 case "listar":
-                    listarSolicitudes(idAlbergue, request, response);
+                    listarSolicitudes(usuario.getId_usuario(), request, response);
                     break;
-                case "crear":
-                    mostrarFormularioCreacion(idAlbergue, request, response);
-                    break;
-                case "eliminar":
-                    eliminarSolicitud(request, response);
+                case "modificar":
+                    modificarSolicitud(request, response);
                     break;
                 case "verDetalles":
                     verDetalles(request, response);
                     break;
-                case "modificar":
-                    mostrarFormularioModificacion(idAlbergue, request, response);
+                case "mostrar":
+                    mostrarFormularioCreacion(request, response);
+                    break;
+                case "eliminar":
+                    eliminarSolicitud(request, response);
                     break;
                 default:
-                    listarSolicitudes(idAlbergue, request, response);
-                    break;
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción GET no válida");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -67,117 +66,146 @@ public class DonacionProductosServlet extends HttpServlet {
         }
     }
 
-    private void listarSolicitudes(int idAlbergue, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<SolicitudDonacionProductos> solicitudes = donacionProductosDao.obtenerSolicitudesActivas(idAlbergue);
-        request.setAttribute("solicitudes", solicitudes);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/DonacionProductos.jsp");
-        dispatcher.forward(request, response);
-    }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-    private void mostrarFormularioCreacion(int idAlbergue, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        List<PuntoAcopio> puntosAcopio = donacionProductosDao.obtenerPuntosAcopioPorAlbergue(idAlbergue);
-        request.setAttribute("puntosAcopio", puntosAcopio);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/crearDonacionProductos.jsp");
-        dispatcher.forward(request, response);
-    }
+        if (usuario == null) {
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            return;
+        }
 
-    private void mostrarFormularioModificacion(int idAlbergue, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if (action == null) action = "crear";
+
         try {
-            int idSolicitud = Integer.parseInt(request.getParameter("id"));
-            SolicitudDonacionProductos solicitud = donacionProductosDao.obtenerDetallesPorId(idSolicitud);
-
-            if (solicitud != null) {
-                // Asegurarse de que horarioRecepcion no sea nulo
-                if (solicitud.getHorarioRecepcion() == null) {
-                    solicitud.setHorarioRecepcion(new HorarioRecepcionDonacion());
-                }
-
-                List<PuntoAcopio> puntosAcopio = donacionProductosDao.obtenerPuntosAcopioPorAlbergue(idAlbergue);
-
-                request.setAttribute("solicitud", solicitud);
-                request.setAttribute("puntosAcopio", puntosAcopio);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/modificarDonacionProductos.jsp");
-                dispatcher.forward(request, response);
-            } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "No se encontró la solicitud.");
+            switch (action) {
+                case "crear":
+                    crearSolicitud(usuario, request, response);
+                    break;
+                case "actualizar":
+                    actualizarSolicitud(request, response);
+                    break;
+                default:
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Acción POST no válida");
             }
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de solicitud inválido.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al procesar la solicitud.");
         }
     }
 
-    private void verDetalles(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void listarSolicitudes(int idUsuarioAlbergue, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        List<SolicitudDonacionEconomica> solicitudes = donacionEconomicaDao.obtenerSolicitudesActivas(idUsuarioAlbergue);
+        request.setAttribute("solicitudes", solicitudes);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/DonacionEconomica.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void mostrarFormularioCreacion(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/FormularioDonacionEconomica.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    private void crearSolicitud(Usuario usuario, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         try {
-            int idSolicitud = Integer.parseInt(request.getParameter("id"));
-            SolicitudDonacionProductos solicitud = donacionProductosDao.obtenerDetallesPorId(idSolicitud);
-            List<RegistroDonacionProductos> donantes = donacionProductosDao.obtenerDetallesDonacionesPorSolicitud(idSolicitud);
+            int monto = Integer.parseInt(request.getParameter("monto"));
+            System.out.println("EL ID ES " + monto);
+            String motivo = request.getParameter("motivo");
 
-            request.setAttribute("solicitud", solicitud);
-            request.setAttribute("donantes", donantes);
+            SolicitudDonacionEconomica solicitud = new SolicitudDonacionEconomica();
+            solicitud.setMonto_solicitado(monto);
+            solicitud.setMotivo(motivo);
+            solicitud.setEs_solicitud_activa(true);
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/DetallesDonacionProductos.jsp");
-            dispatcher.forward(request, response);
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de solicitud inválido.");
+            Estado estado = new Estado();
+            estado.setId_estado(2);
+            solicitud.setEstado(estado);
+            solicitud.setUsuario_albergue(usuario);
+
+            donacionEconomicaDao.crearSolicitudEconomica(solicitud);
+
+            response.sendRedirect("DonacionEconomicaServlet?action=listar");
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error al crear la solicitud.");
         }
     }
 
     private void eliminarSolicitud(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             int idSolicitud = Integer.parseInt(request.getParameter("id"));
-            donacionProductosDao.eliminarSolicitudLogica(idSolicitud);
-            response.sendRedirect("DonacionProductosServlet?action=listar");
+            donacionEconomicaDao.eliminarSolicitudLogica(idSolicitud);
+            response.sendRedirect("DonacionEconomicaServlet?action=listar");
         } catch (Exception e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al eliminar la solicitud.");
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+    private void verDetalles(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            if ("publicar".equals(action)) {
-                publicarSolicitud(request, response);
-            } else if ("actualizar".equals(action)) {
-                actualizarSolicitud(request, response);
+            int idSolicitud = Integer.parseInt(request.getParameter("id"));
+            SolicitudDonacionEconomica solicitud = donacionEconomicaDao.obtenerDetallesPorId(idSolicitud);
+            //Para registrar en la tabla los donantes
+            List<RegistroDonacionEconomica> donantes = donacionEconomicaDao.obtenerRegistrosDonacionPorSolicitud(idSolicitud);
+
+            if (solicitud != null) {
+                request.setAttribute("solicitud", solicitud);
+                request.setAttribute("donantes", donantes); // Lista de donantes
+
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/detalles_don_economica.jsp");
+                dispatcher.forward(request, response);
+            } else {
+                response.sendRedirect("DonacionEconomicaServlet?action=listar");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al procesar la solicitud.");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al obtener los detalles.");
         }
     }
 
-    private void publicarSolicitud(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        HttpSession session = request.getSession();
-        Integer idAlbergue = (Integer) session.getAttribute("usuario");
-
-        // Crear solicitud y asociar albergue
-        SolicitudDonacionProductos solicitud = new SolicitudDonacionProductos();
-        solicitud.setDescripcionDonaciones(request.getParameter("descripcion"));
-        solicitud.setEsSolicitudActiva(true);
-
-        Usuario usuarioAlbergue = new Usuario();
-        usuarioAlbergue.setId_usuario(idAlbergue);
-        solicitud.setUsuarioAlbergue(usuarioAlbergue);
-
-        response.sendRedirect("DonacionProductosServlet?action=listar");
+    private void modificarSolicitud(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            int idSolicitud = Integer.parseInt(request.getParameter("id"));
+            System.out.println("EL ID ES " + idSolicitud);
+            SolicitudDonacionEconomica solicitud = donacionEconomicaDao.obtenerDetallesPorId(idSolicitud);
+            if (solicitud != null) {
+                System.out.println("HOLAAAAAAAAAA ESTMOS MODIFICANDO");
+                request.setAttribute("solicitud", solicitud);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("/albergue/modificarDonacionEconomica.jsp");
+                dispatcher.forward(request, response);
+            } else {
+                response.sendRedirect("DonacionEconomicaServlet?action=listar");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al cargar la solicitud para modificar.");
+        }
     }
 
     private void actualizarSolicitud(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
-            int idSolicitud = Integer.parseInt(request.getParameter("id"));
-            String descripcion = request.getParameter("descripcion");
+            int idSolicitud = Integer.parseInt(request.getParameter("idSolicitud"));
+            int monto = Integer.parseInt(request.getParameter("monto"));
+            String motivo = request.getParameter("motivo");
 
-            SolicitudDonacionProductos solicitud = new SolicitudDonacionProductos();
-            solicitud.setIdSolicitudDonacionProductos(idSolicitud);
-            solicitud.setDescripcionDonaciones(descripcion);
+            SolicitudDonacionEconomica solicitud = new SolicitudDonacionEconomica();
+            solicitud.setId_solicitud_donacion_economica(idSolicitud);
+            solicitud.setMonto_solicitado(monto);
+            solicitud.setMotivo(motivo);
 
-            donacionProductosDao.modificarSolicitudCompleta(solicitud);
-            response.sendRedirect("DonacionProductosServlet?action=listar");
+            donacionEconomicaDao.actualizarSolicitud(solicitud);
+
+            response.sendRedirect("DonacionEconomicaServlet?action=listar&mensaje=actualizado");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error al actualizar la solicitud.");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error al actualizar la solicitud.");
         }
     }
 }
