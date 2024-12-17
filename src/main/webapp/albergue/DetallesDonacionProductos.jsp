@@ -101,6 +101,7 @@
                 <th>Productos a donar</th>
               </tr>
               </thead>
+              <tbody>
               <% if (donantes != null && !donantes.isEmpty()) { %>
               <% for (RegistroDonacionProductos donante : donantes) { %>
               <tr>
@@ -139,14 +140,14 @@
               <ul class="actions form-buttons">
                 <li>
                   <!-- Botón Modificar -->
-                  <a href="ListaSolicitudesDonacionProductos?action=modificar&id=<%= solicitud.getIdSolicitudDonacionProductos() %>"
+                  <a href="DonacionProductosServlet?action=modificar&id=<%= solicitud.getIdSolicitudDonacionProductos() %>"
                      class="button primary big">
                     Modificar
                   </a>
                 </li>
                 <li>
                   <!-- Botón Eliminar con funcionalidad para desactivar la solicitud -->
-                  <a href="ListaSolicitudesDonacionProductos?action=eliminar&id=<%= solicitud.getIdSolicitudDonacionProductos() %>"
+                  <a href="DonacionProductosServlet?action=eliminar&id=<%= solicitud.getIdSolicitudDonacionProductos() %>"
                      class="button big"
                      onclick="return confirm('¿Está seguro de que desea eliminar esta solicitud?');">
                     Eliminar
