@@ -4,6 +4,12 @@
 <%@ page import="java.util.Base64" %>
 <%
   // Obtener la solicitud desde el request
+  Usuario albergue = (Usuario) session.getAttribute("datosUsuario");
+  String nombreUsuario = albergue.getNombre_albergue();
+  String fotoPerfilBase64 = "";
+  if (albergue.getFoto_perfil() != null) {
+    fotoPerfilBase64 = Base64.getEncoder().encodeToString(albergue.getFoto_perfil());
+  }
   SolicitudDonacionEconomica solicitud = (SolicitudDonacionEconomica) request.getAttribute("solicitud");
 %>
 <!DOCTYPE HTML>
@@ -12,10 +18,10 @@
   <title>Formulario para Donación Económica</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="assets/css/main.css" />
-  <link rel="stylesheet" href="assets/css/aditional.css">
-  <link rel="stylesheet" href="assets/css/popup-window.css">
-  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/albergue/assets/css/main.css" />
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/albergue/assets/css/aditional.css">
+  <link rel="stylesheet" href="<%=request.getContextPath()%>/albergue/assets/css/popup-window.css">
+  <link rel="icon" href="<%=request.getContextPath()%>/albergue/images/favicon.png" type="image/x-icon">
   <style>
     #charCount {
       font-size: 12px;
@@ -31,18 +37,12 @@
   <!-- Main -->
   <div id="main">
     <div class="inner">
-      <%
-        Usuario usuario = (Usuario) request.getAttribute("usuario");
-        String fotoPerfilBase64 = "";
-        if (usuario != null && usuario.getFoto_perfil() != null) {
-          fotoPerfilBase64 = Base64.getEncoder().encodeToString(usuario.getFoto_perfil());
-        }
-      %>
+
       <!-- Header -->
       <header id="header">
         <h1 class="logo"><strong>Modificar Donación Económica</strong></h1>
         <a href="<%=request.getContextPath()%>/PerfilAlbergueServlet" class="user-profile">
-          <span class="ocultar"><%= usuario.getNombre_albergue() %></span>
+          <span class="ocultar"><%= albergue.getNombre_albergue() %></span>
           <img src="<%= !fotoPerfilBase64.isEmpty() ? "data:image/png;base64," + fotoPerfilBase64 : request.getContextPath() + "/albergue/images/default_profile.png" %>"
                style="border-radius: 100%; height: 45px; width: 45px; object-fit: cover;">
         </a>
@@ -52,12 +52,12 @@
       <section class="banner">
         <div class="content">
           <header>
-            <img src="images/form.png" class="icons">
+            <img src="<%=request.getContextPath()%>/albergue/images/form.png" class="icons">
             <h2>Formulario para Donación Económica</h2>
           </header>
           <p><strong>Descripción:</strong> Complete los detalles sobre la solicitud de donación económica.</p>
 
-          <form action="ListaSolicitudesDonacionEconomica?action=actualizar" method="post">
+          <form action="DonacionEconomicaServlet?action=actualizar" method="post">
             <!-- ID de la solicitud (campo oculto) -->
             <input type="hidden" name="idSolicitud" value="<%= solicitud != null ? solicitud.getId_solicitud_donacion_economica() : "" %>" />
 
@@ -79,7 +79,7 @@
               <div class="col-12">
                 <ul class="actions form-buttons">
                   <li><button type="submit" class="button primary big">Guardar Cambios</button></li>
-                  <li><a href="<%= request.getContextPath() %>/ListaSolicitudesDonacionEconomica?action=listar" class="button big">Cancelar</a></li>
+                  <li><a href="<%= request.getContextPath() %>/DonacionEconomicaServlet?action=listar" class="button big">Cancelar</a></li>
                 </ul>
               </div>
             </div>
@@ -92,19 +92,19 @@
 
   <!-- Sidebar -->
   <jsp:include page="navbar.jsp">
-    <jsp:param name="idUsuario" value="<%= usuario.getId_usuario() %>" />
-    <jsp:param name="nombreAlbergue" value="<%= usuario.getNombre_albergue() %>" />
+    <jsp:param name="idUsuario" value="<%= albergue.getId_usuario() %>" />
+    <jsp:param name="nombreAlbergue" value="<%= albergue.getNombre_albergue() %>" />
     <jsp:param name="fotoPerfilBase64" value="<%= fotoPerfilBase64 %>" />
   </jsp:include>
 
 </div>
 
 <!-- Scripts -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/browser.min.js"></script>
-<script src="assets/js/breakpoints.min.js"></script>
-<script src="assets/js/util.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="<%=request.getContextPath()%>/albergue/assets/js/jquery.min.js"></script>
+<script src="<%=request.getContextPath()%>/albergue/assets/js/browser.min.js"></script>
+<script src="<%=request.getContextPath()%>/albergue/assets/js/breakpoints.min.js"></script>
+<script src="<%=request.getContextPath()%>/albergue/assets/js/util.js"></script>
+<script src="<%=request.getContextPath()%>/albergue/assets/js/main.js"></script>
 
 <!-- Modal -->
 <div id="modal" class="modal">
