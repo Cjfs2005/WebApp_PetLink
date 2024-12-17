@@ -10,13 +10,11 @@
     Usuario albergue = (Usuario) session.getAttribute("datosUsuario");
     String nombreUsuario = albergue.getNombre_albergue();
     String fotoPerfilBase64 = "";
-    if (albergue == null) {
-        response.sendRedirect(request.getContextPath() + "/index.jsp");
-        return;
-    }
     if (albergue.getFoto_perfil() != null) {
         fotoPerfilBase64 = Base64.getEncoder().encodeToString(albergue.getFoto_perfil());
     }
+
+    SolicitudDonacionEconomica solicitud = (SolicitudDonacionEconomica) request.getAttribute("solicitud");
 %>
 <!DOCTYPE html>
 <html>
@@ -69,23 +67,25 @@
                     </header>
 
                     <!-- Información de la Solicitud -->
-                    <p><strong>Motivo:</strong> <%= ((SolicitudDonacionEconomica) request.getAttribute("solicitud")).getMotivo() %></p>
-                    <p><strong>Monto Solicitado:</strong> S/. <%= ((SolicitudDonacionEconomica) request.getAttribute("solicitud")).getMonto_solicitado() %></p>
+                    <p><strong>Motivo:</strong> <%= solicitud.getMotivo() %></p>
+                    <p><strong>Monto Solicitado:</strong> S/. <%= solicitud.getMonto_solicitado() %></p>
 
                     <!-- Código QR -->
                     <h3>Código QR para Donaciones</h3>
                     <div class="contenedor-imagenes">
                         <%
-                            String imagenQR = (String) request.getAttribute("imagenQR");
-                            if (imagenQR != null) {
+                            String imagenQRBase64 = "";
+                            if (solicitud.getUsuario_albergue() != null && solicitud.getUsuario_albergue().getImagen_qr() != null) {
+                                imagenQRBase64 = Base64.getEncoder().encodeToString(solicitud.getUsuario_albergue().getImagen_qr());
+                            }
+                            if (!imagenQRBase64.isEmpty()) {
                         %>
-                        <img src="data:image/jpeg;base64,<%= imagenQR %>" alt="Código QR para Donaciones" />
+                        <img src="data:image/png;base64,<%= imagenQRBase64 %>" alt="Código QR">
                         <% } else { %>
                         <p>No hay código QR disponible.</p>
                         <% } %>
                     </div>
-                    <!-- Un solo modal fuera del bucle -->
-                    <!-- Un solo modal global -->
+
                     <div id="qrModal" class="modal1">
                         <div class="modal-content1">
                             <span class="close-btn">&times;</span>
@@ -94,7 +94,11 @@
                             <p id="noImageText" style="display:none;">No hay imagen disponible.</p>
                         </div>
                     </div>
-
+                    <%
+                        // Recuperar la lista de donantes desde el request
+                        List<RegistroDonacionEconomica> registrosDonacion = (List<RegistroDonacionEconomica>) request.getAttribute("donantes");
+                        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                    %>
                     <!-- Tabla de Usuarios Donantes -->
                     <h3>Lista de Usuarios Donantes</h3>
                     <div class="table-responsive">
@@ -109,8 +113,6 @@
                             </thead>
                             <tbody>
                             <%
-                                List<RegistroDonacionEconomica> registrosDonacion = (List<RegistroDonacionEconomica>) request.getAttribute("registrosDonacion");
-                                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
                                 if (registrosDonacion != null) {
                                     for (RegistroDonacionEconomica registro : registrosDonacion) {
                                         String imagenBase64 = registro.getImagenDonacionEconomica() != null
@@ -128,6 +130,12 @@
                             </tr>
                             <%
                                     }
+                                }else{
+                            %>
+                            <tr>
+                                <td colspan="4">No hay donantes registrados para esta solicitud.</td>
+                            </tr>
+                            <%
                                 }
                             %>
                             </tbody>
@@ -138,11 +146,11 @@
                         <div class="col-12">
                             <ul class="actions form-buttons">
                                 <li>
-                                    <a href="<%= request.getContextPath()%>/ListaSolicitudesDonacionEconomica?action=modificar&id=<%= ((SolicitudDonacionEconomica) request.getAttribute("solicitud")).getId_solicitud_donacion_economica() %>"
+                                    <a href="<%= request.getContextPath()%>/DonacionEconomicaServlet?action=modificar&id=<%= ((SolicitudDonacionEconomica) request.getAttribute("solicitud")).getId_solicitud_donacion_economica() %>"
                                        class="button primary big">Modificar</a>
                                 </li>
                                 <li>
-                                    <a href="<%= request.getContextPath()%>/ListaSolicitudesDonacionEconomica?action=eliminar&id=<%= ((SolicitudDonacionEconomica) request.getAttribute("solicitud")).getId_solicitud_donacion_economica() %>"
+                                    <a href="<%= request.getContextPath()%>/DonacionEconomicaServlet?action=eliminar&id=<%= ((SolicitudDonacionEconomica) request.getAttribute("solicitud")).getId_solicitud_donacion_economica() %>"
                                        class="button big" onclick="return confirm('¿Está seguro de eliminar esta solicitud?');">Eliminar</a>
                                 </li>
                             </ul>
@@ -245,12 +253,12 @@
                         new DataTable('#example', {
                             language: {
                                 sSearch: "Buscar:",
-                                sLengthMenu: "Mostrar _MENU_ registros",
+                                sLengthMenu: "Mostrar MENU registros",
                                 sZeroRecords: "No se encontraron resultados",
                                 sEmptyTable: "Ningún dato disponible en esta tabla",
-                                sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                                sInfo: "Mostrando registros del START al END de un total de TOTAL registros",
                                 sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
-                                sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+                                sInfoFiltered: "(filtrado de un total de MAX registros)",
                                 sLoadingRecords: "Cargando..."
                             }
                         });
