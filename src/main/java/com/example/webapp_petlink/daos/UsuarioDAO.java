@@ -9,7 +9,7 @@ public class UsuarioDAO extends DaoBase{
         String sql = "UPDATE Usuario SET cantidad_animales = ?, espacio_disponible = ?, " +
                 "anio_creacion = ?, id_distrito= ?, direccion = ?, descripcion_perfil=?, foto_perfil = ?,nombre_foto_perfil=?, " +
                 "foto_de_portada_albergue=?, nombre_foto_de_portada=?, direccion_donaciones=?, nombre_contacto_donaciones=?," +
-                "numero_contacto_donaciones=?, numero_yape_plin=?, imagen_qr=?, nombre_imagen_qr=?,tiene_registro_completo=1 WHERE id_usuario = ?";
+                "numero_contacto_donaciones=?, numero_yape_plin=?, imagen_qr=?, nombre_imagen_qr=?, id_zona=?, tiene_registro_completo=1 WHERE id_usuario = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -30,7 +30,8 @@ public class UsuarioDAO extends DaoBase{
             pstmt.setString(14,usuario.getNumero_yape_plin());
             pstmt.setBytes(15,usuario.getImagen_qr());
             pstmt.setString(16,usuario.getNombre_imagen_qr());
-            pstmt.setInt(17,usuario.getId_usuario());
+            pstmt.setInt(17,usuario.getZona().getId_zona());
+            pstmt.setInt(18,usuario.getId_usuario());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

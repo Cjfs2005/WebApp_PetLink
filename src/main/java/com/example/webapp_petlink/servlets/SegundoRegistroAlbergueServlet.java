@@ -2,10 +2,8 @@ package com.example.webapp_petlink.servlets;
 
 import com.example.webapp_petlink.beans.Distrito;
 import com.example.webapp_petlink.beans.Usuario;
-import com.example.webapp_petlink.daos.AdopcionesUsuarioFinalDao;
-import com.example.webapp_petlink.daos.LoginDao;
-import com.example.webapp_petlink.daos.PuntoAcopioDAO;
-import com.example.webapp_petlink.daos.UsuarioDAO;
+import com.example.webapp_petlink.beans.Zona;
+import com.example.webapp_petlink.daos.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -135,6 +133,10 @@ public class SegundoRegistroAlbergueServlet extends HttpServlet {
                 usuario.setNumero_contacto_donaciones(numeroContactoDonaciones);
                 usuario.setNumero_yape_plin(numeroYapePlin);
 
+                RegisterDao registroDao = new RegisterDao();
+                Zona zona = new Zona();
+                zona.setId_zona(registroDao.obtenerIdZona(Integer.parseInt(idDistrito)));
+                usuario.setZona(zona);
                 // Crear instancia de UsuarioDAO para actualizar la información del usuario
                 UsuarioDAO usuarioDAO = new UsuarioDAO();
                 usuarioDAO.updateUsuario(usuario);  // Actualiza el usuario en la base de datos
