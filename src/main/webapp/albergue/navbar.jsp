@@ -40,7 +40,7 @@
                     <ul>
                         <li><a href="<%=request.getContextPath()%>/EventoAlbergueServlet">Eventos benéficos</a></li>
                         <li><a href="<%=request.getContextPath()%>/AdopcionesAlbergueServlet">Adopciones</a></li>
-                        <li><a href="<%=request.getContextPath()%>/ListaSolicitudesDonacionProductos">Donaciones</a></li>
+                        <li><a href="<%=request.getContextPath()%>/DonacionEconomicaServlet">Donaciones</a></li>
                     </ul>
                 </li>
                 <li><a href="<%=request.getContextPath()%>/TemporalAlbergueServlet">Hogar Temporal</a></li>
