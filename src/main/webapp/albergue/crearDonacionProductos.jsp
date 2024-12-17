@@ -73,7 +73,7 @@
                     </header>
                     <p><strong>Descripción:</strong> Complete los detalles para registrar una nueva solicitud de donaciones de productos.</p>
 
-                    <form action="ListaSolicitudesDonacionProductos?action=publicar" method="POST">
+                    <form action="DonacionProductosServlet?action=publicar" method="POST">
                         <div class="row gtr-uniform">
 
                             <!-- Fecha de recepción -->
@@ -142,7 +142,7 @@
                             <div class="col-12">
                                 <ul class="actions form-buttons">
                                     <li><button type="submit" class="button primary big">Publicar</button></li>
-                                    <li><a href="ListaSolicitudesDonacionProductos?action=listar" class="button big">Cancelar</a></li>
+                                    <li><a href="DonacionProductosServlet?action=listar" class="button big">Cancelar</a></li>
                                 </ul>
                             </div>
                         </div>
