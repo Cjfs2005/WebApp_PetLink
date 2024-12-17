@@ -81,7 +81,7 @@
                     </header>
                     <p><strong>Descripción:</strong> Actualice los datos de la solicitud de donaciones de productos.</p>
 
-                    <form action="ListaSolicitudesDonacionProductos?action=actualizar" method="POST">
+                    <form action="DonacionProductosServlet?action=actualizar" method="POST">
                         <!-- Campo oculto con el ID de la solicitud -->
                         <input type="hidden" name="id" value="<%= solicitud != null ? solicitud.getIdSolicitudDonacionProductos() : "" %>" />
 
@@ -146,7 +146,7 @@
                             <div class="col-12">
                                 <ul class="actions form-buttons">
                                     <li><button type="submit" class="button primary big">Actualizar</button></li>
-                                    <li><a href="ListaSolicitudesDonacionProductos?action=listar" class="button big">Cancelar</a></li>
+                                    <li><a href="DonacionProductosServlet?action=listar" class="button big">Cancelar</a></li>
                                 </ul>
                             </div>
                         </div>
