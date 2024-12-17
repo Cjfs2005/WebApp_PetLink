@@ -24,13 +24,7 @@
         <nav id="menu">
             <header class="major"><h2>Menu</h2></header>
             <ul>
-                <li>
-                    <span class="opener">GESTIÓN DE PUBLICACIONES</span>
-                    <ul>
-                        <li><a href="<%=request.getContextPath()%>/GestionCoordinadorServlet">Gestión de eventos</a></li>
-                        <li><a href="mascotas_perdidas_publicaciones_dueños.html">Gestión de adopciones</a></li>
-                    </ul>
-                </li>
+                <li><a href="<%=request.getContextPath()%>/GestionCoordinadorServlet">Gestión de eventos</a></li>
                 <li><a href="<%=request.getContextPath()%>/CoordinadorZonalHogarTemporalServlet">Postulantes a hogar temporal</a></li>
                 <li>
                     <span class="opener">Baneo de usuarios</span>
