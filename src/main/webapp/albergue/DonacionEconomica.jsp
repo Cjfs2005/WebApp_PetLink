@@ -1,4 +1,5 @@
 <%@ page import="java.time.LocalDateTime" %>
+<%@ page import="java.time.LocalDateTime" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.webapp_petlink.beans.SolicitudDonacionEconomica" %>
@@ -9,10 +10,7 @@
 <%
     // Validar si el usuario está logueado
     Usuario albergue = (Usuario) session.getAttribute("datosUsuario");
-    if (albergue == null) {
-        response.sendRedirect(request.getContextPath() + "/index.jsp");
-        return;
-    }
+    System.out.println("ESTAMOS EN EL ALBERGUE " + albergue.getNombre_albergue());
 
     String nombreUsuario = albergue.getNombre_albergue();
     String fotoPerfilBase64 = "";
@@ -68,7 +66,7 @@
             <section style="margin: 0; margin-top: 20px; padding: 0; height: auto; display: flex; align-items: center;">
                 <ul class="actions" style="list-style: none; margin: 0; padding: 0;">
                     <li style="display: inline; padding-left: 0;">
-                        <a href="ListaSolicitudesDonacionEconomica?action=mostrar" class="button primary big" style="float: left; margin: 0;">
+                        <a href="DonacionEconomicaServlet?action=mostrar" class="button primary big" style="float: left; margin: 0;">
                             Publicar aviso
                         </a>
                     </li>
@@ -77,8 +75,8 @@
 
             <!-- Enlaces -->
             <section class="seccionPrueba" style="background-color: transparent !important; flex-wrap: wrap; gap:20px; justify-content: space-evenly;">
-                <a href="ListaSolicitudesDonacionEconomica?action=listar"><strong>Colectas de fondos</strong></a>
-                <a href="ListaSolicitudesDonacionProductos?action=listar">Colectas de productos</a>
+                <a href="DonacionEconomicaServlet?action=listar"><strong>Colectas de fondos</strong></a>
+                <a href="<%= request.getContextPath() %>/DonacionProductosServlet">Colectas de productos</a>
             </section>
 
             <!-- Tabla -->
@@ -118,14 +116,14 @@
                                 <td>
                                     <ul class="icons">
                                         <li>
-                                            <a href="ListaSolicitudesDonacionEconomica?action=verDetalles&id=<%= solicitud.getId_solicitud_donacion_economica() %>"
+                                            <a href="DonacionEconomicaServlet?action=verDetalles&id=<%= solicitud.getId_solicitud_donacion_economica() %>"
                                                class="icon fas fa-eye"
                                                title="Ver detalles">
                                                 <span class="label">Ver</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="ListaSolicitudesDonacionEconomica?action=eliminar&id=<%= solicitud.getId_solicitud_donacion_economica() %>"
+                                            <a href="DonacionEconomicaServlet?action=eliminar&id=<%= solicitud.getId_solicitud_donacion_economica() %>"
                                                class="icon fas fa-trash-alt"
                                                title="Eliminar solicitud"
                                                onclick="return confirm('¿Está seguro de que desea eliminar esta solicitud?');">
@@ -142,12 +140,12 @@
                             new DataTable('#example', {
                                 language: {
                                     sSearch: "Buscar:",
-                                    sLengthMenu: "Mostrar _MENU_ registros",
+                                    sLengthMenu: "Mostrar MENU registros",
                                     sZeroRecords: "No se encontraron resultados",
                                     sEmptyTable: "Ningún dato disponible en esta tabla",
-                                    sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                                    sInfo: "Mostrando registros del START al END de un total de TOTAL registros",
                                     sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
-                                    sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+                                    sInfoFiltered: "(filtrado de un total de MAX registros)",
                                     sLoadingRecords: "Cargando...",
                                 }
                             });
@@ -167,7 +165,6 @@
     </jsp:include>
 </div>
 
-<!-- Scripts -->
 <script src="<%=request.getContextPath()%>/albergue/assets/js/jquery.min.js"></script>
 <script src="<%=request.getContextPath()%>/albergue/assets/js/browser.min.js"></script>
 <script src="<%=request.getContextPath()%>/albergue/assets/js/breakpoints.min.js"></script>
