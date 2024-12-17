@@ -159,18 +159,21 @@ public class DonacionEconomicaDao extends DaoBase {
         }
     }
 
+
+
     public List<RegistroDonacionEconomica> obtenerRegistrosDonacionPorSolicitud(int idSolicitud) throws SQLException {
         List<RegistroDonacionEconomica> registros = new ArrayList<>();
 
         String sql = "SELECT rde.id_registro_donacion_economica, rde.monto_donacion, rde.fecha_hora_registro, " +
                 "rde.imagen_donacion_economica, rde.nombre_imagen_donacion_economica, " +
-                "u.id_usuario, u.nombres_usuario_final, u.apellidos_usuario_final " +
+                "u.id_usuario AS id_donante, u.nombres_usuario_final, u.apellidos_usuario_final " +
                 "FROM RegistroDonacionEconomica rde " +
                 "JOIN Usuario u ON u.id_usuario = rde.id_usuario_final " +
                 "WHERE rde.id_solicitud_donacion_economica = ? " +
                 "ORDER BY rde.fecha_hora_registro DESC";
 
-        System.out.println("[DEBUG DAO] Ejecutando obtenerRegistrosDonacionPorSolicitud con ID solicitud: " + idSolicitud);
+        System.out.println("[DEBUG DAO] Iniciando método obtenerRegistrosDonacionPorSolicitud");
+        System.out.println("[DEBUG DAO] ID de solicitud recibida: " + idSolicitud);
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -180,48 +183,43 @@ public class DonacionEconomicaDao extends DaoBase {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    // Crear un objeto RegistroDonacionEconomica
                     RegistroDonacionEconomica registro = new RegistroDonacionEconomica();
 
-                    // ID del registro
+                    // Asignar datos del registro
                     registro.setIdRegistroDonacionEconomica(rs.getInt("id_registro_donacion_economica"));
                     registro.setMontoDonacion(rs.getInt("monto_donacion"));
                     registro.setFechaHoraRegistro(rs.getTimestamp("fecha_hora_registro").toLocalDateTime());
 
-                    // Imagen de donación
                     byte[] imagenDonacion = rs.getBytes("imagen_donacion_economica");
-                    String nombreImagen = rs.getString("nombre_imagen_donacion_economica");
                     registro.setImagenDonacionEconomica(imagenDonacion);
-                    registro.setNombreImagenDonacionEconomica(nombreImagen);
+                    registro.setNombreImagenDonacionEconomica(rs.getString("nombre_imagen_donacion_economica"));
 
-                    System.out.println("[DEBUG DAO] Imagen Donación: " + (imagenDonacion != null ? "Presente (tamaño: " + imagenDonacion.length + ")" : "No disponible") +
-                            ", Nombre: " + nombreImagen);
+                    // Crear un objeto Usuario para el donante
+                    Usuario donante = new Usuario();
+                    donante.setId_usuario(rs.getInt("id_donante"));
+                    donante.setNombres_usuario_final(rs.getString("nombres_usuario_final"));
+                    donante.setApellidos_usuario_final(rs.getString("apellidos_usuario_final"));
 
-                    // Datos del usuario donante
-                    Usuario usuario = new Usuario();
-                    usuario.setId_usuario(rs.getInt("id_usuario"));
-                    usuario.setNombres_usuario_final(rs.getString("nombres_usuario_final"));
-                    usuario.setApellidos_usuario_final(rs.getString("apellidos_usuario_final"));
-                    registro.setUsuarioFinal(usuario);
+                    // Debug para asegurarnos de que los datos sean correctos
+                    System.out.println("[DEBUG DAO] Donante - ID: " + donante.getId_usuario() +
+                            ", Nombre: " + donante.getNombres_usuario_final() +
+                            ", Apellido: " + donante.getApellidos_usuario_final());
 
+                    // Asignar el donante al registro
+                    registro.setUsuarioFinal(donante);
+
+                    // Agregar el registro completo a la lista
                     registros.add(registro);
                 }
-
                 System.out.println("[DEBUG DAO] Total de registros encontrados: " + registros.size());
             }
         } catch (SQLException e) {
             System.err.println("[ERROR DAO] Error al obtener registros de donación: " + e.getMessage());
             throw e;
         }
-
         return registros;
     }
-
-
-
-
-
-
-
 
 
     public void actualizarSolicitud(SolicitudDonacionEconomica solicitud) throws SQLException {
